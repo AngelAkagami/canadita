@@ -1,0 +1,79 @@
+---
+import { menuSugerencias } from '../data/menu';
+---
+
+<section id="menu" class="scroll-mt-20 bg-beige py-20 md:py-28" aria-labelledby="titulo-menu">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="antetitulo mb-3 text-verde-suave">Menú</p>
+      <h2 id="titulo-menu" class="text-4xl text-verde sm:text-5xl">Sugerencias del chef</h2>
+      <p class="mt-5 text-[0.98rem] leading-relaxed text-tinta/80">
+        Cocina mexicana contemporánea con platillos elaborados al momento. Explora la carta por
+        categorías.
+      </p>
+    </div>
+
+    <!-- Navegación por categorías -->
+    <nav aria-label="Categorías del menú" class="mt-12 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <ul class="sin-barra flex snap-x gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-center sm:overflow-visible">
+        {
+          menuSugerencias.map((categoria) => (
+            <li class="snap-start">
+              <a
+                href={`#${categoria.id}`}
+                class="inline-block whitespace-nowrap border border-verde/25 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-verde transition-colors hover:bg-verde hover:text-marfil"
+              >
+                {categoria.nombre}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Carta -->
+    <div class="mt-16 space-y-16">
+      {
+        menuSugerencias.map((categoria) => (
+          <section id={categoria.id} aria-labelledby={`cat-${categoria.id}`} class="scroll-mt-24">
+            <div class="mb-9 flex items-baseline gap-4 border-b border-verde/20 pb-4">
+              <h3 id={`cat-${categoria.id}`} class="text-3xl text-verde">
+                {categoria.nombre}
+              </h3>
+              <span class="leader hidden sm:block" aria-hidden="true" />
+              <span class="hidden text-xs uppercase tracking-[0.16em] text-tinta/85 sm:block">
+                {categoria.platillos.length} platillos
+              </span>
+            </div>
+
+            <ul class="grid gap-x-14 gap-y-9 md:grid-cols-2">
+              {categoria.platillos.map((plato) => (
+                <li class="border-b border-verde/10 pb-6">
+                  <article>
+                    <div class="flex items-baseline text-verde">
+                      <h4 class="font-display text-[1.35rem] leading-tight">{plato.nombre}</h4>
+                      <span class="leader" aria-hidden="true" />
+                      <span class="font-semibold tabular-nums text-verde-suave">{plato.precio}</span>
+                    </div>
+                    {plato.nota && (
+                      <p class="mt-1.5 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-tinta/75">
+                        {plato.nota}
+                      </p>
+                    )}
+                    {plato.descripcion && (
+                      <p class="mt-2.5 text-sm leading-relaxed text-tinta/80">{plato.descripcion}</p>
+                    )}
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+
+    <p class="mt-14 border-t border-verde/15 pt-6 text-center text-xs uppercase tracking-[0.14em] text-tinta/75">
+      Precios en pesos mexicanos · Información tomada de la carta oficial
+    </p>
+  </div>
+</section>

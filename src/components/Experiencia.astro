@@ -1,0 +1,55 @@
+---
+import Imagen from './Imagen.astro';
+import Ornamento from './Ornamento.astro';
+import { horarios } from '../data/site';
+---
+
+<section id="experiencia" class="scroll-mt-20 bg-marfil py-20 md:py-28" aria-labelledby="titulo-experiencia">
+  <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
+    <div>
+      <Ornamento variante="oscuro" class="mb-6 h-10 w-10" />
+      <p class="antetitulo mb-4 text-verde-suave">Nuestra experiencia</p>
+      <h2 id="titulo-experiencia" class="text-4xl text-verde sm:text-5xl">
+        Un espacio donde la tradición se sirve <em class="font-normal italic">con una mirada actual.</em>
+      </h2>
+
+      <div class="mt-7 space-y-5 text-[0.98rem] leading-relaxed text-tinta/85">
+        <p>
+          En el corazón de Cuernavaca, La Cañadita reúne cocina contemporánea, jardines cuidados y un
+          servicio pensado para que cada visita se disfrute sin prisa.
+        </p>
+        <p>
+          Cada platillo es una historia: <em class="not-italic font-medium text-verde">ingredientes frescos,
+          técnica y herencia cultural en cada bocado.</em> Lo mejor de la cocina mexicana contemporánea,
+          servida entre la calidez de nuestra mesa.
+        </p>
+      </div>
+
+      <dl class="mt-9 grid gap-6 border-t border-beige pt-7 sm:grid-cols-2">
+        <div>
+          <dt class="antetitulo mb-1 text-verde-suave">Horario</dt>
+          <dd class="text-sm text-tinta/85">{horarios.general}</dd>
+        </div>
+        <div>
+          <dt class="antetitulo mb-1 text-verde-suave">Reservaciones</dt>
+          <dd class="text-sm text-tinta/85">777 781 00 03</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="relative">
+      <Imagen
+        nombre="barra"
+        alt="Barra de La Cañadita con estantería iluminada y detalles de madera"
+        class="aspect-[4/3] w-full object-cover"
+        sizes="(min-width: 768px) 45vw, 100vw"
+      />
+      <Imagen
+        nombre="medallon"
+        alt="Medallón de res a la pimienta con puré de camote y espárragos"
+        class="absolute -bottom-8 -left-4 hidden w-2/3 border-8 border-marfil object-cover sm:block md:-left-10 md:w-3/5"
+        sizes="(min-width: 640px) 30vw, 1px"
+      />
+    </div>
+  </div>
+</section>

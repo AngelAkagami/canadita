@@ -1,0 +1,58 @@
+---
+/**
+ * Reseñas publicadas por comensales y difundidas en los recursos oficiales
+ * del restaurante (tarjetas "Review" de La Cañadita).
+ */
+const resenas = [
+  {
+    texto:
+      'Visité el Restaurante, servicio más que excelente, la comida muy buena, instalaciones muy cuidadas bellos jardines. Especialmente agradecidos por la atención del caballero Miguel Ángel que hizo sentir a mi abuela y tías bienvenidas y en todo momento cómodas. ¡Gracias!',
+    autor: 'Wendy Toledo',
+  },
+  {
+    texto:
+      'Hermoso lugar, los desayunos buenísimos. Me encantó, desayunito rodeado de un hermoso jardín.',
+    autor: 'Angie Vega',
+  },
+  {
+    texto:
+      'Lugar ampliamente recomendado… espectacular jardín… cómodo y muy bien cuidado… pocos lugares en el estado y sus alrededores. Las fiestas quedan espectaculares. La comida del restaurante es muy buena.',
+    autor: 'B.A.S.D',
+  },
+];
+---
+
+<section class="bg-verde py-20 text-marfil md:py-24" aria-labelledby="titulo-resenas">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="antetitulo mb-3 text-beige/90">Comensales</p>
+      <h2 id="titulo-resenas" class="text-4xl sm:text-5xl">
+        Lo que dicen de <em class="font-normal italic">La Cañadita</em>
+      </h2>
+    </div>
+
+    <ul class="mt-14 grid gap-10 md:grid-cols-3">
+      {
+        resenas.map((resena) => (
+          <li>
+            <figure class="border-t border-marfil/25 pt-8">
+              <div class="mb-5 flex gap-1 text-beige" role="img" aria-label="5 de 5 estrellas">
+                {Array.from({ length: 5 }).map(() => (
+                  <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.1l-4.95 2.6.95-5.5-4-3.9 5.53-.8L10 1.5z" />
+                  </svg>
+                ))}
+              </div>
+              <blockquote class="font-display text-xl leading-snug text-marfil/95">
+                <p>“{resena.texto}”</p>
+              </blockquote>
+              <figcaption class="mt-6 text-sm font-semibold uppercase tracking-[0.14em] text-beige">
+                — {resena.autor}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

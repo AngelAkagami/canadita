@@ -1,0 +1,52 @@
+---
+import Imagen from './Imagen.astro';
+import Ornamento from './Ornamento.astro';
+import { contacto, enlaceWhatsApp } from '../data/site';
+
+const whatsappBuffet = enlaceWhatsApp(contacto.whatsapp.mensajeBuffet);
+---
+
+<section id="buffet" class="scroll-mt-20 bg-verde py-20 text-marfil md:py-28" aria-labelledby="titulo-buffet">
+  <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
+    <div class="relative order-2 md:order-1">
+      <Imagen
+        nombre="buffet-copas"
+        alt="Fuentes del buffet de La Cañadita con platillos calientes en el jardín"
+        class="aspect-[4/3] w-full object-cover"
+        sizes="(min-width: 768px) 50vw, 100vw"
+      />
+      <Imagen
+        nombre="buffet-plato"
+        alt="Fuente de buffet con calabacita y queso recién servida"
+        class="absolute -bottom-8 -right-4 hidden w-1/2 border-8 border-verde object-cover sm:block md:-right-10 md:w-2/5"
+        sizes="(min-width: 640px) 25vw, 1px"
+      />
+    </div>
+
+    <div class="order-1 md:order-2">
+      <Ornamento variante="claro" class="mb-6 h-10 w-10 opacity-90" />
+      <p class="antetitulo mb-4 text-beige/90">Los sábados</p>
+      <h2 id="titulo-buffet" class="text-4xl sm:text-5xl">
+        Sábados de buffet <em class="font-normal italic">en La Cañadita.</em>
+      </h2>
+      <p class="mt-6 max-w-lg text-[1.02rem] leading-relaxed text-marfil/90">
+        Haz del sábado una ocasión especial para disfrutar la mesa y compartir buenos momentos.
+      </p>
+      <p class="mt-4 max-w-lg text-sm leading-relaxed text-marfil/70">
+        Ven con hambre y quédate por el momento. Consulta disponibilidad y detalles de la
+        experiencia antes de tu visita.
+      </p>
+
+      <div class="mt-9">
+        <a
+          href={whatsappBuffet}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
+        >
+          Consultar disponibilidad
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

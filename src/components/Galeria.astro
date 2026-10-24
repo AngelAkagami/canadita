@@ -1,0 +1,43 @@
+---
+import Imagen from './Imagen.astro';
+
+/**
+ * Galería editorial con las mejores fotografías disponibles:
+ * platillos, desayunos y ambiente del restaurante.
+ */
+const piezas = [
+  { nombre: 'pulpo', alt: 'Pulpo ahumado sobre puré de camote con espárragos', clase: 'col-span-2 row-span-2 aspect-square md:col-span-2 md:row-span-2' },
+  { nombre: 'ceviche', alt: 'Ceviche servido en plato de talavera con crema de coco', clase: 'col-span-2 aspect-[2/1] md:col-span-2' },
+  { nombre: 'omelette', alt: 'Omelette de flor de calabaza con ensalada fresca', clase: 'aspect-square' },
+  { nombre: 'churros', alt: 'Churros de mesa con trilogía de helados artesanales', clase: 'aspect-square' },
+  { nombre: 'desayuno-mesa', alt: 'Mesa de desayuno con chilaquiles, jugo de naranja y fruta fresca', clase: 'col-span-2 aspect-[2/1] md:col-span-2' },
+  { nombre: 'peras', alt: 'Peras al vino tinto con helado de frutos secos', clase: 'aspect-square' },
+  { nombre: 'capirotada', alt: 'Pan dulce con crema, fresas, moras y frutas de temporada', clase: 'aspect-square' },
+];
+---
+
+<section id="galeria" class="scroll-mt-20 bg-marfil py-20 md:py-28" aria-labelledby="titulo-galeria">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto mb-12 max-w-2xl text-center md:mb-16">
+      <p class="antetitulo mb-3 text-verde-suave">Galería</p>
+      <h2 id="titulo-galeria" class="text-4xl text-verde sm:text-5xl">
+        Sabores y momentos <em class="font-normal italic">de La Cañadita</em>
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+      {
+        piezas.map((pieza) => (
+          <figure class={`relative overflow-hidden bg-beige ${pieza.clase}`}>
+            <Imagen
+              nombre={pieza.nombre}
+              alt={pieza.alt}
+              class="absolute inset-0 h-full w-full object-cover"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+            />
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</section>

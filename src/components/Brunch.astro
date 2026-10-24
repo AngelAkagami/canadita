@@ -1,0 +1,60 @@
+---
+import Imagen from './Imagen.astro';
+import Ornamento from './Ornamento.astro';
+import { contacto, enlaceWhatsApp, horarios } from '../data/site';
+
+const whatsappBrunch = enlaceWhatsApp(contacto.whatsapp.mensajeBrunch);
+---
+
+<section id="brunch" class="scroll-mt-20 bg-marfil py-20 md:py-28" aria-labelledby="titulo-brunch">
+  <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
+    <div>
+      <Ornamento variante="oscuro" class="mb-6 h-10 w-10" />
+      <p class="antetitulo mb-4 text-verde-suave">Los domingos</p>
+      <h2 id="titulo-brunch" class="text-4xl text-verde sm:text-5xl">
+        Domingos para disfrutar <em class="font-normal italic">sin prisa.</em>
+      </h2>
+      <p class="mt-6 max-w-lg text-[1.02rem] leading-relaxed text-tinta/85">
+        Comparte un brunch especial en La Cañadita y disfruta de un domingo alrededor de la mesa.
+      </p>
+      <p class="mt-4 max-w-lg text-sm leading-relaxed text-tinta/70">
+        Los domingos se disfrutan mejor rodeados de hermosos jardines y con el clima que distingue a
+        Cuernavaca.
+      </p>
+
+      <p class="mt-8 inline-flex items-center gap-3 border border-verde/25 px-5 py-3 text-sm text-verde">
+        <svg aria-hidden="true" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path stroke-linecap="round" d="M12 7v5l3 2"></path>
+        </svg>
+        {horarios.brunch}
+      </p>
+
+      <div class="mt-9">
+        <a
+          href={whatsappBrunch}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center bg-verde px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-verde-oscuro"
+        >
+          Reservar por WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <div class="relative">
+      <Imagen
+        nombre="panaderia"
+        alt="Mesa de panadería y postres del brunch entre los jardines de La Cañadita"
+        class="aspect-[4/3] w-full object-cover"
+        sizes="(min-width: 768px) 50vw, 100vw"
+      />
+      <Imagen
+        nombre="capirotada"
+        alt="Torre de pan con crema, frutos rojos y frutas frescas"
+        class="absolute -bottom-8 -left-4 hidden w-1/3 border-8 border-marfil object-cover sm:block md:-left-10 md:w-2/5"
+        sizes="(min-width: 640px) 20vw, 1px"
+      />
+    </div>
+  </div>
+</section>

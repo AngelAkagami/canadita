@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { sitio } from '../data/site';
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+  imagenOG?: string;
+}
+
+const { titulo, descripcion, imagenOG = '/og-image.jpg' } = Astro.props;
+const urlCanonical = new URL(Astro.url.pathname, sitio.url).href;
+---
+
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={urlCanonical} />
+
+    <!-- Favicon y app icons derivados del logotipo oficial -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#42501F" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:site_name" content={sitio.nombreCompleto} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={urlCanonical} />
+    <meta property="og:image" content={new URL(imagenOG, sitio.url).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titulo} />
+    <meta name="twitter:description" content={descripcion} />
+    <meta name="twitter:image" content={new URL(imagenOG, sitio.url).href} />
+
+    <!-- Tipografía: serif editorial para títulos, sans legible para lectura.
+         Auto-alojada en /fonts para evitar peticiones externas bloqueantes. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/img/hero-patio-768.webp"
+      imagesrcset="/img/hero-patio-768.webp 768w, /img/hero-patio-1280.webp 1280w, /img/hero-patio.webp 1920w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-500-normal-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-400-italic-latin.woff2" crossorigin />
+  </head>
+  <body class="antialiased">
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-marfil focus:px-4 focus:py-2 focus:text-verde"
+    >
+      Saltar al contenido
+    </a>
+    <Header />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

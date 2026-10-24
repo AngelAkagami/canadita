@@ -1,0 +1,63 @@
+---
+/**
+ * Imagen optimizada en WebP con srcset generado por scripts/prepare-assets.py.
+ * Las versiones disponibles son: principal, -768 y -1280 (cuando el archivo
+ * principal lo permite).
+ */
+interface Props {
+  nombre: string;
+  alt: string;
+  /** Clases de Tailwind para el elemento (object-cover, aspect-*, etc.). */
+  class?: string;
+  /** Tamaños responsivos para el navegador. */
+  sizes?: string;
+  /** Carga prioritaria solo para la imagen principal de la página. */
+  prioritaria?: boolean;
+  /** Recorte del contenedor para móvil y escritorio. */
+  objectPosition?: string;
+}
+
+const { nombre, alt, class: clase = '', sizes = '100vw', prioritaria = false, objectPosition } = Astro.props;
+
+/** Ancho y alto reales de cada archivo generado. */
+const DIMENSIONES: Record<string, [number, number]> = {
+  exterior: [1016, 514],
+  pulpo: [1036, 826],
+  ceviche: [1080, 812],
+  'desayuno-mesa': [1004, 594],
+  medallon: [1004, 452],
+  churros: [1004, 547],
+  peras: [972, 716],
+  omelette: [950, 730],
+  'buffet-copas': [1800, 1080],
+  'buffet-plato': [1440, 1080],
+  'hero-patio': [1920, 1440],
+  barra: [1448, 1086],
+  'buffet-sopas': [1440, 1440],
+  panaderia: [1800, 1200],
+  croissants: [1600, 1067],
+  capirotada: [1440, 1920],
+};
+
+const [ancho, alto] = DIMENSIONES[nombre] ?? [1600, 1200];
+
+const variantes = [`/img/${nombre}.webp ${ancho}w`];
+if (ancho > 768) variantes.unshift(`/img/${nombre}-768.webp 768w`);
+if (ancho > 1280) variantes.splice(1, 0, `/img/${nombre}-1280.webp 1280w`);
+
+const posicion = objectPosition ? { 'object-position': objectPosition } : {};
+---
+
+<img
+  src={`/img/${nombre}.webp`}
+  srcset={variantes.join(', ')}
+  sizes={sizes}
+  {alt}
+  width={ancho}
+  height={alto}
+  loading={prioritaria ? 'eager' : 'lazy'}
+  decoding={prioritaria ? 'sync' : 'async'}
+  fetchpriority={prioritaria ? 'high' : 'auto'}
+  class={clase}
+  style={posicion}
+/>

@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@import "./fuentes.css";
+
+/* ------------------------------------------------------------------ */
+/* Paleta oficial de La Cañadita                                       */
+/* El verde olivo fue tomado directamente del logotipo oficial:        */
+/* RGB (66, 80, 31) = #42501F                                         */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-verde: #42501f;
+  --color-verde-oscuro: #333d18;
+  --color-verde-suave: #556031;
+  --color-marfil: #f7f4ea;
+  --color-beige: #e7dfc9;
+  --color-tinta: #2c3122;
+
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-marfil);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  /* Foco visible consistente en toda la página */
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-verde-suave);
+    color: var(--color-marfil);
+  }
+}
+
+@layer components {
+  /* Antetítulo discreto usado en cada sección */
+  .antetitulo {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Puntos conductores entre el nombre del platillo y su precio */
+  .leader {
+    flex: 1 1 auto;
+    margin: 0 0.6rem 0.28rem;
+    border-bottom: 1px dotted color-mix(in srgb, currentColor 45%, transparent);
+  }
+
+  /* Navegación horizontal de categorías del menú */
+  .sin-barra {
+    scrollbar-width: none;
+  }
+  .sin-barra::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Respeta la preferencia del usuario de reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

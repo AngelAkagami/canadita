@@ -1,0 +1,29 @@
+{
+  "name": "la-canadita-landing",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Landing page oficial de La Cañadita Restaurant — Cuernavaca, Morelos",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "assets": "python scripts/prepare-assets.py"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "astro": "^5.13.5",
+    "tailwindcss": "^4.1.11"
+  },
+  "devDependencies": {
+    "lighthouse": "^13.5.0",
+    "playwright-core": "^1.64.1",
+    "typescript": "^5.9.2"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.27.7": true,
+    "sharp@0.34.5": true
+  }
+}

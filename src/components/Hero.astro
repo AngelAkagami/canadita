@@ -1,0 +1,54 @@
+---
+import Imagen from './Imagen.astro';
+import Ornamento from './Ornamento.astro';
+import { contacto, enlaceWhatsApp } from '../data/site';
+
+const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+---
+
+<section id="inicio" class="relative isolate flex min-h-[88svh] items-end overflow-hidden bg-verde">
+  <Imagen
+    nombre="hero-patio"
+    alt="Patio de La Cañadita con mesas bajo la pérgola, jardines y carrito de buffet"
+    class="absolute inset-0 -z-10 h-full w-full object-cover"
+    sizes="100vw"
+    prioritaria={true}
+    objectPosition="center 55%"
+  />
+  <!-- Velo para legibilidad del texto sobre la fotografía -->
+  <div class="absolute inset-0 -z-10 bg-gradient-to-t from-verde/90 via-verde/45 to-verde/60" aria-hidden="true"></div>
+
+  <div class="mx-auto w-full max-w-7xl px-4 pb-14 pt-28 sm:px-6 md:pb-24 md:pt-36 lg:px-8">
+    <div class="max-w-2xl">
+      <Ornamento variante="claro" class="mb-6 h-11 w-11 opacity-90" />
+
+      <p class="antetitulo mb-4 text-beige/90">Restaurante · Cuernavaca, Morelos</p>
+
+      <h1 class="font-display text-[2.7rem] leading-[1.04] text-marfil sm:text-6xl md:text-7xl">
+        Un lugar para disfrutar <em class="font-normal italic">los buenos momentos.</em>
+      </h1>
+
+      <p class="mt-6 max-w-xl text-base leading-relaxed text-marfil/90 sm:text-lg">
+        Descubre La Cañadita, un espacio para compartir la mesa, disfrutar buenos sabores y convertir
+        cada visita en una experiencia especial.
+      </p>
+
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <a
+          href="#menu"
+          class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
+        >
+          Explorar el menú
+        </a>
+        <a
+          href={whatsappReserva}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center border border-marfil/80 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-marfil hover:text-verde"
+        >
+          Reservar mesa
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

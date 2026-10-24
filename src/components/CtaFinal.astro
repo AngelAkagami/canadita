@@ -1,0 +1,35 @@
+---
+import Ornamento from './Ornamento.astro';
+import { contacto, enlaceWhatsApp } from '../data/site';
+
+const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+---
+
+<section class="bg-verde py-20 text-center text-marfil md:py-28" aria-labelledby="titulo-cta">
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+    <Ornamento variante="claro" class="mx-auto mb-7 h-12 w-12 opacity-90" />
+    <h2 id="titulo-cta" class="text-4xl sm:text-5xl md:text-6xl">
+      Te esperamos en <em class="font-normal italic">La Cañadita.</em>
+    </h2>
+    <p class="mt-5 text-lg text-marfil/90">Ven a compartir una buena mesa. Estamos en Cuernavaca.</p>
+
+    <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+      <a
+        href={whatsappReserva}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
+      >
+        Reservar por WhatsApp
+      </a>
+      <a
+        href={contacto.maps.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center justify-center border border-marfil/80 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-marfil hover:text-verde"
+      >
+        Cómo llegar
+      </a>
+    </div>
+  </div>
+</section>

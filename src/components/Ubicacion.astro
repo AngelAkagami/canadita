@@ -1,0 +1,107 @@
+---
+import Imagen from './Imagen.astro';
+import { contacto, enlaceWhatsApp, horarios } from '../data/site';
+
+const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+const { direccion, telefono, whatsapp, maps, redes } = contacto;
+---
+
+<section id="ubicacion" class="scroll-mt-20 bg-beige py-20 md:py-28" aria-labelledby="titulo-ubicacion">
+  <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
+    <div>
+      <p class="antetitulo mb-3 text-verde-suave">Ubicación y contacto</p>
+      <h2 id="titulo-ubicacion" class="text-4xl text-verde sm:text-5xl">
+        Visítanos en <em class="font-normal italic">Cuernavaca</em>
+      </h2>
+
+      <address class="mt-8 space-y-6 not-italic">
+        <div>
+          <h3 class="antetitulo mb-1 text-verde-suave">Dirección</h3>
+          <p class="text-[1.02rem] leading-relaxed text-tinta/85">
+            {direccion.linea1}<br />
+            {direccion.linea2}<br />
+            {direccion.ciudad}, {direccion.estado}
+          </p>
+          <a
+            href={maps.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-verde underline decoration-verde/30 underline-offset-8 transition-colors hover:text-verde-suave"
+          >
+            Cómo llegar en Google Maps
+          </a>
+        </div>
+
+        <div>
+          <h3 class="antetitulo mb-1 text-verde-suave">Horario</h3>
+          <p class="text-[1.02rem] text-tinta/85">{horarios.general}</p>
+        </div>
+
+        <div>
+          <h3 class="antetitulo mb-1 text-verde-suave">Teléfono y reservaciones</h3>
+          <a href={telefono.href} class="block text-[1.02rem] text-tinta/85 transition-colors hover:text-verde">
+            {telefono.visible}
+          </a>
+        </div>
+
+        <div>
+          <h3 class="antetitulo mb-1 text-verde-suave">WhatsApp</h3>
+          <a
+            href={whatsappReserva}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block text-[1.02rem] text-tinta/85 transition-colors hover:text-verde"
+          >
+            {whatsapp.visible}
+          </a>
+        </div>
+      </address>
+
+      <div class="mt-8 flex items-center gap-3">
+        <a
+          href={redes.facebook}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="La Cañadita en Facebook"
+          class="flex h-11 w-11 items-center justify-center border border-verde/30 text-verde transition-colors hover:bg-verde hover:text-marfil"
+        >
+          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.57v1.88h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94z"></path>
+          </svg>
+        </a>
+        <a
+          href={redes.instagram}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="La Cañadita en Instagram"
+          class="flex h-11 w-11 items-center justify-center border border-verde/30 text-verde transition-colors hover:bg-verde hover:text-marfil"
+        >
+          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+            <circle cx="12" cy="12" r="4"></circle>
+            <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <Imagen
+        nombre="exterior"
+        alt="Terraza de La Cañadita con mesas bajo la pérgola y jardines"
+        class="aspect-[16/9] w-full object-cover"
+        sizes="(min-width: 768px) 50vw, 100vw"
+      />
+      <div class="mt-4 overflow-hidden border border-verde/15">
+        <iframe
+          src={maps.embed}
+          title="Mapa de ubicación de La Cañadita Restaurant en Cuernavaca, Morelos"
+          class="h-72 w-full md:h-[26rem]"
+          style="border:0"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</section>

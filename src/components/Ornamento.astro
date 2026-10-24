@@ -1,0 +1,23 @@
+---
+/**
+ * Ornamento del logotipo oficial de La Cañadita, usado como detalle
+ * decorativo. Se genera desde el archivo del logo sin redibujarlo.
+ */
+interface Props {
+  variante?: 'claro' | 'oscuro';
+  class?: string;
+}
+
+const { variante = 'oscuro', class: clase = '' } = Astro.props;
+---
+
+<img
+  src={`/ornamento-${variante}-160.png`}
+  alt=""
+  aria-hidden="true"
+  width={160}
+  height={164}
+  loading="lazy"
+  decoding="async"
+  class={clase}
+/>
