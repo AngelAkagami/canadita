@@ -79,6 +79,33 @@
     display: none;
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Fusiones entre secciones                                            */
+  /* El degradado superior (120 px) funde el color de la sección         */
+  /* anterior con el propio: sin cortes duros entre bandas de color.     */
+  /* ------------------------------------------------------------------ */
+  .fusion-verde-marfil {
+    background-image: linear-gradient(to bottom, var(--color-verde) 0, var(--color-marfil) 120px);
+  }
+  .fusion-marfil-verde {
+    background-image: linear-gradient(to bottom, var(--color-marfil) 0, var(--color-verde) 120px);
+  }
+  .fusion-verde-beige {
+    background-image: linear-gradient(to bottom, var(--color-verde) 0, var(--color-beige) 120px);
+  }
+  .fusion-beige-verde {
+    background-image: linear-gradient(to bottom, var(--color-beige) 0, var(--color-verde) 120px);
+  }
+  .fusion-marfil-beige {
+    background-image: linear-gradient(to bottom, var(--color-marfil) 0, var(--color-beige) 120px);
+  }
+  .fusion-beige-marfil {
+    background-image: linear-gradient(to bottom, var(--color-beige) 0, var(--color-marfil) 120px);
+  }
+  .fusion-verde-oscuro {
+    background-image: linear-gradient(to bottom, var(--color-verde) 0, var(--color-verde-oscuro) 120px);
+  }
+
   /* Bloqueo del scroll del body mientras el overlay está abierto */
   body.sin-scroll {
     overflow: hidden;

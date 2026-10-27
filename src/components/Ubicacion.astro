@@ -6,9 +6,14 @@ const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 const { direccion, telefono, whatsapp, maps, redes } = contacto;
 ---
 
-<section id="ubicacion" class="scroll-mt-20 bg-beige py-20 md:py-28" aria-labelledby="titulo-ubicacion">
+<section
+  id="ubicacion"
+  class="fusion-marfil-beige scroll-mt-20 bg-beige py-20 md:py-28"
+  aria-labelledby="titulo-ubicacion"
+>
   <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
-    <div>
+    <!-- Texto primero en celular; a la derecha en desktop -->
+    <div class="md:order-2">
       <p class="antetitulo mb-3 text-verde-suave">Ubicación y contacto</p>
       <h2 id="titulo-ubicacion" class="text-4xl text-verde sm:text-5xl">
         Visítanos en <em class="font-normal italic">Cuernavaca</em>
@@ -85,7 +90,7 @@ const { direccion, telefono, whatsapp, maps, redes } = contacto;
       </div>
     </div>
 
-    <div>
+    <div class="md:order-1 md:translate-y-4">
       <Imagen
         nombre="exterior"
         alt="Terraza de La Cañadita con mesas bajo la pérgola y jardines"

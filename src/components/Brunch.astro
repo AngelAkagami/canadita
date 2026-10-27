@@ -6,7 +6,11 @@ import { contacto, enlaceWhatsApp, horarios } from '../data/site';
 const whatsappBrunch = enlaceWhatsApp(contacto.whatsapp.mensajeBrunch);
 ---
 
-<section id="brunch" class="scroll-mt-20 bg-marfil py-20 md:py-28" aria-labelledby="titulo-brunch">
+<section
+  id="brunch"
+  class="fusion-verde-marfil scroll-mt-20 bg-marfil py-20 md:py-28"
+  aria-labelledby="titulo-brunch"
+>
   <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
     <div>
       <Ornamento variante="oscuro" class="mb-6 h-10 w-10" />
@@ -42,11 +46,11 @@ const whatsappBrunch = enlaceWhatsApp(contacto.whatsapp.mensajeBrunch);
       </div>
     </div>
 
-    <div class="relative">
+    <div class="relative md:-translate-y-8">
       <Imagen
         nombre="panaderia"
         alt="Mesa de panadería y postres del brunch entre los jardines de La Cañadita"
-        class="aspect-[4/3] w-full object-cover"
+        class="aspect-[16/10] w-full object-cover"
         sizes="(min-width: 768px) 50vw, 100vw"
       />
       <Imagen
