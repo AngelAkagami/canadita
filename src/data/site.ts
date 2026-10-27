@@ -30,8 +30,8 @@ export const contacto = {
     href: 'tel:+527777810003',
   },
   whatsapp: {
-    visible: '777 620 59 12',
-    numeroInternacional: '527776205912',
+    visible: '777 781 00 03',
+    numeroInternacional: '527777810003',
     mensajeReserva:
       'Hola, me gustaría obtener información sobre La Cañadita y realizar una reservación.',
     mensajeBuffet:
@@ -77,7 +77,7 @@ export const navegacion = [
 
 /**
  * TODO: definir la variable de entorno PUBLIC_WHATSAPP_NUMBER en Netlify
- * (formato internacional, p. ej. 527776205912). El número oficial se mantiene
+ * (formato internacional, p. ej. 527777810003). El número oficial se mantiene
  * como respaldo para que el enlace funcione mientras se configura.
  */
 const numeroWhatsApp =
