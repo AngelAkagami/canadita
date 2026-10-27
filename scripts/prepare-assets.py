@@ -85,6 +85,13 @@ CALIDADES = {
     "exterior": 80,
 }
 
+# Calidad de las variantes pequeñas (768/1280) cuando la imagen es el LCP.
+# El hero se sirve en q44 como máximo para que móvil pinte antes; el velo
+# oscuro del hero oculta la pérdida percibida.
+CALIDADES_VARIANTE = {
+    "hero-patio": 38,
+}
+
 
 def preparar_carpetas() -> None:
     IMG.mkdir(parents=True, exist_ok=True)
@@ -102,7 +109,11 @@ def guardar_webp(imagen: Image.Image, nombre: str, calidad: int = 82) -> None:
             ratio = ancho_web / ancho
             versión = imagen.resize((ancho_web, round(alto * ratio)), Image.LANCZOS)
             # Las versiones pequeñas se comprimen más: se ven en pantallas chicas
-            calidad_variante = max(50, calidad - 20)
+            # El hero en 768 px (LCP en móvil) baja a q38: es lo que pinta el
+            # primer golpe de vista y el velo oscuro oculta la pérdida.
+            calidad_variante = max(44, calidad - 28)
+            if ancho_web == 768 and nombre in CALIDADES_VARIANTE:
+                calidad_variante = CALIDADES_VARIANTE[nombre]
             versión.save(IMG / f"{nombre}-{ancho_web}.webp", "WEBP", quality=calidad_variante, method=6)
             srcset.append(ancho_web)
     print(f"[ok] {nombre}.webp {ancho}x{alto} ({principal.stat().st_size // 1024} KB)")
@@ -197,12 +208,13 @@ def variantes_logo() -> None:
         variante.save(PUBLIC / f"{nombre}.png", optimize=True)
         print(f"[ok] {nombre}.png")
 
-    # Ornamento en tamaño reducido para uso decorativo en la página
+    # Ornamento en tamaño reducido para uso decorativo en la página.
+    # WebP con alfa: ~12 KB menos que el PNG equivalente.
     for nombre, base in (("ornamento-claro-160", ornamento), ("ornamento-oscuro-160", oscuro)):
         ancho_mini = 160
         mini = base.resize((ancho_mini, round(base.size[1] * ancho_mini / base.size[0])), Image.LANCZOS)
-        mini.save(PUBLIC / f"{nombre}.png", optimize=True)
-        print(f"[ok] {nombre}.png")
+        mini.save(PUBLIC / f"{nombre}.webp", "WEBP", quality=80, method=6, exact=False)
+        print(f"[ok] {nombre}.webp")
 
 
 def capa_recorte_ornamento(original: Image.Image, alfa: Image.Image, ancho: int, alto: int) -> Image.Image:

@@ -59,17 +59,54 @@ export const horarios = {
   buffet: 'Los sábados hay buffet en La Cañadita',
 } as const;
 
-/** Enlaces de navegación de la página. */
+/**
+ * Enlaces de navegación de la página.
+ * `esencial` = se muestra también en tablet (barra superior compacta);
+ * el resto aparece solo en escritorio.
+ */
 export const navegacion = [
-  { href: '#inicio', etiqueta: 'Inicio' },
-  { href: '#experiencia', etiqueta: 'Nuestra experiencia' },
-  { href: '#menu', etiqueta: 'Menú' },
-  { href: '#buffet', etiqueta: 'Buffet y brunch' },
-  { href: '#galeria', etiqueta: 'Galería' },
-  { href: '#ubicacion', etiqueta: 'Ubicación' },
+  { href: '#inicio', etiqueta: 'Inicio', esencial: true },
+  { href: '#experiencia', etiqueta: 'Nuestra experiencia', esencial: false },
+  { href: '#menu', etiqueta: 'Menú', esencial: true },
+  { href: '#buffet', etiqueta: 'Buffet y brunch', esencial: true },
+  { href: '#galeria', etiqueta: 'Galería', esencial: false },
+  { href: '#ubicacion', etiqueta: 'Ubicación', esencial: true },
 ] as const;
+
+/**
+ * TODO: definir la variable de entorno PUBLIC_WHATSAPP_NUMBER en Netlify
+ * (formato internacional, p. ej. 527776205912). El número oficial se mantiene
+ * como respaldo para que el enlace funcione mientras se configura.
+ */
+const numeroWhatsApp =
+  import.meta.env.PUBLIC_WHATSAPP_NUMBER ?? contacto.whatsapp.numeroInternacional;
 
 /** Construye un enlace de WhatsApp con mensaje predefinido. */
 export function enlaceWhatsApp(mensaje: string): string {
-  return `https://wa.me/${contacto.whatsapp.numeroInternacional}?text=${encodeURIComponent(mensaje)}`;
+  return `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
 }
+
+/**
+ * Acciones rápidas del overlay "Más" de la navegación móvil.
+ * `externo` abre en pestaña nueva (WhatsApp).
+ */
+export const accionesRapidas = [
+  {
+    id: 'reservar',
+    etiqueta: 'Reservar mesa',
+    href: enlaceWhatsApp(contacto.whatsapp.mensajeReserva),
+    externo: true,
+  },
+  // TODO (Fase 4): cambiar a '/menu' cuando exista la vista de carta completa.
+  { id: 'menu', etiqueta: 'Ver menú', href: '#menu', externo: false },
+  // TODO (Fase 3): apuntar a '#horarios' cuando exista la sección de horarios.
+  { id: 'horarios', etiqueta: 'Horarios', href: '#ubicacion', externo: false },
+  { id: 'buffet', etiqueta: 'Buffet y brunch', href: '#buffet', externo: false },
+  { id: 'ubicacion', etiqueta: 'Ubicación', href: '#ubicacion', externo: false },
+  {
+    id: 'whatsapp',
+    etiqueta: 'Escribir por WhatsApp',
+    href: enlaceWhatsApp(contacto.whatsapp.mensajeReserva),
+    externo: true,
+  },
+] as const;

@@ -1,0 +1,259 @@
+---
+/**
+ * Navegación móvil (<768 px): barra inferior fija con Inicio, Menú y "Más",
+ * overlay a pantalla completa con acciones rápidas y botón flotante (FAB)
+ * "Reservar mesa". En tablet/escritorio este componente se oculta y la
+ * navegación vive en Header.astro.
+ *
+ * Accesibilidad: aria-expanded/aria-controls en el botón "Más", foco atrapado
+ * dentro del overlay, cierre con Escape y con el botón X, scroll del body
+ * bloqueado y foco devuelto al botón al cerrar. Sin dependencias.
+ */
+import { accionesRapidas, contacto, enlaceWhatsApp } from '../data/site';
+
+const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+
+/** Trazos SVG de cada icono (dibujados a mano, sin librerías). */
+const trazos: Record<string, string> = {
+  reservar: 'M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z',
+  menu: 'M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01',
+  horarios: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2',
+  buffet: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z',
+  ubicacion:
+    'M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+  whatsapp: 'M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V5z',
+};
+
+const iconoInicio = 'M3 10.5 12 3l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 0 0 0 1-1V9.5';
+---
+
+<!-- Barra de navegación inferior (solo móvil) -->
+<nav
+  id="barra-inferior"
+  aria-label="Navegación principal móvil"
+  class="fixed inset-x-0 bottom-0 z-40 border-t border-marfil/15 bg-verde pb-[env(safe-area-inset-bottom)] md:hidden"
+>
+  <ul class="grid grid-cols-3">
+    <li>
+      <a
+        href="#inicio"
+        class="flex h-16 flex-col items-center justify-center gap-1 text-marfil/85 transition-colors hover:text-marfil"
+      >
+        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d={iconoInicio}></path>
+        </svg>
+        <span class="text-[0.62rem] font-semibold uppercase tracking-[0.14em]">Inicio</span>
+      </a>
+    </li>
+    <li>
+      <a
+        href="#menu"
+        class="flex h-16 flex-col items-center justify-center gap-1 text-marfil/85 transition-colors hover:text-marfil"
+      >
+        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d={trazos.menu}></path>
+        </svg>
+        <span class="text-[0.62rem] font-semibold uppercase tracking-[0.14em]">Menú</span>
+      </a>
+    </li>
+    <li>
+      <button
+        id="boton-mas"
+        type="button"
+        aria-expanded="false"
+        aria-controls="menu-rapido"
+        class="flex h-16 w-full flex-col items-center justify-center gap-1 text-marfil/85 transition-colors hover:text-marfil"
+      >
+        <svg
+          aria-hidden="true"
+          class="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+        >
+          <path class="linea-morph linea-morph-1" d="M4 7h16"></path>
+          <path class="linea-morph linea-morph-2" d="M4 12h16"></path>
+          <path class="linea-morph linea-morph-3" d="M4 17h16"></path>
+        </svg>
+        <span class="text-[0.62rem] font-semibold uppercase tracking-[0.14em]">Más</span>
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<!-- Botón flotante "Reservar mesa" (sobre la barra, se oculta con el overlay) -->
+<a
+  id="fab-reserva"
+  href={whatsappReserva}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="fixed bottom-[calc(4rem_+_env(safe-area-inset-bottom)_+_0.75rem)] right-4 z-40 inline-flex items-center gap-2 bg-marfil px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-verde shadow-lg transition-colors hover:bg-beige md:hidden"
+>
+  <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+    <path d={trazos.reservar}></path>
+  </svg>
+  Reservar mesa
+</a>
+
+<!-- Overlay de acciones rápidas a pantalla completa -->
+<div
+  id="menu-rapido"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="titulo-menu-rapido"
+  hidden
+  class="fixed inset-0 z-50 flex flex-col bg-verde pb-[env(safe-area-inset-bottom)] md:hidden"
+>
+  <div class="flex items-center justify-between border-b border-marfil/15 px-5 py-4">
+    <img
+      src="/logo-claro-160.png"
+      alt=""
+      aria-hidden="true"
+      width={160}
+      height={173}
+      class="h-10 w-auto"
+    />
+    <button
+      id="boton-cerrar-mas"
+      type="button"
+      aria-label="Cerrar menú"
+      class="flex h-11 w-11 items-center justify-center border border-marfil/40 text-marfil transition-colors hover:bg-marfil hover:text-verde"
+    >
+      <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto px-5 py-8">
+    <h2 id="titulo-menu-rapido" class="antetitulo mb-6 text-beige">Acciones rápidas</h2>
+    <ul class="space-y-2">
+      {
+        accionesRapidas.map((accion) => (
+          <li>
+            <a
+              href={accion.href}
+              {...(accion.externo ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              class="menu-rapido-enlace flex min-h-14 items-center gap-4 border border-marfil/20 px-5 py-4 text-lg text-marfil transition-colors hover:bg-marfil hover:text-verde"
+            >
+              <svg aria-hidden="true" class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d={trazos[accion.id] ?? trazos.menu}></path>
+              </svg>
+              <span class="font-display tracking-wide">{accion.etiqueta}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="mt-8 text-sm text-marfil/70">
+      O llámanos al
+      <a href={contacto.telefono.href} class="text-marfil underline underline-offset-4">
+        {contacto.telefono.visible}
+      </a>
+    </p>
+  </div>
+</div>
+
+<script>
+  /** Comportamiento del overlay: foco atrapado, Escape, scroll bloqueado. */
+  function iniciarNavegacionMovil(): void {
+    const boton = document.getElementById<HTMLButtonElement>('boton-mas');
+    const overlay = document.getElementById<HTMLElement>('menu-rapido');
+    const botonCerrar = document.getElementById<HTMLButtonElement>('boton-cerrar-mas');
+    const fab = document.getElementById<HTMLElement>('fab-reserva');
+    if (!boton || !overlay || !botonCerrar || !fab) return;
+    overlay.dataset.listos = 'true';
+
+    const bloqueables = document.querySelectorAll<HTMLElement>('header, main, footer, #barra-inferior');
+    let ultimoFoco: HTMLElement | null = null;
+    let temporizadorCierre: ReturnType<typeof setTimeout> | null = null;
+
+    const elementosFocuseables = () =>
+      Array.from(
+        overlay.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      );
+
+    const estaAbierto = () => overlay.getAttribute('data-estado') === 'abierto';
+
+    function abrir(): void {
+      if (temporizadorCierre) clearTimeout(temporizadorCierre);
+      ultimoFoco = document.activeElement as HTMLElement | null;
+      overlay.hidden = false;
+      overlay.setAttribute('data-estado', 'abierto');
+      boton.setAttribute('aria-expanded', 'true');
+      boton.dataset.abierto = 'true';
+      fab.hidden = true;
+      document.body.classList.add('sin-scroll');
+      bloqueables.forEach((elemento) => elemento.setAttribute('inert', ''));
+      elementosFocuseables()[0]?.focus();
+    }
+
+    function finalizarCierre(): void {
+      overlay.hidden = true;
+      overlay.removeAttribute('data-estado');
+      document.body.classList.remove('sin-scroll');
+      bloqueables.forEach((elemento) => elemento.removeAttribute('inert'));
+      (ultimoFoco ?? boton).focus();
+    }
+
+    function cerrar(): void {
+      if (!estaAbierto()) return;
+      boton.setAttribute('aria-expanded', 'false');
+      delete boton.dataset.abierto;
+      fab.hidden = false;
+      overlay.setAttribute('data-estado', 'cerrando');
+      // El overlay se oculta al terminar la animación de salida (200 ms).
+      temporizadorCierre = setTimeout(finalizarCierre, 260);
+    }
+
+    function alPresionarTecla(evento: KeyboardEvent): void {
+      if (!estaAbierto()) return;
+      if (evento.key === 'Escape') {
+        evento.preventDefault();
+        cerrar();
+        return;
+      }
+      if (evento.key !== 'Tab') return;
+      // Foco atrapado: el Tab recorre solo los elementos del overlay.
+      const foco = elementosFocuseables();
+      const primero = foco[0];
+      const ultimo = foco[foco.length - 1];
+      if (!primero || !ultimo) return;
+      if (evento.shiftKey && document.activeElement === primero) {
+        evento.preventDefault();
+        ultimo.focus();
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault();
+        primero.focus();
+      }
+    }
+
+    boton.addEventListener('click', () => (estaAbierto() ? cerrar() : abrir()));
+    botonCerrar.addEventListener('click', cerrar);
+    overlay.querySelectorAll<HTMLElement>('.menu-rapido-enlace').forEach((enlace) => {
+      enlace.addEventListener('click', cerrar);
+    });
+    document.addEventListener('keydown', alPresionarTecla);
+  }
+
+  /**
+   * Arranque: inmediato con carga normal y también en cada `astro:page-load`
+   * (evento del ClientRouter, que se reintegra en la Fase 4). El guard por
+   * elemento evita registrar los listeners dos veces.
+   */
+  function iniciar(): void {
+    const overlay = document.getElementById('menu-rapido');
+    if (!overlay || overlay.dataset.listos === 'true') return;
+    iniciarNavegacionMovil();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+  } else {
+    iniciar();
+  }
+  document.addEventListener('astro:page-load', iniciar);
+</script>

@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Header from '../components/Header.astro';
+import NavInferior from '../components/NavInferior.astro';
 import Footer from '../components/Footer.astro';
 import { sitio } from '../data/site';
 
@@ -42,7 +43,8 @@ const urlCanonical = new URL(Astro.url.pathname, sitio.url).href;
     <meta name="twitter:image" content={new URL(imagenOG, sitio.url).href} />
 
     <!-- Tipografía: serif editorial para títulos, sans legible para lectura.
-         Auto-alojada en /fonts para evitar peticiones externas bloqueantes. -->
+         Auto-alojada en /fonts. El preload de la serif del titular acelera el
+         FCP: el H1 pinta con la fuente oficial en vez de esperar su descubrimiento. -->
     <link
       rel="preload"
       as="image"
@@ -53,8 +55,14 @@ const urlCanonical = new URL(Astro.url.pathname, sitio.url).href;
     />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-500-normal-latin.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-400-italic-latin.woff2" crossorigin />
+
+    <!-- View Transitions: el ClientRouter se integra en la Fase 4 junto con
+         la vista /menu (es cuando aporta transiciones entre páginas). Hoy la
+         landing es de una sola página y el router solo añadía costo de
+         bloqueo (TBT). Las animaciones del overlay son CSS y respetan
+         prefers-reduced-motion. -->
   </head>
-  <body class="antialiased">
+  <body class="antialiased pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0">
     <a
       href="#contenido"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-marfil focus:px-4 focus:py-2 focus:text-verde"
@@ -66,5 +74,6 @@ const urlCanonical = new URL(Astro.url.pathname, sitio.url).href;
       <slot />
     </main>
     <Footer />
+    <NavInferior />
   </body>
 </html>

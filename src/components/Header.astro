@@ -1,10 +1,15 @@
 ---
+/**
+ * Barra superior de tablet (>=768 px) y escritorio. En móvil la navegación
+ * vive en NavInferior.astro (barra inferior fija + overlay + FAB).
+ * En tablet se muestran los destinos esenciales; en escritorio, todos.
+ */
 import { navegacion, contacto, enlaceWhatsApp } from '../data/site';
 
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 ---
 
-<header class="sticky top-0 z-50 border-b border-marfil/15 bg-verde/95 backdrop-blur-sm">
+<header class="sticky top-0 z-50 hidden border-b border-marfil/15 bg-verde/95 backdrop-blur-sm md:block">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 md:h-20 md:py-0 lg:px-8">
     <a href="#inicio" class="flex shrink-0 items-center" aria-label="La Cañadita — ir al inicio">
       <img
@@ -18,12 +23,15 @@ const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
       />
     </a>
 
-    <nav aria-label="Navegación principal" class="hidden items-center gap-7 lg:flex">
+    <nav aria-label="Navegación principal" class="hidden items-center gap-6 md:flex lg:gap-7">
       {
         navegacion.map((item) => (
           <a
             href={item.href}
-            class="text-[0.8rem] font-medium uppercase tracking-[0.14em] text-marfil/85 transition-colors hover:text-marfil"
+            class:list={[
+              'text-[0.8rem] font-medium uppercase tracking-[0.14em] text-marfil/85 transition-colors hover:text-marfil',
+              item.esencial ? 'hidden md:inline' : 'hidden lg:inline',
+            ]}
           >
             {item.etiqueta}
           </a>
@@ -31,73 +39,16 @@ const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
       }
     </nav>
 
-    <div class="flex items-center gap-3">
-      <a
-        href={whatsappReserva}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="hidden bg-marfil px-5 py-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige sm:inline-block"
-      >
-        Reservar mesa
-      </a>
-
-      <!-- Menú móvil: hamburguesa accesible sin librerías -->
-      <details class="group relative lg:hidden">
-        <summary
-          class="flex h-11 w-11 cursor-pointer list-none items-center justify-center border border-marfil/40 text-marfil select-none [&::-webkit-details-marker]:hidden"
-          aria-label="Abrir menú de navegación"
-        >
-          <svg aria-hidden="true" class="h-5 w-5 group-open:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-            <path stroke-linecap="round" d="M3 6h18M3 12h18M3 18h18"></path>
-          </svg>
-          <svg aria-hidden="true" class="hidden h-5 w-5 group-open:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-            <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"></path>
-          </svg>
-        </summary>
-
-        <nav
-          aria-label="Navegación móvil"
-          class="absolute right-0 top-[calc(100%+0.75rem)] w-72 border border-marfil/20 bg-verde p-5 shadow-2xl"
-        >
-          <ul class="space-y-1">
-            {
-              navegacion.map((item) => (
-                <li>
-                  <a
-                    href={item.href}
-                    class="menu-movil-enlace block border-b border-marfil/10 py-3 text-sm uppercase tracking-[0.12em] text-marfil/90 transition-colors hover:text-marfil"
-                  >
-                    {item.etiqueta}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <a
-            href={whatsappReserva}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="menu-movil-enlace mt-4 block bg-marfil px-5 py-3 text-center text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
-          >
-            Reservar mesa
-          </a>
-        </nav>
-      </details>
-    </div>
+    <a
+      href={whatsappReserva}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex shrink-0 items-center gap-2 bg-marfil px-5 py-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
+    >
+      <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"></path>
+      </svg>
+      Reservar mesa
+    </a>
   </div>
 </header>
-
-<script>
-  // Cierra el menú móvil al navegar o al pulsar Escape (mejora progresiva).
-  const detalles = document.querySelectorAll<HTMLDetailsElement>('header details');
-  detalles.forEach((menu) => {
-    menu.querySelectorAll('a').forEach((enlace) => {
-      enlace.addEventListener('click', () => menu.removeAttribute('open'));
-    });
-  });
-  document.addEventListener('keydown', (evento) => {
-    if (evento.key === 'Escape') {
-      detalles.forEach((menu) => menu.removeAttribute('open'));
-    }
-  });
-</script>
