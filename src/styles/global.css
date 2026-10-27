@@ -157,6 +157,36 @@
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* View Transitions entre páginas (Fase 5)                            */
+/* Opt-in cross-document: al navegar entre / y /menu/ el navegador    */
+/* funde las páginas (200 ms al salir, 350 ms al entrar). Es CSS      */
+/* puro, sin JavaScript: en navegadores sin soporte (Safari, Firefox) */
+/* la navegación sigue siendo la normal.                              */
+/* ------------------------------------------------------------------ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation-duration: 200ms;
+}
+
+::view-transition-new(root) {
+  animation-duration: 350ms;
+}
+
+/* Chrome persistente: la barra superior (tablet/escritorio) y la barra
+   inferior (móvil) conservan su posición mientras cambia el contenido.
+   Se nombran por clase porque /menu/ incluye además un <header> de
+   contenido que debe cruzarse con el fondo normal. */
+.chrome-cabecera {
+  view-transition-name: cabecera;
+}
+.chrome-barra {
+  view-transition-name: barra-movil;
+}
+
 /* Respeta la preferencia del usuario de reducir movimiento */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -171,9 +201,13 @@
     transition-duration: 0.01ms !important;
   }
 
-  /* View Transitions sin animación */
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
+  /* View Transitions sin animación (navegación directa) */
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(cabecera),
+  ::view-transition-new(cabecera),
+  ::view-transition-old(barra-movil),
+  ::view-transition-new(barra-movil) {
     animation: none !important;
   }
 }

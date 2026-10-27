@@ -98,6 +98,46 @@ comprobar('tablet: barra inferior oculta', !(await pagina.locator('#barra-inferi
 comprobar('tablet: sin scroll horizontal', await pagina.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
 await pagina.screenshot({ path: 'qa/nav-tablet.png' });
 
+// View Transitions (Fase 5): el opt-in cross-document debe estar en las
+// hojas de estilo de la página (CSSOM). Sin soporte en el navegador, la
+// navegación sigue siendo normal (fallback sin JS).
+const optinVt = await pagina.evaluate(() => {
+  for (const hoja of document.styleSheets) {
+    try {
+      for (const regla of hoja.cssRules) {
+        const texto = regla.cssText || '';
+        if (texto.startsWith('@view-transition')) return /navigation:\s*auto/.test(texto);
+      }
+    } catch {
+      /* hoja inaccesible (cross-origin): se ignora */
+    }
+  }
+  return false;
+});
+comprobar('opt-in @view-transition { navigation: auto }', optinVt);
+
+const nombresVt = await pagina.evaluate(() => {
+  const css = [...document.styleSheets]
+    .flatMap((h) => {
+      try {
+        return [...h.cssRules].map((r) => r.cssText || '');
+      } catch {
+        return [];
+      }
+    })
+    .join(' ');
+  return {
+    cabecera: /view-transition-name:\s*cabecera/.test(css),
+    barra: /view-transition-name:\s*barra-movil/.test(css),
+    // Lightning minifica 200ms como .2s; el navegador puede serializar 0.2s
+    duracion: /::view-transition-old\(root\)\s*\{\s*animation-duration:\s*(200ms|\.2s|0\.2s)/.test(
+      css,
+    ),
+  };
+});
+comprobar('VT: chrome con view-transition-name', nombresVt.cabecera && nombresVt.barra);
+comprobar('VT: fundido raíz 200 ms definido', nombresVt.duracion);
+
 console.log(resultados.join('\n'));
 await navegador.close();
 process.exit(resultados.some((r) => r.startsWith('FALLA')) ? 1 : 0);

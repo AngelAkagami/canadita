@@ -65,11 +65,11 @@ const esInicio = Astro.url.pathname === '/';
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-500-normal-latin.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-400-italic-latin.woff2" crossorigin />
 
-    <!-- View Transitions: el ClientRouter se integra en la Fase 4 junto con
-         la vista /menu (es cuando aporta transiciones entre páginas). Hoy la
-         landing es de una sola página y el router solo añadía costo de
-         bloqueo (TBT). Las animaciones del overlay son CSS y respetan
-         prefers-reduced-motion. -->
+    <!-- View Transitions cross-document (Fase 5): el opt-in vive en
+         global.css (@view-transition { navigation: auto }) y se aplica a
+         / y /menu/ con fundidos de 200–350 ms. Sin JavaScript: en
+         navegadores sin soporte la navegación es la normal. Las
+         animaciones del overlay son CSS y respetan prefers-reduced-motion. -->
   </head>
   <body class="antialiased pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0">
     <a
