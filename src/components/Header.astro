@@ -4,14 +4,15 @@
  * vive en NavInferior.astro (barra inferior fija + overlay + FAB).
  * En tablet se muestran los destinos esenciales; en escritorio, todos.
  */
-import { navegacion, contacto, enlaceWhatsApp } from '../data/site';
+import { navegacion, contacto, enlaceWhatsApp, ancla } from '../data/site';
 
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+const ruta = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-50 hidden border-b border-marfil/15 bg-verde/95 backdrop-blur-sm md:block">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 md:h-20 md:py-0 lg:px-8">
-    <a href="#inicio" class="flex shrink-0 items-center" aria-label="La Cañadita — ir al inicio">
+    <a href={ancla('#inicio', ruta)} class="flex shrink-0 items-center" aria-label="La Cañadita — ir al inicio">
       <img
         src="/logo-claro-160.png"
         srcset="/logo-claro-160.png 160w, /logo-claro-240.png 240w, /logo-claro-360.png 360w, /logo-claro.png 872w"
@@ -27,7 +28,8 @@ const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
       {
         navegacion.map((item) => (
           <a
-            href={item.href}
+            href={ancla(item.href, ruta)}
+            aria-current={item.href === ruta ? 'page' : undefined}
             class:list={[
               'text-[0.8rem] font-medium uppercase tracking-[0.14em] text-marfil/85 transition-colors hover:text-marfil',
               item.esencial ? 'hidden md:inline' : 'hidden lg:inline',

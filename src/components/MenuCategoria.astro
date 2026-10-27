@@ -1,0 +1,164 @@
+---
+/**
+ * Categoría de la carta (/menu): imagen (o placeholder TODO si no hay foto)
+ * con el título al lado —alternando izquierda/derecha— y la lista de
+ * platillos en grid de 2 por fila en escritorio, con el precio alineado a
+ * la derecha mediante línea guía. Para jugos (precios por tamaño) se usa
+ * una tabla accesible.
+ */
+import Imagen from './Imagen.astro';
+import Ornamento from './Ornamento.astro';
+
+export interface ItemMenu {
+  nombre: string;
+  descripcion?: string;
+  nota?: string;
+  /** Precio ya formateado ("$235"). */
+  precio?: string;
+  /** Precios ya formateados para tamaños múltiples (jugos). */
+  precios?: string[];
+  variantes?: string[];
+}
+
+interface Props {
+  id: string;
+  nombre: string;
+  /** Nombre del grupo para el antetítulo (Sugerencias del chef / Desayunos / Bebidas). */
+  grupo: string;
+  imagen: { nombre: string; alt: string } | null;
+  items: ItemMenu[];
+  /** Cabeceras de columna cuando hay precios múltiples (jugos). */
+  columnas?: string[];
+  /** Cambia el lado de la imagen en escritorio (alterna entre categorías). */
+  invertir?: boolean;
+}
+
+const { id, nombre, grupo, imagen, items, columnas, invertir = false } = Astro.props;
+---
+
+<section id={id} class="scroll-mt-16 border-t border-verde/15 py-12 md:scroll-mt-44 md:py-16">
+  <div class="grid items-center gap-7 md:grid-cols-2 md:gap-12">
+    {
+      invertir ? (
+        <>
+          <div class="md:order-1">
+            <p class="antetitulo mb-3 text-verde-suave">{grupo}</p>
+            <h3 class="text-3xl text-verde sm:text-4xl">{nombre}</h3>
+          </div>
+          <figure class:list={['md:order-2', 'md:-translate-y-2']}>
+            {imagen ? (
+              <Imagen
+                nombre={imagen.nombre}
+                alt={imagen.alt}
+                class="aspect-[4/3] w-full object-cover"
+                sizes="(min-width: 768px) 45vw, 100vw"
+              />
+            ) : (
+              <div class="flex aspect-[4/3] w-full items-center justify-center border border-verde/15 bg-beige">
+                <div class="text-center">
+                  <Ornamento variante="oscuro" class="mx-auto h-9 w-9 opacity-70" />
+                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-verde-suave/80">
+                    Foto pendiente
+                  </p>
+                  <!-- TODO (cliente): sustituir por una foto real de la categoría. -->
+                  <p class="mt-1 text-[0.68rem] text-tinta/50">TODO: foto de la categoría</p>
+                </div>
+              </div>
+            )}
+          </figure>
+        </>
+      ) : (
+        <>
+          <figure>
+            {imagen ? (
+              <Imagen
+                nombre={imagen.nombre}
+                alt={imagen.alt}
+                class="aspect-[4/3] w-full object-cover"
+                sizes="(min-width: 768px) 45vw, 100vw"
+              />
+            ) : (
+              <div class="flex aspect-[4/3] w-full items-center justify-center border border-verde/15 bg-beige">
+                <div class="text-center">
+                  <Ornamento variante="oscuro" class="mx-auto h-9 w-9 opacity-70" />
+                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-verde-suave/80">
+                    Foto pendiente
+                  </p>
+                  <!-- TODO (cliente): sustituir por una foto real de la categoría. -->
+                  <p class="mt-1 text-[0.68rem] text-tinta/50">TODO: foto de la categoría</p>
+                </div>
+              </div>
+            )}
+          </figure>
+          <div class="md:translate-y-2">
+            <p class="antetitulo mb-3 text-verde-suave">{grupo}</p>
+            <h3 class="text-3xl text-verde sm:text-4xl">{nombre}</h3>
+          </div>
+        </>
+      )
+    }
+  </div>
+
+  {
+    columnas ? (
+      <div class="mt-9 overflow-x-auto">
+        <table class="w-full min-w-[30rem] border-collapse text-left">
+          <thead>
+            <tr class="border-b border-verde/30">
+              <th scope="col" class="antetitulo py-2 pr-4 text-verde-suave">
+                Bebida
+              </th>
+              {columnas.map((columna) => (
+                <th scope="col" class="antetitulo py-2 text-right text-verde-suave">
+                  {columna}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr class="border-b border-verde/10 align-top">
+                <td class="py-4 pr-6">
+                  <p class="text-[1.02rem] font-semibold text-tinta">{item.nombre}</p>
+                  {item.descripcion && (
+                    <p class="mt-1 max-w-[54ch] text-sm leading-relaxed text-tinta/70">
+                      {item.descripcion}
+                    </p>
+                  )}
+                </td>
+                {item.precios?.map((precio) => (
+                  <td class="py-4 text-right text-[1.02rem] tabular-nums text-verde">{precio}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <ul class="mt-9 grid gap-x-12 gap-y-7 lg:grid-cols-2">
+        {items.map((item) => (
+          <li>
+            <div class="flex items-baseline gap-3">
+              <h4 class="text-[1.02rem] font-semibold text-tinta">{item.nombre}</h4>
+              <span aria-hidden="true" class="leader flex-1"></span>
+              <span class="shrink-0 text-[1.02rem] font-semibold tabular-nums text-verde">
+                {item.precio}
+              </span>
+            </div>
+            {item.descripcion && (
+              <p class="mt-1.5 max-w-[62ch] text-sm leading-relaxed text-tinta/70">
+                {item.descripcion}
+              </p>
+            )}
+            {item.variantes && (
+              <p class="mt-1.5 text-xs leading-relaxed text-tinta/60">
+                Variantes: {item.variantes.join(' · ')}
+              </p>
+            )}
+            {item.nota && <p class="mt-1.5 text-xs text-tinta/55">{item.nota}</p>}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>

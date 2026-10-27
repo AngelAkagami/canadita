@@ -1,6 +1,8 @@
 ---
-import { sitio, contacto, navegacion, enlaceWhatsApp } from '../data/site';
+import { sitio, contacto, navegacion, enlaceWhatsApp, ancla } from '../data/site';
 import { resumenHorariosCorto } from '../data/horarios';
+
+const ruta = Astro.url.pathname;
 
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 const anio = new Date().getFullYear();
@@ -30,17 +32,17 @@ const { direccion, telefono, whatsapp, redes } = contacto;
           {
             navegacion.map((item) => (
               <li>
-                <a href={item.href} class="transition-colors hover:text-marfil">
+                <a href={ancla(item.href, ruta)} class="transition-colors hover:text-marfil">
                   {item.etiqueta}
                 </a>
               </li>
             ))
           }
           <li>
-            <a href="#brunch" class="transition-colors hover:text-marfil">Brunch dominical</a>
+            <a href={ancla('#brunch', ruta)} class="transition-colors hover:text-marfil">Brunch dominical</a>
           </li>
           <li>
-            <a href="#horarios" class="transition-colors hover:text-marfil">Horarios</a>
+            <a href={ancla('#horarios', ruta)} class="transition-colors hover:text-marfil">Horarios</a>
           </li>
         </ul>
       </nav>
@@ -95,7 +97,7 @@ const { direccion, telefono, whatsapp, redes } = contacto;
         <h2 class="antetitulo mb-4 text-beige">Menú</h2>
         <ul class="space-y-2.5 text-sm">
           <li>
-            <a href="#menu" class="transition-colors hover:text-marfil">Sugerencias del chef</a>
+            <a href={ancla('#menu', ruta)} class="transition-colors hover:text-marfil">Sugerencias del chef</a>
           </li>
           <li>
             <a href={sitio.web} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-marfil">

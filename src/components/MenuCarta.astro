@@ -1,5 +1,47 @@
 ---
+/**
+ * Sección de menú de la home: selección breve de platillos tomados de la
+ * carta completa (menu.ts + menu.json) con enlace a /menu. La carta
+ * completa vive en la vista /menu.
+ */
+import Imagen from './Imagen.astro';
 import { menuSugerencias } from '../data/menu';
+import menuDatos from '../data/menu.json';
+
+const platillosChef = menuSugerencias.flatMap((categoria) => categoria.platillos);
+const desayunos = (
+  menuDatos as unknown as { desayunos: { items: { nombre: string; precio: number }[] }[] }
+).desayunos.flatMap((categoria) => categoria.items);
+
+/** Selección breve; los precios se leen de los archivos de datos (no se repiten a mano). */
+const muestra: { nombre: string; precio: string }[] = [
+  {
+    nombre: 'Trilogía de maíz',
+    precio: platillosChef.find((platillo) => platillo.nombre === 'Trilogía de maíz')?.precio ?? '',
+  },
+  {
+    nombre: 'Tostado Jardín',
+    precio: `$${desayunos.find((platillo) => platillo.nombre === 'Tostado Jardín')?.precio ?? 0}`,
+  },
+  {
+    nombre: 'Pulpo ahumado',
+    precio: platillosChef.find((platillo) => platillo.nombre === 'Pulpo ahumado')?.precio ?? '',
+  },
+  {
+    nombre: 'Chilaquiles Fundidos',
+    precio: `$${desayunos.find((platillo) => platillo.nombre === 'Chilaquiles Fundidos')?.precio ?? 0}`,
+  },
+  {
+    nombre: 'Medallón de res a la pimienta 200 g',
+    precio:
+      platillosChef.find((platillo) => platillo.nombre === 'Medallón de res a la pimienta 200 g')
+        ?.precio ?? '',
+  },
+  {
+    nombre: 'Churros de mesa',
+    precio: platillosChef.find((platillo) => platillo.nombre === 'Churros de mesa')?.precio ?? '',
+  },
+];
 ---
 
 <section
@@ -7,77 +49,59 @@ import { menuSugerencias } from '../data/menu';
   class="fusion-verde-beige scroll-mt-20 bg-beige py-20 md:py-28"
   aria-labelledby="titulo-menu"
 >
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-2xl text-center">
-      <p class="antetitulo mb-3 text-verde-suave">Menú</p>
-      <h2 id="titulo-menu" class="text-4xl text-verde sm:text-5xl">Sugerencias del chef</h2>
-      <p class="mt-5 text-[0.98rem] leading-relaxed text-tinta/80">
-        Cocina mexicana contemporánea con platillos elaborados al momento. Explora la carta por
-        categorías.
+  <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
+    <!-- Texto a la izquierda; imagen a la derecha en desktop -->
+    <div>
+      <p class="antetitulo mb-4 text-verde-suave">Menú</p>
+      <h2 id="titulo-menu" class="text-4xl text-verde sm:text-5xl">
+        Una carta para <em class="font-normal italic">volver.</em>
+      </h2>
+      <p class="mt-6 max-w-[54ch] text-[0.98rem] leading-relaxed text-tinta/80">
+        Del desayuno al postre: sugerencias del chef, chilaquiles, tostados, mariscos, carnes y
+        bebidas, elaborados al momento. Esta es solo una muestra.
       </p>
-    </div>
 
-    <!-- Navegación por categorías -->
-    <nav aria-label="Categorías del menú" class="mt-12 -mx-4 px-4 sm:mx-0 sm:px-0">
-      <ul class="sin-barra flex snap-x gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-center sm:overflow-visible">
+      <ul class="mt-8 max-w-[54ch]">
         {
-          menuSugerencias.map((categoria) => (
-            <li class="snap-start">
-              <a
-                href={`#${categoria.id}`}
-                class="inline-block whitespace-nowrap border border-verde/25 px-4 py-2 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-verde transition-colors hover:bg-verde hover:text-marfil"
-              >
-                {categoria.nombre}
-              </a>
+          muestra.map((platillo) => (
+            <li class="flex items-baseline gap-3 border-b border-verde/20 py-3">
+              <span class="text-[1.02rem] font-semibold text-tinta">{platillo.nombre}</span>
+              <span aria-hidden="true" class="leader flex-1"></span>
+              <span class="shrink-0 text-[1.02rem] font-semibold tabular-nums text-verde">
+                {platillo.precio}
+              </span>
             </li>
           ))
         }
       </ul>
-    </nav>
 
-    <!-- Carta -->
-    <div class="mt-16 space-y-16">
-      {
-        menuSugerencias.map((categoria) => (
-          <section id={categoria.id} aria-labelledby={`cat-${categoria.id}`} class="scroll-mt-24">
-            <div class="mb-9 flex items-baseline gap-4 border-b border-verde/20 pb-4">
-              <h3 id={`cat-${categoria.id}`} class="text-3xl text-verde">
-                {categoria.nombre}
-              </h3>
-              <span class="leader hidden sm:block" aria-hidden="true" />
-              <span class="hidden text-xs uppercase tracking-[0.16em] text-tinta/85 sm:block">
-                {categoria.platillos.length} platillos
-              </span>
-            </div>
-
-            <ul class="grid gap-x-14 gap-y-9 md:grid-cols-2">
-              {categoria.platillos.map((plato) => (
-                <li class="border-b border-verde/10 pb-6">
-                  <article>
-                    <div class="flex items-baseline text-verde">
-                      <h4 class="font-display text-[1.35rem] leading-tight">{plato.nombre}</h4>
-                      <span class="leader" aria-hidden="true" />
-                      <span class="font-semibold tabular-nums text-verde-suave">{plato.precio}</span>
-                    </div>
-                    {plato.nota && (
-                      <p class="mt-1.5 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-tinta/75">
-                        {plato.nota}
-                      </p>
-                    )}
-                    {plato.descripcion && (
-                      <p class="mt-2.5 text-sm leading-relaxed text-tinta/80">{plato.descripcion}</p>
-                    )}
-                  </article>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))
-      }
+      <a
+        href="/menu/"
+        class="mt-8 inline-flex items-center gap-2 bg-verde px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-verde-oscuro"
+      >
+        Ver menú completo
+        <svg
+          aria-hidden="true"
+          class="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14M13 6l6 6-6 6"></path>
+        </svg>
+      </a>
     </div>
 
-    <p class="mt-14 border-t border-verde/15 pt-6 text-center text-xs uppercase tracking-[0.14em] text-tinta/75">
-      Precios en pesos mexicanos · Información tomada de la carta oficial
-    </p>
+    <div class="relative md:translate-y-4">
+      <Imagen
+        nombre="croissants"
+        alt="Croissants recién horneados con glaseado de chocolate en el jardín de La Cañadita"
+        class="aspect-[4/3] w-full object-cover"
+        sizes="(min-width: 768px) 50vw, 100vw"
+      />
+    </div>
   </div>
 </section>

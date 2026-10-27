@@ -40,6 +40,8 @@ export const contacto = {
       'Hola, me gustaría reservar el brunch del domingo en La Cañadita.',
     mensajeDesayuno:
       'Hola, me gustaría conocer la carta de desayunos de La Cañadita.',
+    mensajeCarta:
+      'Hola, me gustaría conocer la carta completa de La Cañadita.',
   },
   maps: {
     // Búsqueda oficial del restaurante en Google Maps
@@ -67,7 +69,7 @@ export const contacto = {
 export const navegacion = [
   { href: '#inicio', etiqueta: 'Inicio', esencial: true },
   { href: '#experiencia', etiqueta: 'Nuestra experiencia', esencial: false },
-  { href: '#menu', etiqueta: 'Menú', esencial: true },
+  { href: '/menu/', etiqueta: 'Menú', esencial: true },
   { href: '#buffet', etiqueta: 'Buffet y brunch', esencial: true },
   { href: '#galeria', etiqueta: 'Galería', esencial: false },
   { href: '#ubicacion', etiqueta: 'Ubicación', esencial: true },
@@ -87,6 +89,16 @@ export function enlaceWhatsApp(mensaje: string): string {
 }
 
 /**
+ * Convierte un ancla de la home (`#seccion`) en un enlace válido desde
+ * cualquier página: en la home queda igual; desde /menu apunta a
+ * `/#seccion` para volver y hacer el scroll.
+ */
+export function ancla(href: string, pathname: string): string {
+  if (!href.startsWith('#')) return href;
+  return pathname === '/' ? href : `/${href}`;
+}
+
+/**
  * Acciones rápidas del overlay "Más" de la navegación móvil.
  * `externo` abre en pestaña nueva (WhatsApp).
  */
@@ -97,8 +109,7 @@ export const accionesRapidas = [
     href: enlaceWhatsApp(contacto.whatsapp.mensajeReserva),
     externo: true,
   },
-  // TODO (Fase 4): cambiar a '/menu' cuando exista la vista de carta completa.
-  { id: 'menu', etiqueta: 'Ver menú', href: '#menu', externo: false },
+  { id: 'menu', etiqueta: 'Ver menú', href: '/menu/', externo: false },
   { id: 'horarios', etiqueta: 'Horarios', href: '#horarios', externo: false },
   { id: 'buffet', etiqueta: 'Buffet y brunch', href: '#buffet', externo: false },
   { id: 'ubicacion', etiqueta: 'Ubicación', href: '#ubicacion', externo: false },

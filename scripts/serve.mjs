@@ -26,7 +26,10 @@ const COMPRIMIBLES = new Set(['.html', '.css', '.js', '.json', '.svg']);
 
 createServer(async (peticion, respuesta) => {
   let ruta = decodeURIComponent(new URL(peticion.url, 'http://localhost').pathname);
-  if (ruta === '/') ruta = '/index.html';
+  // Rutas de directorio: /menu y /menu/ → /menu/index.html (como Netlify).
+  if (ruta.endsWith('/')) ruta = ruta.slice(0, -1);
+  if (ruta === '') ruta = '/index.html';
+  else if (!extname(ruta)) ruta = `${ruta}/index.html`;
   const tipo = MIME[extname(ruta)] ?? 'application/octet-stream';
 
   try {

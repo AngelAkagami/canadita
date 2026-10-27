@@ -53,13 +53,42 @@ await pagina.click('#boton-cerrar-mas');
 await pagina.waitForTimeout(350);
 comprobar('botón X cierra el overlay', !(await overlay.isVisible()));
 
-// Navegación Inicio → Menú desde la barra
-await pagina.click('#barra-inferior a[href="#menu"]');
-// El scroll suave (scroll-behavior) puede tardar según la distancia.
-await pagina
-  .waitForFunction(() => Math.abs(document.getElementById('menu').getBoundingClientRect().top) < 120, { timeout: 4000 })
-  .then(() => comprobar('clic en Menú lleva a la sección', true))
-  .catch(() => comprobar('clic en Menú lleva a la sección', false));
+// Barra "Menú" abre la vista /menu/
+await Promise.all([
+  pagina.waitForURL('**/menu/', { timeout: 6000 }),
+  pagina.click('#barra-inferior a[href="/menu/"]'),
+]);
+comprobar('clic en Menú abre /menu/', new URL(pagina.url()).pathname === '/menu/');
+comprobar('/menu/: h1 presente', (await pagina.locator('h1').count()) > 0);
+comprobar(
+  '/menu/: sin scroll horizontal',
+  await pagina.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+);
+await pagina.screenshot({ path: 'qa/nav-movil-menu.png' });
+
+// En /menu los destinos de ancla se resuelven como /#seccion
+await pagina.click('#boton-mas');
+await pagina.waitForTimeout(400);
+const hrefs = await pagina
+  .locator('#menu-rapido a.menu-rapido-enlace')
+  .evaluateAll((els) => els.map((e) => e.getAttribute('href')));
+comprobar(
+  'overlay en /menu: anclas → /#seccion',
+  hrefs.includes('/#horarios') && hrefs.includes('/#buffet') && hrefs.includes('/#ubicacion'),
+);
+comprobar('overlay en /menu: Ver menú → /menu/', hrefs.includes('/menu/'));
+await pagina.keyboard.press('Escape');
+await pagina.waitForTimeout(400);
+
+// Volver a la home con "Inicio" desde la barra
+await Promise.all([
+  pagina.waitForFunction(() => location.pathname === '/' && location.hash === '#inicio', {
+    timeout: 6000,
+  }),
+  pagina.click('#barra-inferior a[href="/#inicio"]'),
+]);
+comprobar('Inicio desde /menu/ vuelve a la home', true);
+await pagina.waitForTimeout(400);
 
 // Tablet: header visible, barra inferior oculta
 await pagina.setViewportSize({ width: 768, height: 1024 });

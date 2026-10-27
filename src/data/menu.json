@@ -1,0 +1,140 @@
+{
+  "desayunos": [
+    {
+      "categoria": "Dulces y frescos",
+      "items": [
+        {
+          "nombre": "Chía Tropical",
+          "precio": 180,
+          "descripcion": "Porción de hotcakes esponjosos con semilla de chía (3 pzas), yogur natural, granola artesanal, coulis de frutos rojos y rodajas de fruta fresca (plátano, kiwi, fresa y frambuesa).",
+          "todo": "El cliente señaló esta descripción como dudosa: revisar con él antes de publicar cambios."
+        },
+        {
+          "nombre": "Fruta de temporada",
+          "precio": 150,
+          "descripcion": "Porción abundante de fruta fresca cortada al momento (plátano, melón, sandía, papaya, jícama, manzana, piña y mandarina). Acompañada de yogurt granola."
+        },
+        {
+          "nombre": "Matcha Frambuesa",
+          "precio": 220,
+          "descripcion": "Hotcakes esponjosos de matcha (3 pzas), servidos en capas y coronados con yogurt cremoso, compota tibia de frambuesas, con plátano natural y fruta fresca de temporada."
+        },
+        {
+          "nombre": "Brioche de la Colmena",
+          "precio": 210,
+          "descripcion": "Pan francés dorado en su masa madre (2 pzas) relleno de un cremoso de queso philadelphia con miel silvestre, servido con una crema ligera de leche y vainilla bourbon, acompañado de compota de guayaba y fruta fresca."
+        }
+      ]
+    },
+    {
+      "categoria": "Tostados y omelette",
+      "items": [
+        {
+          "nombre": "Tostado Jardín",
+          "precio": 235,
+          "descripcion": "Pan tostado crujiente cubierto con guacamole, jitomate cherry, queso fresco, huevos pochados y flores comestibles. Se acompaña con hummus de garbanzo, aceitunas moradas y aceite de oliva extra virgen."
+        },
+        {
+          "nombre": "Bagel Nórdico",
+          "precio": 250,
+          "descripcion": "Bagel tostado con queso crema, queso manchego, aguacate, salmón ahumado (40 g), huevo pochado, eneldo, aceitunas moradas, crema de limón eureka, pepino y aceite de oliva."
+        },
+        {
+          "nombre": "Omelette de Flor Rellena",
+          "precio": 240,
+          "descripcion": "Esponjoso de huevos orgánicos (2 pzas) relleno de flor de calabaza, champiñones y queso panela. Acompañado de ensalada verde, aderezo de la casa y pan tostado artesanal."
+        }
+      ]
+    },
+    {
+      "categoria": "Huevos y antojitos",
+      "items": [
+        {
+          "nombre": "Huevos Campestres",
+          "precio": 230,
+          "descripcion": "Huevos orgánicos (2 pzas) estrellados o pochados servidos sobre salsa de tomatillo asado, con guarnición de frijoles refritos, chorizo y papa. Contraste entre lo fresco y ácido de la salsa con la cremosidad de los frijoles y el sabor intenso del chorizo. Se sirve con pan de masa madre."
+        },
+        {
+          "nombre": "Quesadillas de Comal",
+          "precio": 245,
+          "descripcion": "Orden de quesadillas (3 pzas) hechas a mano en comal, rellenas de queso Oaxaca, flor de calabaza, champiñones y huitlacoche. Servidas con salsa de molcajete, crema y queso fresco."
+        },
+        {
+          "nombre": "Enchiladas del Huerto",
+          "precio": 255,
+          "descripcion": "Tortillas de maíz rellenas de pollo deshebrado bañadas en salsa verde o roja, terminadas con crema, queso fresco, cebolla y aguacate. Se sirven con crema, arroz rojo y frijoles refritos. Un clásico y lleno de sabor.",
+          "todo": "Redacción dudosa: la descripción menciona 'crema' dos veces. Confirmar con el cliente el texto oficial."
+        }
+      ]
+    },
+    {
+      "categoria": "Chilaquiles y moles",
+      "items": [
+        {
+          "nombre": "Chilaquiles Fundidos",
+          "precio": 240,
+          "descripcion": "Totopos crujientes bañados en salsa de chipotle, rellenos de queso Oaxaca fundido y pollo deshebrado. Terminados con crema, cebolla morada, aguacate y queso fresco. Una reinterpretación del chilaquil tradicional."
+        },
+        {
+          "nombre": "Chilaquiles Ceniza",
+          "precio": 245,
+          "descripcion": "Totopos bañados en salsa de jitomate tatemado y chile pasilla oaxaqueño, servidos con queso fresco, crema ácida, aguacate, cebolla morada y un toque de cilantro fresco. Coronados con pechuga de pollo (100 gr). Profundos, intensos y con carácter."
+        },
+        {
+          "nombre": "Enmoladas de la Casa",
+          "precio": 250,
+          "descripcion": "Tortillas de maíz (3 pzas) rellenas de pollo deshebrado bañadas en salsa de mole rojo de la casa, coronadas con crema, queso fresco, ajonjolí tostado y cebollín fresco. Servidas con crema y salsa de la casa. Acompañadas de arroz rojo y frijoles refritos.",
+          "todo": "Redacción dudosa: 'Servidas con crema y salsa de la casa' parece duplicar lo anterior. Confirmar con el cliente el texto oficial."
+        }
+      ]
+    },
+    {
+      "categoria": "Extras",
+      "items": [
+        { "nombre": "Huevo orgánico (1 pza)", "precio": 25 },
+        { "nombre": "Tocino ahumado (3 pzas)", "precio": 55 },
+        { "nombre": "Chorizo (40 gr)", "precio": 45 },
+        { "nombre": "Papa (60 gr)", "precio": 35 },
+        { "nombre": "Pechuga de pollo (100 gr)", "precio": 60 },
+        { "nombre": "Aguacate (50 gr)", "precio": 40 }
+      ]
+    }
+  ],
+  "bebidas": {
+    "jugos": {
+      "tamanos": ["12 oz", "16 oz"],
+      "items": [
+        {
+          "nombre": "Verde",
+          "precio": [90, 120],
+          "descripcion": "Apio, nopal, piña, naranja, espinaca, perejil y manzana verde."
+        },
+        {
+          "nombre": "Rojo",
+          "precio": [90, 120],
+          "descripcion": "Jitomate natural, aceite de oliva, perejil, apio, sal y pimienta."
+        },
+        { "nombre": "Zanahoria, betabel y naranja", "precio": [85, 100] },
+        { "nombre": "Betabel, naranja, fresa y mango", "precio": [90, 120] },
+        { "nombre": "Piña, naranja, jengibre, guayaba y miel de abeja", "precio": [95, 125] },
+        { "nombre": "Naranja", "precio": [75, 95] }
+      ]
+    },
+    "calientes": [
+      { "nombre": "Café de olla", "precio": 70 },
+      {
+        "nombre": "Café americano (refil)",
+        "precio": 70,
+        "todo": "Verificar con el cliente el nombre 'refil' (¿refill, recarga?)."
+      },
+      { "nombre": "Capuchino", "precio": 80 },
+      { "nombre": "Latte", "precio": 80 },
+      { "nombre": "Expreso", "precio": 70 },
+      { "nombre": "Mocha", "precio": 90 },
+      { "nombre": "Té chai", "precio": 75 },
+      { "nombre": "Chocolate", "precio": 70 },
+      { "nombre": "Matcha latte", "precio": 85 },
+      { "nombre": "Té tradicional", "precio": 65 }
+    ]
+  }
+}

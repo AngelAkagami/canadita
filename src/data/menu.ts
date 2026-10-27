@@ -189,13 +189,13 @@ export const menuSugerencias: Categoria[] = [
         precio: '$495',
       },
       {
-        nombre: 'Salmon de rollo',
+        nombre: 'Salmón de rollo',
         descripcion:
           'Relleno de pistaches, pimientos rostizados y espinacas sobre risotto cremoso, acompañado de espárragos y un espejo de crema de flor de calabaza.',
         precio: '$430',
       },
       {
-        nombre: 'Salmon glaseado',
+        nombre: 'Salmón glaseado',
         descripcion:
           'Lonja de salmón con reducción de miel orgánica con chipotle, sobre puré de papa rústico, acompañado de espárragos a la parrilla.',
         precio: '$415',

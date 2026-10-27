@@ -1,0 +1,265 @@
+---
+/**
+ * Vista de la carta completa (/menu): sugerencias del chef (menu.ts),
+ * desayunos y bebidas (menu.json). Categorías con chips sticky, imagen
+ * alterna por categoría y precios alineados a la derecha.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MenuCategoria from '../components/MenuCategoria.astro';
+import Ornamento from '../components/Ornamento.astro';
+import { menuSugerencias } from '../data/menu';
+import menuDatos from '../data/menu.json';
+import { pesos } from '../data/horarios';
+import { contacto, enlaceWhatsApp } from '../data/site';
+
+const whatsappCarta = enlaceWhatsApp(contacto.whatsapp.mensajeCarta);
+
+/** Tipado del JSON de la carta (los campos `todo` no se renderizan). */
+interface PlatoDesayuno {
+  nombre: string;
+  precio: number;
+  descripcion?: string;
+  variantes?: string[];
+  todo?: string;
+}
+interface DatosMenu {
+  desayunos: { categoria: string; items: PlatoDesayuno[] }[];
+  bebidas: {
+    jugos: {
+      tamanos: string[];
+      items: { nombre: string; precio: [number, number]; descripcion?: string }[];
+    };
+    calientes: { nombre: string; precio: number; todo?: string }[];
+  };
+}
+const datos = menuDatos as unknown as DatosMenu;
+
+/** Slug de ancla para categorías del JSON ("Chilaquiles y moles" → "chilaquiles-y-moles"). */
+const slug = (texto: string) =>
+  texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+/**
+ * Foto de cada categoría. `null` = sin foto honesta disponible → placeholder
+ * con TODO (no se generan ni buscan fotos de comida).
+ */
+const IMAGENES: Record<string, { nombre: string; alt: string } | null> = {
+  entradas: { nombre: 'ceviche', alt: 'Ceviche servido en plato de talavera con crema de coco' },
+  'cremas-y-sopas': {
+    nombre: 'buffet-sopas',
+    alt: 'Fuentes de sopa y consomé en la línea del buffet al jardín',
+  },
+  ensaladas: null,
+  pastas: null,
+  aves: null,
+  'pescados-y-mariscos': {
+    nombre: 'pulpo',
+    alt: 'Pulpo ahumado sobre puré de camote con espárragos',
+  },
+  carnes: {
+    nombre: 'medallon',
+    alt: 'Medallón de res a la pimienta con puré de camote y espárragos',
+  },
+  postres: { nombre: 'churros', alt: 'Churros de mesa con trilogía de helados artesanales' },
+  'dulces-y-frescos': {
+    nombre: 'capirotada',
+    alt: 'Pan dulce con crema, fresas, moras y frutas de temporada',
+  },
+  'tostados-y-omelette': {
+    nombre: 'omelette',
+    alt: 'Omelette de flor de calabaza con ensalada fresca',
+  },
+  'huevos-y-antojitos': null,
+  'chilaquiles-y-moles': {
+    nombre: 'desayuno-mesa',
+    alt: 'Mesa de desayuno con chilaquiles, jugo de naranja y fruta fresca',
+  },
+  extras: null,
+  jugos: null,
+  'bebidas-calientes': null,
+};
+
+const chef = menuSugerencias.map((categoria) => ({
+  id: categoria.id,
+  nombre: categoria.nombre,
+  grupo: 'Sugerencias del chef',
+  imagen: IMAGENES[categoria.id] ?? null,
+  items: categoria.platillos.map((platillo) => ({
+    nombre: platillo.nombre,
+    descripcion: platillo.descripcion,
+    precio: platillo.precio,
+    nota: platillo.nota,
+  })),
+}));
+
+const desayunos = datos.desayunos.map((categoria) => ({
+  id: slug(categoria.categoria),
+  nombre: categoria.categoria,
+  grupo: 'Desayunos',
+  imagen: IMAGENES[slug(categoria.categoria)] ?? null,
+  items: categoria.items.map((platillo) => ({
+    nombre: platillo.nombre,
+    descripcion: platillo.descripcion,
+    precio: pesos(platillo.precio),
+    variantes: platillo.variantes,
+  })),
+}));
+
+const jugos = {
+  id: 'jugos',
+  nombre: 'Jugos naturales',
+  grupo: 'Bebidas',
+  imagen: IMAGENES['jugos'] ?? null,
+  columnas: datos.bebidas.jugos.tamanos,
+  items: datos.bebidas.jugos.items.map((jugo) => ({
+    nombre: jugo.nombre,
+    descripcion: jugo.descripcion,
+    precios: jugo.precio.map(pesos),
+  })),
+};
+
+const calientes = {
+  id: 'bebidas-calientes',
+  nombre: 'Bebidas calientes',
+  grupo: 'Bebidas',
+  imagen: IMAGENES['bebidas-calientes'] ?? null,
+  items: datos.bebidas.calientes.map((bebida) => ({
+    nombre: bebida.nombre,
+    precio: pesos(bebida.precio),
+  })),
+};
+
+/** Las imágenes alternan de lado de forma estricta entre categorías. */
+const secciones = [...chef, ...desayunos, jugos, calientes].map((seccion, indice) => ({
+  ...seccion,
+  invertir: indice % 2 === 1,
+}));
+
+const chips = secciones.map((seccion) => ({ href: `#${seccion.id}`, etiqueta: seccion.nombre }));
+---
+
+<BaseLayout
+  titulo="Menú — Carta completa de La Cañadita Restaurant"
+  descripcion="Sugerencias del chef, desayunos, jugos y bebidas calientes de La Cañadita Restaurant en Cuernavaca, Morelos. Precios en pesos mexicanos."
+  imagenOG="/img/croissants-1280.webp"
+>
+  <header class="bg-beige pb-12 pt-14 md:pb-14 md:pt-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <p class="antetitulo mb-4 text-verde-suave">Menú</p>
+      <h1 class="max-w-3xl text-4xl text-verde sm:text-5xl md:text-6xl">
+        La carta completa de <em class="font-normal italic">La Cañadita.</em>
+      </h1>
+      <p class="mt-6 max-w-[62ch] text-[1.02rem] leading-relaxed text-tinta/80">
+        Sugerencias del chef, desayunos, jugos y bebidas calientes, elaborados al momento con
+        ingredientes frescos. Precios en pesos mexicanos (MXN).
+      </p>
+    </div>
+  </header>
+
+  <nav aria-label="Categorías del menú" class="sticky top-0 z-30 border-y border-verde/20 bg-beige md:top-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <ul
+        class="sin-barra flex snap-x gap-2 overflow-x-auto py-3 md:flex-wrap md:justify-center md:gap-x-2 md:gap-y-2 md:overflow-visible"
+      >
+        {
+          chips.map((chip) => (
+            <li class="snap-start">
+              <a
+                href={chip.href}
+                class="inline-block border border-verde/30 px-3.5 py-1.5 text-[0.7rem] font-medium uppercase tracking-[0.12em] text-verde-suave transition-colors hover:border-verde hover:bg-verde hover:text-marfil"
+              >
+                {chip.etiqueta}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </nav>
+
+  <div class="bg-marfil">
+    <div class="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
+      <section aria-labelledby="grupo-chef" class="pt-14">
+        <div class="max-w-[62ch]">
+          <h2 id="grupo-chef" class="text-2xl text-verde sm:text-3xl">Sugerencias del chef</h2>
+          <p class="mt-2 text-sm leading-relaxed text-tinta/70">
+            Entradas, cremas y sopas, ensaladas, pastas, aves, pescados y mariscos, carnes y
+            postres.
+          </p>
+        </div>
+        <div class="mt-8">
+          {
+            secciones
+              .filter((seccion) => seccion.grupo === 'Sugerencias del chef')
+              .map((seccion) => <MenuCategoria {...seccion} />)
+          }
+        </div>
+      </section>
+
+      <section aria-labelledby="grupo-desayunos" class="pt-16">
+        <div class="max-w-[62ch]">
+          <h2 id="grupo-desayunos" class="text-2xl text-verde sm:text-3xl">Desayunos</h2>
+          <p class="mt-2 text-sm leading-relaxed text-tinta/70">
+            Dulces y frescos, tostados y omelette, huevos y antojitos, chilaquiles y moles, y
+            extras para acompañar.
+          </p>
+        </div>
+        <div class="mt-8">
+          {
+            secciones
+              .filter((seccion) => seccion.grupo === 'Desayunos')
+              .map((seccion) => <MenuCategoria {...seccion} />)
+          }
+        </div>
+      </section>
+
+      <section aria-labelledby="grupo-bebidas" class="pt-16">
+        <div class="max-w-[62ch]">
+          <h2 id="grupo-bebidas" class="text-2xl text-verde sm:text-3xl">Bebidas</h2>
+          <p class="mt-2 text-sm leading-relaxed text-tinta/70">
+            Jugos naturales en dos tamaños y bebidas calientes para cerrar la comida.
+          </p>
+        </div>
+        <div class="mt-8">
+          {
+            secciones
+              .filter((seccion) => seccion.grupo === 'Bebidas')
+              .map((seccion) => <MenuCategoria {...seccion} />)
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="fusion-marfil-verde bg-verde py-16 text-center text-marfil md:py-20" aria-labelledby="titulo-cierre-menu">
+    <div class="mx-auto max-w-2xl px-4 sm:px-6">
+      <Ornamento variante="claro" class="mx-auto mb-6 h-10 w-10 opacity-90" />
+      <h2 id="titulo-cierre-menu" class="text-3xl sm:text-4xl">
+        ¿Preguntas sobre la <em class="font-normal italic">carta?</em>
+      </h2>
+      <p class="mt-4 text-marfil/90">
+        Escríbenos y con gusto te ayudamos con tus pedidos y reservaciones.
+      </p>
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <a
+          href={whatsappCarta}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
+        >
+          Escribir por WhatsApp
+        </a>
+        <a
+          href="/"
+          class="inline-flex items-center justify-center border border-marfil/50 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-marfil hover:text-verde"
+        >
+          Volver al inicio
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

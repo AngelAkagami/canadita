@@ -12,7 +12,12 @@ interface Props {
 }
 
 const { titulo, descripcion, imagenOG = '/og-image.jpg' } = Astro.props;
-const urlCanonical = new URL(Astro.url.pathname, sitio.url).href;
+/** Canonical con barra final en rutas de directorio (/menu/) como sirve Netlify. */
+const rutaCanonical =
+  Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/+$/, '')}/`;
+const urlCanonical = new URL(rutaCanonical, sitio.url).href;
+/** El hero solo existe en la home: no se precarga en /menu (desperdicio). */
+const esInicio = Astro.url.pathname === '/';
 ---
 
 <!doctype html>
@@ -45,14 +50,18 @@ const urlCanonical = new URL(Astro.url.pathname, sitio.url).href;
     <!-- Tipografía: serif editorial para títulos, sans legible para lectura.
          Auto-alojada en /fonts. El preload de la serif del titular acelera el
          FCP: el H1 pinta con la fuente oficial en vez de esperar su descubrimiento. -->
-    <link
-      rel="preload"
-      as="image"
-      href="/img/hero-patio-768.webp"
-      imagesrcset="/img/hero-patio-768.webp 768w, /img/hero-patio-1280.webp 1280w, /img/hero-patio.webp 1920w"
-      imagesizes="100vw"
-      fetchpriority="high"
-    />
+    {
+      esInicio && (
+        <link
+          rel="preload"
+          as="image"
+          href="/img/hero-patio-768.webp"
+          imagesrcset="/img/hero-patio-768.webp 768w, /img/hero-patio-1280.webp 1280w, /img/hero-patio.webp 1920w"
+          imagesizes="100vw"
+          fetchpriority="high"
+        />
+      )
+    }
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-500-normal-latin.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-400-italic-latin.woff2" crossorigin />
 
