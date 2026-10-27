@@ -40,38 +40,38 @@ import { horarios, pesos } from '../data/horarios';
         </dd>
       </div>
 
-      <div class="border-b border-l-2 border-verde/15 border-l-verde py-5 pl-4">
-        <div class="grid gap-1 sm:grid-cols-[1fr_auto] sm:items-baseline">
-          <dt class="text-[1.02rem] font-semibold text-tinta">
-            {horarios.buffetSabatino.etiqueta}
-            <span class="ml-2 text-sm font-normal text-tinta/60"
-              >({horarios.buffetSabatino.dia})</span
-            >
-          </dt>
-          <dd class="text-lg tabular-nums text-verde">
-            {horarios.buffetSabatino.apertura} – {horarios.buffetSabatino.cierre} h
-          </dd>
-        </div>
-        <dd class="mt-1.5 text-sm text-tinta/70">
+      <div
+        class="grid gap-1 border-b border-l-2 border-verde/15 border-l-verde py-5 pl-4 sm:grid-cols-[1fr_auto] sm:items-baseline"
+      >
+        <dt class="text-[1.02rem] font-semibold text-tinta">
+          {horarios.buffetSabatino.etiqueta}
+          <span class="ml-2 text-sm font-normal text-tinta/60"
+            >({horarios.buffetSabatino.dia})</span
+          >
+        </dt>
+        <dd class="text-lg tabular-nums text-verde">
+          {horarios.buffetSabatino.apertura} – {horarios.buffetSabatino.cierre} h
+        </dd>
+        <dd class="text-sm text-tinta/70 sm:col-span-2">
           Adultos {pesos(horarios.buffetSabatino.precioAdultos)} · Niños {pesos(
             horarios.buffetSabatino.precioNinos,
           )}
         </dd>
       </div>
 
-      <div class="border-b border-l-2 border-verde/15 border-l-verde py-5 pl-4">
-        <div class="grid gap-1 sm:grid-cols-[1fr_auto] sm:items-baseline">
-          <dt class="text-[1.02rem] font-semibold text-tinta">
-            {horarios.brunchDominical.etiqueta}
-            <span class="ml-2 text-sm font-normal text-tinta/60"
-              >({horarios.brunchDominical.dia})</span
-            >
-          </dt>
-          <dd class="text-lg tabular-nums text-verde">
-            {horarios.brunchDominical.apertura} – {horarios.brunchDominical.cierre} h
-          </dd>
-        </div>
-        <dd class="mt-1.5 text-sm text-tinta/70">
+      <div
+        class="grid gap-1 border-b border-l-2 border-verde/15 border-l-verde py-5 pl-4 sm:grid-cols-[1fr_auto] sm:items-baseline"
+      >
+        <dt class="text-[1.02rem] font-semibold text-tinta">
+          {horarios.brunchDominical.etiqueta}
+          <span class="ml-2 text-sm font-normal text-tinta/60"
+            >({horarios.brunchDominical.dia})</span
+          >
+        </dt>
+        <dd class="text-lg tabular-nums text-verde">
+          {horarios.brunchDominical.apertura} – {horarios.brunchDominical.cierre} h
+        </dd>
+        <dd class="text-sm text-tinta/70 sm:col-span-2">
           Adultos {pesos(horarios.brunchDominical.precioAdultos)} · Niños {pesos(
             horarios.brunchDominical.precioNinos,
           )}

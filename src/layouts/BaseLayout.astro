@@ -48,8 +48,9 @@ const esInicio = Astro.url.pathname === '/';
     <meta name="twitter:image" content={new URL(imagenOG, sitio.url).href} />
 
     <!-- Tipografía: serif editorial para títulos, sans legible para lectura.
-         Auto-alojada en /fonts. El preload de la serif del titular acelera el
-         FCP: el H1 pinta con la fuente oficial en vez de esperar su descubrimiento. -->
+         Auto-alojada en /fonts. Sin preload de las fuentes: en Lighthouse
+         móvil competían por ancho de banda con la imagen del hero (LCP) y
+         font-display:swap las pinta con la de reserva sin bloquear. -->
     {
       esInicio && (
         <link
@@ -62,8 +63,6 @@ const esInicio = Astro.url.pathname === '/';
         />
       )
     }
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-500-normal-latin.woff2" crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-400-italic-latin.woff2" crossorigin />
 
     <!-- View Transitions cross-document (Fase 5): el opt-in vive en
          global.css (@view-transition { navigation: auto }) y se aplica a

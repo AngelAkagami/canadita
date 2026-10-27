@@ -57,11 +57,11 @@ const { id, nombre, grupo, imagen, items, columnas, invertir = false } = Astro.p
               <div class="flex aspect-[4/3] w-full items-center justify-center border border-verde/15 bg-beige">
                 <div class="text-center">
                   <Ornamento variante="oscuro" class="mx-auto h-9 w-9 opacity-70" />
-                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-verde-suave/80">
+                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-verde-suave">
                     Foto pendiente
                   </p>
                   <!-- TODO (cliente): sustituir por una foto real de la categoría. -->
-                  <p class="mt-1 text-[0.68rem] text-tinta/50">TODO: foto de la categoría</p>
+                  <p class="mt-1 text-[0.68rem] text-tinta/80">TODO: foto de la categoría</p>
                 </div>
               </div>
             )}
@@ -81,11 +81,11 @@ const { id, nombre, grupo, imagen, items, columnas, invertir = false } = Astro.p
               <div class="flex aspect-[4/3] w-full items-center justify-center border border-verde/15 bg-beige">
                 <div class="text-center">
                   <Ornamento variante="oscuro" class="mx-auto h-9 w-9 opacity-70" />
-                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-verde-suave/80">
+                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-verde-suave">
                     Foto pendiente
                   </p>
                   <!-- TODO (cliente): sustituir por una foto real de la categoría. -->
-                  <p class="mt-1 text-[0.68rem] text-tinta/50">TODO: foto de la categoría</p>
+                  <p class="mt-1 text-[0.68rem] text-tinta/80">TODO: foto de la categoría</p>
                 </div>
               </div>
             )}
@@ -151,11 +151,11 @@ const { id, nombre, grupo, imagen, items, columnas, invertir = false } = Astro.p
               </p>
             )}
             {item.variantes && (
-              <p class="mt-1.5 text-xs leading-relaxed text-tinta/60">
+              <p class="mt-1.5 text-xs leading-relaxed text-tinta/75">
                 Variantes: {item.variantes.join(' · ')}
               </p>
             )}
-            {item.nota && <p class="mt-1.5 text-xs text-tinta/55">{item.nota}</p>}
+            {item.nota && <p class="mt-1.5 text-xs text-tinta/75">{item.nota}</p>}
           </li>
         ))}
       </ul>
