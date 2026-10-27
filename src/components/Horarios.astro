@@ -1,0 +1,82 @@
+---
+import Ornamento from './Ornamento.astro';
+import { horarios, pesos } from '../data/horarios';
+---
+
+<section
+  id="horarios"
+  class="fusion-marfil-beige scroll-mt-20 bg-beige py-20 md:py-28"
+  aria-labelledby="titulo-horarios"
+>
+  <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-[0.85fr_1.15fr] md:gap-16 lg:px-8">
+    <div>
+      <Ornamento variante="oscuro" class="mb-6 h-10 w-10" />
+      <p class="antetitulo mb-4 text-verde-suave">Horarios</p>
+      <h2 id="titulo-horarios" class="text-4xl text-verde sm:text-5xl">
+        De lunes a domingo, <em class="font-normal italic">te esperamos.</em>
+      </h2>
+      <p class="mt-6 max-w-[46ch] text-[0.98rem] leading-relaxed text-tinta/80">
+        Servimos desayunos y comida todos los días. Los fines de semana, además, con buffet
+        sabatino los sábados y brunch dominical los domingos.
+      </p>
+    </div>
+
+    <dl class="border-t border-verde/25">
+      <div
+        class="grid gap-1 border-b border-verde/15 py-5 sm:grid-cols-[1fr_auto] sm:items-baseline"
+      >
+        <dt class="text-[1.02rem] font-semibold text-tinta">{horarios.entreSemana.etiqueta}</dt>
+        <dd class="text-lg tabular-nums text-verde">
+          {horarios.entreSemana.apertura} – {horarios.entreSemana.cierre} h
+        </dd>
+      </div>
+
+      <div
+        class="grid gap-1 border-b border-verde/15 py-5 sm:grid-cols-[1fr_auto] sm:items-baseline"
+      >
+        <dt class="text-[1.02rem] font-semibold text-tinta">{horarios.finDeSemana.etiqueta}</dt>
+        <dd class="text-lg tabular-nums text-verde">
+          {horarios.finDeSemana.apertura} – {horarios.finDeSemana.cierre} h
+        </dd>
+      </div>
+
+      <div class="border-b border-l-2 border-verde/15 border-l-verde py-5 pl-4">
+        <div class="grid gap-1 sm:grid-cols-[1fr_auto] sm:items-baseline">
+          <dt class="text-[1.02rem] font-semibold text-tinta">
+            {horarios.buffetSabatino.etiqueta}
+            <span class="ml-2 text-sm font-normal text-tinta/60"
+              >({horarios.buffetSabatino.dia})</span
+            >
+          </dt>
+          <dd class="text-lg tabular-nums text-verde">
+            {horarios.buffetSabatino.apertura} – {horarios.buffetSabatino.cierre} h
+          </dd>
+        </div>
+        <dd class="mt-1.5 text-sm text-tinta/70">
+          Adultos {pesos(horarios.buffetSabatino.precioAdultos)} · Niños {pesos(
+            horarios.buffetSabatino.precioNinos,
+          )}
+        </dd>
+      </div>
+
+      <div class="border-b border-l-2 border-verde/15 border-l-verde py-5 pl-4">
+        <div class="grid gap-1 sm:grid-cols-[1fr_auto] sm:items-baseline">
+          <dt class="text-[1.02rem] font-semibold text-tinta">
+            {horarios.brunchDominical.etiqueta}
+            <span class="ml-2 text-sm font-normal text-tinta/60"
+              >({horarios.brunchDominical.dia})</span
+            >
+          </dt>
+          <dd class="text-lg tabular-nums text-verde">
+            {horarios.brunchDominical.apertura} – {horarios.brunchDominical.cierre} h
+          </dd>
+        </div>
+        <dd class="mt-1.5 text-sm text-tinta/70">
+          Adultos {pesos(horarios.brunchDominical.precioAdultos)} · Niños {pesos(
+            horarios.brunchDominical.precioNinos,
+          )}
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>

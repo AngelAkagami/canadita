@@ -52,12 +52,12 @@ export const contacto = {
   },
 } as const;
 
-/** Datos oficiales encontrados en los recursos gráficos del restaurante. */
-export const horarios = {
-  general: 'Lunes a Domingo de 10:00 a 06:00 P.M.',
-  brunch: 'Domingos de 9:00 a.m. a 1:00 p.m.',
-  buffet: 'Los sábados hay buffet en La Cañadita',
-} as const;
+/**
+ * Los horarios oficiales viven en `horarios.json` y se exportan desde
+ * `horarios.ts` (con los resúmenes de texto derivados). Se eliminó el
+ * export anterior porque decía "Lunes a Domingo de 10:00 a 06:00 P.M.",
+ * que ya no coincide con los horarios confirmados por el cliente.
+ */
 
 /**
  * Enlaces de navegación de la página.
@@ -99,8 +99,7 @@ export const accionesRapidas = [
   },
   // TODO (Fase 4): cambiar a '/menu' cuando exista la vista de carta completa.
   { id: 'menu', etiqueta: 'Ver menú', href: '#menu', externo: false },
-  // TODO (Fase 3): apuntar a '#horarios' cuando exista la sección de horarios.
-  { id: 'horarios', etiqueta: 'Horarios', href: '#ubicacion', externo: false },
+  { id: 'horarios', etiqueta: 'Horarios', href: '#horarios', externo: false },
   { id: 'buffet', etiqueta: 'Buffet y brunch', href: '#buffet', externo: false },
   { id: 'ubicacion', etiqueta: 'Ubicación', href: '#ubicacion', externo: false },
   {

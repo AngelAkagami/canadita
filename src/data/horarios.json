@@ -1,0 +1,28 @@
+{
+  "entreSemana": {
+    "etiqueta": "Lunes a viernes",
+    "apertura": "08:00",
+    "cierre": "18:00"
+  },
+  "finDeSemana": {
+    "etiqueta": "Sábado y domingo",
+    "apertura": "09:00",
+    "cierre": "18:00"
+  },
+  "buffetSabatino": {
+    "etiqueta": "Buffet sabatino",
+    "dia": "Sábados",
+    "apertura": "09:00",
+    "cierre": "13:00",
+    "precioAdultos": 450,
+    "precioNinos": 200
+  },
+  "brunchDominical": {
+    "etiqueta": "Brunch dominical",
+    "dia": "Domingos",
+    "apertura": "09:00",
+    "cierre": "13:30",
+    "precioAdultos": 650,
+    "precioNinos": 200
+  }
+}

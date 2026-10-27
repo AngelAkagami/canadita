@@ -1,7 +1,8 @@
 ---
 import Imagen from './Imagen.astro';
 import Ornamento from './Ornamento.astro';
-import { contacto, enlaceWhatsApp, horarios } from '../data/site';
+import { contacto, enlaceWhatsApp } from '../data/site';
+import { horarios, pesos } from '../data/horarios';
 
 const whatsappBrunch = enlaceWhatsApp(contacto.whatsapp.mensajeBrunch);
 ---
@@ -26,12 +27,30 @@ const whatsappBrunch = enlaceWhatsApp(contacto.whatsapp.mensajeBrunch);
         Cuernavaca.
       </p>
 
-      <p class="mt-8 inline-flex items-center gap-3 border border-verde/25 px-5 py-3 text-sm text-verde">
-        <svg aria-hidden="true" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <p
+        class="mt-8 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 border border-verde/25 px-5 py-3 text-sm text-tinta/85"
+      >
+        <svg
+          aria-hidden="true"
+          class="h-4 w-4 shrink-0 text-verde"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+        >
           <circle cx="12" cy="12" r="9"></circle>
           <path stroke-linecap="round" d="M12 7v5l3 2"></path>
         </svg>
-        {horarios.brunch}
+        <span class="font-semibold text-tinta"
+          >{horarios.brunchDominical.dia}, de {horarios.brunchDominical.apertura} a {
+            horarios.brunchDominical.cierre
+          } h</span
+        >
+        <span class="text-tinta/65"
+          >· Adultos {pesos(horarios.brunchDominical.precioAdultos)} · Niños {pesos(
+            horarios.brunchDominical.precioNinos,
+          )}</span
+        >
       </p>
 
       <div class="mt-9">

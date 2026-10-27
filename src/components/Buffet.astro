@@ -2,6 +2,7 @@
 import Imagen from './Imagen.astro';
 import Ornamento from './Ornamento.astro';
 import { contacto, enlaceWhatsApp } from '../data/site';
+import { horarios, pesos } from '../data/horarios';
 
 const whatsappBuffet = enlaceWhatsApp(contacto.whatsapp.mensajeBuffet);
 ---
@@ -39,6 +40,32 @@ const whatsappBuffet = enlaceWhatsApp(contacto.whatsapp.mensajeBuffet);
       <p class="mt-4 max-w-lg text-sm leading-relaxed text-marfil/70">
         Ven con hambre y quédate por el momento. Consulta disponibilidad y detalles de la
         experiencia antes de tu visita.
+      </p>
+
+      <p
+        class="mt-7 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 border border-marfil/25 px-5 py-3 text-sm text-marfil/85"
+      >
+        <svg
+          aria-hidden="true"
+          class="h-4 w-4 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+        >
+          <circle cx="12" cy="12" r="9"></circle>
+          <path stroke-linecap="round" d="M12 7v5l3 2"></path>
+        </svg>
+        <span class="font-semibold text-marfil"
+          >{horarios.buffetSabatino.dia}, de {horarios.buffetSabatino.apertura} a {
+            horarios.buffetSabatino.cierre
+          } h</span
+        >
+        <span class="text-marfil/65"
+          >· Adultos {pesos(horarios.buffetSabatino.precioAdultos)} · Niños {pesos(
+            horarios.buffetSabatino.precioNinos,
+          )}</span
+        >
       </p>
 
       <div class="mt-9">

@@ -1,6 +1,7 @@
 ---
 import Imagen from './Imagen.astro';
-import { contacto, enlaceWhatsApp, horarios } from '../data/site';
+import { contacto, enlaceWhatsApp } from '../data/site';
+import { horarios, resumenHorarios, pesos } from '../data/horarios';
 
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 const { direccion, telefono, whatsapp, maps, redes } = contacto;
@@ -39,7 +40,14 @@ const { direccion, telefono, whatsapp, maps, redes } = contacto;
 
         <div>
           <h3 class="antetitulo mb-1 text-verde-suave">Horario</h3>
-          <p class="text-[1.02rem] text-tinta/85">{horarios.general}</p>
+          <p class="text-[1.02rem] text-tinta/85">{resumenHorarios}</p>
+          <p class="mt-2 text-sm text-tinta/65">
+            {horarios.buffetSabatino.etiqueta} ({horarios.buffetSabatino.dia.toLowerCase()}) {
+              horarios.buffetSabatino.apertura
+            }–{horarios.buffetSabatino.cierre} h · {horarios.brunchDominical.etiqueta} ({
+              horarios.brunchDominical.dia.toLowerCase()
+            }) {horarios.brunchDominical.apertura}–{horarios.brunchDominical.cierre} h
+          </p>
         </div>
 
         <div>

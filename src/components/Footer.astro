@@ -1,5 +1,6 @@
 ---
-import { sitio, contacto, navegacion, horarios, enlaceWhatsApp } from '../data/site';
+import { sitio, contacto, navegacion, enlaceWhatsApp } from '../data/site';
+import { resumenHorariosCorto } from '../data/horarios';
 
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 const anio = new Date().getFullYear();
@@ -37,6 +38,9 @@ const { direccion, telefono, whatsapp, redes } = contacto;
           }
           <li>
             <a href="#brunch" class="transition-colors hover:text-marfil">Brunch dominical</a>
+          </li>
+          <li>
+            <a href="#horarios" class="transition-colors hover:text-marfil">Horarios</a>
           </li>
         </ul>
       </nav>
@@ -104,7 +108,7 @@ const { direccion, telefono, whatsapp, redes } = contacto;
 
     <div class="mt-14 flex flex-col items-center justify-between gap-3 border-t border-marfil/15 pt-7 text-xs sm:flex-row">
       <p>© {anio} {sitio.nombreCompleto}. Cuernavaca, Morelos, México.</p>
-      <p>{horarios.general}</p>
+      <p>{resumenHorariosCorto}</p>
     </div>
   </div>
 </footer>
