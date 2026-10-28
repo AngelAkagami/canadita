@@ -9,15 +9,18 @@ interface Props {
   titulo: string;
   descripcion: string;
   imagenOG?: string;
+  /** 'oscuro' = home inmersiva sobre azul; 'claro' = lectura (/menu). */
+  tema?: 'oscuro' | 'claro';
 }
 
-const { titulo, descripcion, imagenOG = '/og-image.jpg' } = Astro.props;
+const { titulo, descripcion, imagenOG = '/og-image.jpg', tema = 'claro' } = Astro.props;
 /** Canonical con barra final en rutas de directorio (/menu/) como sirve Netlify. */
 const rutaCanonical =
   Astro.url.pathname === '/' ? '/' : `${Astro.url.pathname.replace(/\/+$/, '')}/`;
 const urlCanonical = new URL(rutaCanonical, sitio.url).href;
 /** El hero solo existe en la home: no se precarga en /menu (desperdicio). */
 const esInicio = Astro.url.pathname === '/';
+const otraRuta = esInicio ? '/menu/' : '/';
 ---
 
 <!doctype html>
@@ -25,6 +28,25 @@ const esInicio = Astro.url.pathname === '/';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Marca <html.js> antes de pintar: activa el estado inicial oculto de
+         los reveals solo cuando hay JS (evita FOUC y degrada con gracia). -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      // Llegando desde otra página del sitio (p. ej. Menú → Inicio) la
+      // entrada del hero no se repite: la vista aparece ya armada.
+      try {
+        var nav = performance.getEntriesByType('navigation')[0];
+        var desde = document.referrer ? new URL(document.referrer) : null;
+        if (
+          desde &&
+          desde.origin === location.origin &&
+          desde.pathname !== location.pathname &&
+          (!nav || nav.type !== 'reload')
+        ) {
+          document.documentElement.classList.add('sin-entrada');
+        }
+      } catch (e) {}
+    </script>
     <title>{titulo}</title>
     <meta name="description" content={descripcion} />
     <link rel="canonical" href={urlCanonical} />
@@ -32,7 +54,7 @@ const esInicio = Astro.url.pathname === '/';
     <!-- Favicon y app icons derivados del logotipo oficial -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#42501F" />
+    <meta name="theme-color" content="#F4EFE4" />
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website" />
@@ -47,10 +69,15 @@ const esInicio = Astro.url.pathname === '/';
     <meta name="twitter:description" content={descripcion} />
     <meta name="twitter:image" content={new URL(imagenOG, sitio.url).href} />
 
-    <!-- Tipografía: serif editorial para títulos, sans legible para lectura.
-         Auto-alojada en /fonts. Sin preload de las fuentes: en Lighthouse
-         móvil competían por ancho de banda con la imagen del hero (LCP) y
-         font-display:swap las pinta con la de reserva sin bloquear. -->
+    <!-- Tipografía auto-alojada en /fonts. Se precarga la serif (normal y,
+         en la home, cursiva): la frase del hero es el LCP y así se pinta con
+         su fuente final desde el principio, sin cambio de renglones. -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-normal-latin.woff2" crossorigin />
+    {
+      esInicio && (
+        <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-italic-latin.woff2" crossorigin />
+      )
+    }
     {
       esInicio && (
         <link
@@ -58,30 +85,113 @@ const esInicio = Astro.url.pathname === '/';
           as="image"
           href="/img/hero-patio-768.webp"
           imagesrcset="/img/hero-patio-768.webp 768w, /img/hero-patio-1280.webp 1280w, /img/hero-patio.webp 1920w"
-          imagesizes="100vw"
+          imagesizes="(min-width: 768px) 18vw, 32vw"
           fetchpriority="high"
         />
       )
     }
 
-    <!-- View Transitions cross-document (Fase 5): el opt-in vive en
-         global.css (@view-transition { navigation: auto }) y se aplica a
-         / y /menu/ con fundidos de 200–350 ms. Sin JavaScript: en
-         navegadores sin soporte la navegación es la normal. Las
-         animaciones del overlay son CSS y respetan prefers-reduced-motion. -->
+    <!-- Precarga de la otra página (Chromium): el HTML se descarga al cargar
+         y se prerenderiza al tocar/apuntar el enlace, para que el cambio
+         Inicio ↔ Menú sea inmediato tras el deslizamiento de la píldora del
+         dock. Solo la otra ruta: la actual ya está cargada. Otros
+         navegadores ignoran este bloque. -->
+    <script
+      is:inline
+      type="speculationrules"
+      set:html={JSON.stringify({
+        prefetch: [{ source: 'list', urls: [otraRuta], eagerness: 'eager' }],
+        prerender: [{ source: 'list', urls: [otraRuta], eagerness: 'moderate' }],
+      })}
+    />
   </head>
-  <body class="antialiased pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0">
+  <body class:list={['antialiased pb-[calc(5.75rem_+_env(safe-area-inset-bottom))] md:pb-0', tema === 'oscuro' && 'bg-azul-noche text-marfil']}>
     <a
       href="#contenido"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-marfil focus:px-4 focus:py-2 focus:text-verde"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-marfil focus:px-4 focus:py-2 focus:text-azul"
     >
       Saltar al contenido
     </a>
+    <!-- Lienzo continuo: un solo fondo fijo; cada sección marca su tono. -->
+    <div class="lienzo" aria-hidden="true"></div>
     <Header />
     <main id="contenido">
       <slot />
     </main>
     <Footer />
     <NavInferior />
+
+    <script>
+      import { iniciarAnimaciones } from '../scripts/animaciones';
+
+      /** El lienzo toma el tono de la sección que cruza el centro de la pantalla. */
+      function iniciarTonos(): void {
+        const secciones = document.querySelectorAll<HTMLElement>('[data-tono]');
+        if (secciones.length === 0) return;
+        const raiz = document.documentElement;
+        const observador = new IntersectionObserver(
+          (entradas) => {
+            entradas.forEach((e) => {
+              const tono = (e.target as HTMLElement).dataset.tono;
+              if (e.isIntersecting && tono) raiz.dataset.tono = tono;
+            });
+          },
+          { rootMargin: '-50% 0px -50% 0px' },
+        );
+        secciones.forEach((s) => observador.observe(s));
+      }
+
+      /**
+       * GSAP (~46 KB gz + armado de las escenas fijas) se carga con la
+       * primera interacción —tocar, rueda, tecla o scroll— y no al cargar:
+       * el hero ya entra con CSS y lo de abajo no se ve sin desplazarse, así
+       * el arranque de la página queda libre. Si la página abre ya
+       * desplazada (recarga a media página o enlace con #ancla), arranca de
+       * inmediato.
+       */
+      function arrancarAnimaciones(): void {
+        let hecho = false;
+        const eventos = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'scroll'] as const;
+        const ir = (): void => {
+          if (hecho) return;
+          hecho = true;
+          eventos.forEach((e) => window.removeEventListener(e, ir));
+          iniciarAnimaciones();
+        };
+        if (window.scrollY > 0 || location.hash) {
+          ir();
+          return;
+        }
+        eventos.forEach((e) => window.addEventListener(e, ir, { passive: true, once: true }));
+      }
+
+      function arrancar(): void {
+        iniciarTonos();
+        arrancarAnimaciones();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', arrancar, { once: true });
+      } else {
+        arrancar();
+      }
+      // Compatibilidad con el ClientRouter de Astro si se reintroduce.
+      document.addEventListener('astro:page-load', () => iniciarAnimaciones());
+
+      // Service worker (solo en producción): caché local de fotos, fuentes y
+      // estilos. Se registra cuando la página ya cargó y el hilo está libre
+      // para no competir con la primera pintura.
+      if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+        window.addEventListener(
+          'load',
+          () => {
+            const registrar = () => navigator.serviceWorker.register('/sw.js').catch(() => {});
+            if ('requestIdleCallback' in window) requestIdleCallback(registrar, { timeout: 4000 });
+            else setTimeout(registrar, 2000);
+          },
+          { once: true },
+        );
+      }
+    </script>
   </body>
 </html>

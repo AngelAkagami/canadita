@@ -51,8 +51,47 @@ export const contacto = {
   redes: {
     facebook: 'https://www.facebook.com/p/La-Ca%C3%B1adita-Restaurant-61587730833846/',
     instagram: 'https://www.instagram.com/lacanadita.restaurante',
+    // TODO: confirmar el usuario oficial de TikTok con el cliente.
+    tiktok: 'https://www.tiktok.com/@lacanadita.restaurante',
   },
 } as const;
+
+/**
+ * Videos de TikTok destacados que se incrustan en la sección "En TikTok".
+ *
+ * Cada `url` debe ser el enlace completo a un video público:
+ *   https://www.tiktok.com/@usuario/video/1234567890123456789
+ * De ahí se extrae el ID numérico para el reproductor oficial
+ * (tiktok.com/player/v1/{id}).
+ *
+ * TODO: reemplazar estos marcadores por los videos reales de La Cañadita
+ * que indique el cliente. Mientras tanto, la sección se oculta sola si la
+ * lista está vacía (ver componente TikTok.astro).
+ */
+export const tiktoks: { url: string; titulo: string }[] = [
+  {
+    url: 'https://www.tiktok.com/@lacanadita.restaurante/video/7646937477302717716',
+    titulo: 'Sabores de La Cañadita',
+  },
+  {
+    url: 'https://www.tiktok.com/@lacanadita.restaurante/video/7699315580049853716',
+    titulo: 'Desayunos entre jardines',
+  },
+  {
+    url: 'https://www.tiktok.com/@lacanadita.restaurante/video/7646937652897385748',
+    titulo: 'Momentos en la mesa',
+  },
+  {
+    url: 'https://www.tiktok.com/@lacanadita.restaurante/video/7653625140671941909',
+    titulo: 'El ambiente del restaurante',
+  },
+];
+
+/** Extrae el ID numérico de un enlace de video de TikTok. */
+export function idTikTok(url: string): string | null {
+  const coincidencia = url.match(/\/video\/(\d+)/);
+  return coincidencia ? coincidencia[1] : null;
+}
 
 /**
  * Los horarios oficiales viven en `horarios.json` y se exportan desde
@@ -68,11 +107,11 @@ export const contacto = {
  */
 export const navegacion = [
   { href: '#inicio', etiqueta: 'Inicio', esencial: true },
-  { href: '#experiencia', etiqueta: 'Nuestra experiencia', esencial: false },
   { href: '/menu/', etiqueta: 'Menú', esencial: true },
-  { href: '#buffet', etiqueta: 'Buffet y brunch', esencial: true },
+  { href: '#fines-de-semana', etiqueta: 'Buffet y brunch', esencial: true },
   { href: '#galeria', etiqueta: 'Galería', esencial: false },
-  { href: '#ubicacion', etiqueta: 'Ubicación', esencial: true },
+  { href: '#tiktok', etiqueta: 'TikTok', esencial: false },
+  { href: '#ubicacion', etiqueta: 'Visítanos', esencial: true },
 ] as const;
 
 /**

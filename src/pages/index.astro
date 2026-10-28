@@ -1,30 +1,36 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
+import Cinta from '../components/Cinta.astro';
 import Experiencia from '../components/Experiencia.astro';
-import Resenas from '../components/Resenas.astro';
 import MenuCarta from '../components/MenuCarta.astro';
 import Buffet from '../components/Buffet.astro';
-import Brunch from '../components/Brunch.astro';
-import Horarios from '../components/Horarios.astro';
+import Resenas from '../components/Resenas.astro';
 import Galeria from '../components/Galeria.astro';
+import TikTok from '../components/TikTok.astro';
 import Ubicacion from '../components/Ubicacion.astro';
 import CtaFinal from '../components/CtaFinal.astro';
 import { sitio, contacto } from '../data/site';
+import { horarios } from '../data/horarios';
+import { preguntas } from '../data/faq';
 
-const titulo = 'La Cañadita Restaurant · Cocina contemporánea en Cuernavaca, Morelos';
+const titulo = 'La Cañadita Restaurant · Cocina mexicana entre jardines en Cuernavaca, Morelos';
 const descripcion =
-  'Descubre La Cañadita, un espacio para compartir la mesa, disfrutar buenos sabores y convertir cada visita en una experiencia especial. En Av. Compositores 202, Col. Analco, Cuernavaca, Morelos.';
+  'Restaurante con jardín en Cuernavaca: desayunos, comida, buffet los sábados y brunch los domingos. Av. Compositores 202, Col. Analco. Reservaciones al 777 781 00 03.';
 
-/** Datos estructurados con la información oficial disponible. */
-const datosEstructurados = {
+/** Datos estructurados del restaurante (solo información confirmada). */
+const restaurante = {
   '@context': 'https://schema.org',
   '@type': 'Restaurant',
+  '@id': `${sitio.url}/#restaurante`,
   name: sitio.nombreCompleto,
   url: sitio.url,
   image: `${sitio.url}/og-image.jpg`,
+  logo: `${sitio.url}/logo-oscuro.png`,
   description: sitio.descripcion,
-  servesCuisine: 'Cocina mexicana contemporánea',
+  servesCuisine: ['Mexicana contemporánea', 'Desayunos', 'Brunch'],
+  acceptsReservations: true,
+  currenciesAccepted: 'MXN',
   telephone: '+527777810003',
   address: {
     '@type': 'PostalAddress',
@@ -33,36 +39,49 @@ const datosEstructurados = {
     addressRegion: contacto.direccion.estado,
     addressCountry: 'MX',
   },
-  sameAs: [contacto.redes.facebook, contacto.redes.instagram],
+  hasMap: contacto.maps.url,
+  sameAs: [contacto.redes.facebook, contacto.redes.instagram, contacto.redes.tiktok],
   openingHoursSpecification: [
     {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '08:00',
-      closes: '18:00',
+      opens: horarios.entreSemana.apertura,
+      closes: horarios.entreSemana.cierre,
     },
     {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Saturday', 'Sunday'],
-      opens: '09:00',
-      closes: '18:00',
+      opens: horarios.finDeSemana.apertura,
+      closes: horarios.finDeSemana.cierre,
     },
   ],
   hasMenu: `${sitio.url}/menu/`,
+};
+
+/** Preguntas frecuentes en formato FAQPage (mismo texto visible en la página). */
+const faq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: preguntas.map((p) => ({
+    '@type': 'Question',
+    name: p.pregunta,
+    acceptedAnswer: { '@type': 'Answer', text: p.respuesta },
+  })),
 };
 ---
 
 <BaseLayout titulo={titulo} descripcion={descripcion}>
   <Hero />
+  <Cinta />
   <Experiencia />
-  <Resenas />
   <MenuCarta />
   <Buffet />
-  <Brunch />
-  <Horarios />
+  <Resenas />
   <Galeria />
+  <TikTok />
   <Ubicacion />
   <CtaFinal />
 
-  <script type="application/ld+json" is:inline set:html={JSON.stringify(datosEstructurados)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(restaurante)} />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(faq)} />
 </BaseLayout>

@@ -1,54 +1,170 @@
 ---
+/**
+ * Hero "la frase con ventanas" (mobile first, 100dvh).
+ *
+ * Arriba la marca (logotipo + nombre). El título es el hero: suelto sobre el
+ * lienzo, con dos fotos metidas entre las palabras como postales. Debajo,
+ * el estado real del día (hora de Cuernavaca + horarios.json) y acciones.
+ *
+ * Al bajar (GSAP, ver scripts/animaciones.ts) la sección se fija y la
+ * postal del jardín crece hasta llenar la pantalla, también por debajo del
+ * dock móvil. La marca se queda y pasa a marfil; el patio abierto muestra
+ * la bienvenida, una reseña real y los datos clave de la casa.
+ * Sin JS o con movimiento reducido se ve la frase quieta con sus fotos.
+ */
 import Imagen from './Imagen.astro';
-import Ornamento from './Ornamento.astro';
 import { contacto, enlaceWhatsApp } from '../data/site';
+import { horarios, resumenHorariosCorto } from '../data/horarios';
 
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+const { buffetSabatino: buffet, brunchDominical: brunch } = horarios;
 ---
 
-<section id="inicio" class="relative isolate flex min-h-[88svh] items-end overflow-hidden bg-verde">
-  <Imagen
-    nombre="hero-patio"
-    alt="Patio de La Cañadita con mesas bajo la pérgola, jardines y carrito de buffet"
-    class="absolute inset-0 -z-10 h-full w-full object-cover"
-    sizes="100vw"
-    prioritaria={true}
-    objectPosition="center 55%"
-  />
-  <!-- Velo para legibilidad del texto sobre la fotografía -->
-  <div class="absolute inset-0 -z-10 bg-gradient-to-t from-verde/90 via-verde/45 to-verde/60" aria-hidden="true"></div>
+<section
+  id="inicio"
+  data-tono="inicio"
+  data-hero
+  class="relative flex h-[100dvh] min-h-[36rem] flex-col overflow-hidden px-5 pb-[calc(6.5rem_+_env(safe-area-inset-bottom))] pt-[calc(1.75rem_+_env(safe-area-inset-top))] md:min-h-[40rem] md:px-6 md:pb-12 md:pt-28 lg:px-10"
+>
+  <!-- El patio a pantalla completa: crece desde la postal de "jardines". -->
+  <div data-hero-portal class="hero-portal absolute inset-0 z-10 overflow-hidden bg-azul-noche" aria-hidden="true">
+    <div data-hero-portal-foto class="h-full w-full">
+      <Imagen nombre="hero-patio" alt="" class="h-full w-full object-cover" sizes="100vw" objectPosition="center 60%" />
+    </div>
+    <div class="hero-portal-velo absolute inset-0"></div>
 
-  <div class="mx-auto w-full max-w-7xl px-4 pb-14 pt-28 sm:px-6 md:pb-24 md:pt-36 lg:px-8">
-    <div class="max-w-2xl">
-      <Ornamento variante="claro" class="mb-6 h-11 w-11 opacity-90" />
+    <div data-hero-portal-info class="absolute inset-x-5 bottom-[calc(6.5rem_+_env(safe-area-inset-bottom))] text-marfil md:inset-x-6 md:bottom-12 lg:inset-x-10">
+      <div class="mx-auto flex max-w-[1440px] flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <p class="font-display text-[clamp(2.6rem,9vw,6rem)] italic leading-[0.92] tracking-[-0.03em]">
+          Bienvenido<br />al jardín.
+        </p>
+        <figure class="max-w-[24rem] md:text-right">
+          <span class="flex gap-0.5 text-oro md:justify-end" aria-hidden="true">
+            {Array.from({ length: 5 }).map(() => (
+              <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.1l-4.95 2.6.95-5.5-4-3.9 5.53-.8L10 1.5z" /></svg>
+            ))}
+          </span>
+          <blockquote class="mt-3 font-display text-[1.35rem] leading-snug md:text-[1.6rem]">
+            “Servicio más que excelente, instalaciones muy cuidadas, bellos jardines.”
+          </blockquote>
+          <figcaption class="mt-2 text-[0.8rem] text-marfil/70">Wendy Toledo · Comensal</figcaption>
+        </figure>
+      </div>
+      <dl class="mx-auto mt-7 grid max-w-[1440px] grid-cols-2 gap-x-6 gap-y-4 border-t border-marfil/25 pt-5 text-[0.82rem] md:mt-10 md:grid-cols-4 md:text-[0.9rem]">
+        <div>
+          <dt class="text-marfil/60">Entre semana</dt>
+          <dd class="mt-1 font-semibold lining-nums tabular-nums">{horarios.entreSemana.apertura}–{horarios.entreSemana.cierre}</dd>
+        </div>
+        <div>
+          <dt class="text-marfil/60">Sábado y domingo</dt>
+          <dd class="mt-1 font-semibold lining-nums tabular-nums">{horarios.finDeSemana.apertura}–{horarios.finDeSemana.cierre}</dd>
+        </div>
+        <div>
+          <dt class="text-marfil/60">Fin de semana</dt>
+          <dd class="mt-1 font-semibold">Buffet {buffet.apertura} · Brunch {brunch.apertura}</dd>
+        </div>
+        <div>
+          <dt class="text-marfil/60">Dónde</dt>
+          <dd class="mt-1 font-semibold">Av. Compositores 202, Analco</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
 
-      <p class="antetitulo mb-4 text-beige/90">Restaurante · Cuernavaca, Morelos</p>
+  <!-- Marca: se queda sobre el patio y cambia a marfil. -->
+  <a href="#inicio" data-hero-marca class="hero-marca relative z-20 flex items-center gap-3 self-start" aria-label="La Cañadita">
+    <span class="relative block h-12 w-11 md:h-14 md:w-[3.25rem]">
+      <img src="/logo-oscuro-200.webp" alt="" width={184} height={200} class="hero-marca-logo h-full w-full object-contain" />
+    </span>
+    <span class="font-display text-[1.6rem] leading-none md:text-[1.9rem]">La Cañadita</span>
+  </a>
 
-      <h1 class="font-display text-[2.7rem] leading-[1.04] text-marfil sm:text-6xl md:text-7xl">
-        Un lugar para disfrutar <em class="font-normal italic">los buenos momentos.</em>
-      </h1>
+  <div data-hero-contenido class="relative mx-auto my-auto w-full max-w-[1440px]">
+    <h1 class="hero-frase text-[min(15vw,8.6dvh)] text-azul md:text-[min(9.2vw,14dvh,10.5rem)]">
+      <span class="pieza"><span data-pieza>Cocina</span></span>
+      <span class="pieza pieza-postal"><span data-pieza class="ventana-marco ventana-girada">
+        <Imagen nombre="pulpo" alt="" class="h-full w-full object-cover" sizes="(min-width: 768px) 18vw, 32vw" inmediata />
+      </span></span>
+      <span class="pieza"><span data-pieza>mexicana</span></span>
+      <span class="pieza"><span data-pieza>entre</span></span>
+      <span class="pieza pieza-postal" data-hero-ventana><span data-pieza class="ventana-marco">
+        <Imagen nombre="hero-patio" alt="" class="h-full w-full object-cover" sizes="(min-width: 768px) 18vw, 32vw" prioritaria={true} objectPosition="center 60%" />
+      </span></span>
+      <span class="pieza"><span data-pieza class="italic text-oro-oscuro">jardines.</span></span>
+    </h1>
 
-      <p class="mt-6 max-w-xl text-base leading-relaxed text-marfil/90 sm:text-lg">
-        Descubre La Cañadita, un espacio para compartir la mesa, disfrutar buenos sabores y convertir
-        cada visita en una experiencia especial.
-      </p>
+    <div class="mt-7 flex flex-col gap-6 md:mt-[min(3.5rem,6dvh)] md:flex-row md:items-end md:justify-between md:gap-10">
+      <div data-reveal="1">
+        <p data-hero-estado data-horarios={JSON.stringify(horarios)} class="flex items-center gap-2.5 text-[0.9rem] font-semibold text-azul">
+          <span class="estado-punto" aria-hidden="true"></span>
+          <span data-hero-estado-texto>{resumenHorariosCorto}</span>
+        </p>
+        <p class="mt-3 max-w-[36ch] text-[1rem] leading-relaxed text-azul/75 md:text-[1.06rem]">
+          Desayunos, comida, buffet los sábados y brunch los domingos en Av. Compositores 202, Col. Analco.
+        </p>
+      </div>
 
-      <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <a
-          href="#menu"
-          class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
-        >
-          Explorar el menú
-        </a>
-        <a
-          href={whatsappReserva}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center justify-center border border-marfil/80 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-marfil hover:text-verde"
-        >
+      <div data-reveal="2" class="flex flex-wrap items-center gap-x-8 gap-y-4">
+        <a href={whatsappReserva} target="_blank" rel="noopener noreferrer" class="boton group bg-azul text-marfil hover:bg-teal">
           Reservar mesa
+          <span class="boton-icono bg-marfil/15">
+            <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </span>
         </a>
+        <a href="/menu/" class="enlace pb-1 text-[0.95rem] font-semibold text-azul">Ver el menú</a>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  /**
+   * Estado del día con la hora de Cuernavaca: abierto, buffet/brunch en
+   * curso, abre más tarde o cerrado (con la próxima apertura).
+   */
+  import { ahoraEnCuernavaca, minutos } from '../scripts/cuernavaca';
+
+  interface Tramo {
+    apertura: string;
+    cierre: string;
+  }
+  interface Horarios {
+    entreSemana: Tramo;
+    finDeSemana: Tramo;
+    buffetSabatino: Tramo;
+    brunchDominical: Tramo;
+  }
+
+  function pintarEstado(): void {
+    const nodo = document.querySelector<HTMLElement>('[data-hero-estado]');
+    const texto = nodo?.querySelector<HTMLElement>('[data-hero-estado-texto]');
+    if (!nodo || !texto || !nodo.dataset.horarios) return;
+    const h = JSON.parse(nodo.dataset.horarios) as Horarios;
+    const { dia, min } = ahoraEnCuernavaca();
+    if (dia < 0) return;
+
+    const tramoDe = (d: number) => (d === 0 || d === 6 ? h.finDeSemana : h.entreSemana);
+    const hoy = tramoDe(dia);
+    const especial = dia === 6 ? { nombre: 'buffet', t: h.buffetSabatino } : dia === 0 ? { nombre: 'brunch', t: h.brunchDominical } : null;
+
+    let estado = 'cerrado';
+    let mensaje: string;
+    if (especial && min >= minutos(especial.t.apertura) && min < minutos(especial.t.cierre)) {
+      estado = 'especial';
+      mensaje = `Hoy hay ${especial.nombre} · ${especial.t.apertura}–${especial.t.cierre}`;
+    } else if (min >= minutos(hoy.apertura) && min < minutos(hoy.cierre)) {
+      estado = 'abierto';
+      mensaje = `Abierto ahora · hasta las ${hoy.cierre}`;
+    } else if (min < minutos(hoy.apertura)) {
+      mensaje = especial
+        ? `Hoy hay ${especial.nombre} desde las ${especial.t.apertura}`
+        : `Hoy abrimos a las ${hoy.apertura}`;
+    } else {
+      mensaje = `Cerrado · mañana abrimos a las ${tramoDe((dia + 1) % 7).apertura}`;
+    }
+    nodo.dataset.estado = estado;
+    texto.textContent = mensaje;
+  }
+
+  pintarEstado();
+</script>

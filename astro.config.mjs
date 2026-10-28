@@ -10,8 +10,10 @@ export default defineConfig({
   // enlaces que hace el ClientRouter al cargar penaliza el TBT en móvil.
   prefetch: false,
   build: {
-    // Inlining elimina la hoja de estilos como petición bloqueante (mejora FCP/LCP)
-    inlineStylesheets: 'always',
+    // Hoja de estilos externa (~60 KB, con hash en /_astro): se descarga una
+    // vez y queda en caché para todas las páginas y visitas, en lugar de ir
+    // repetida dentro de cada HTML. 'auto' solo inlinea hojas < 4 KB.
+    inlineStylesheets: 'auto',
   },
   vite: {
     plugins: [tailwindcss()],

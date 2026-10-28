@@ -1,163 +1,173 @@
 ---
 /**
- * Navegación móvil (<768 px): barra inferior fija con Inicio, Menú y "Más",
- * overlay a pantalla completa con acciones rápidas y botón flotante (FAB)
- * "Reservar mesa". En tablet/escritorio este componente se oculta y la
- * navegación vive en Header.astro.
+ * Navegación móvil (<768 px).
  *
- * Accesibilidad: aria-expanded/aria-controls en el botón "Más", foco atrapado
- * dentro del overlay, cierre con Escape y con el botón X, scroll del body
- * bloqueado y foco devuelto al botón al cerrar. Sin dependencias.
+ * - Dock de vidrio inferior: Menú (izquierda), Inicio (centro), Más (derecha).
+ * - Botón flotante de reserva (agenda) sobre el dock, a la derecha. Cada
+ *   cierto tiempo despliega hacia la izquierda una etiqueta con frases que
+ *   se relevan: Reserva, Contacta, Disfruta. Abre WhatsApp.
+ * - Overlay a pantalla completa con acciones rápidas ("Más").
+ * En tablet/escritorio se oculta y la navegación vive en Header.astro, cuyo
+ * script también anima la píldora de este dock.
+ *
+ * Accesibilidad: aria-expanded/aria-controls en "Más", foco atrapado en el
+ * overlay, cierre con Escape y con la X, scroll bloqueado y foco devuelto al
+ * cerrar. Las frases del botón son decorativas (aria-hidden); su nombre
+ * accesible es fijo. Iconos: Phosphor (Icono.astro).
  */
+import Icono from './Icono.astro';
 import { accionesRapidas, contacto, enlaceWhatsApp, ancla } from '../data/site';
 
 const ruta = Astro.url.pathname;
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 
-/** Trazos SVG de cada icono (dibujados a mano, sin librerías). */
-const trazos: Record<string, string> = {
-  reservar: 'M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z',
-  menu: 'M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01',
-  horarios: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2',
-  buffet: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z',
-  ubicacion:
-    'M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
-  whatsapp: 'M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V5z',
-};
+const frases = ['Reserva', 'Contacta', 'Disfruta'];
 
-const iconoInicio = 'M3 10.5 12 3l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 0 0 0 1-1V9.5';
+/** Columna activa del dock (0 Menú, 1 Inicio); null si ninguna aplica. */
+const indiceActivo = ruta.startsWith('/menu') ? 0 : ruta === '/' ? 1 : null;
 ---
 
-<!-- Barra de navegación inferior (solo móvil) -->
+<!-- Dock de navegación inferior (solo móvil) -->
 <nav
   id="barra-inferior"
   aria-label="Navegación principal móvil"
-  class="chrome-barra fixed inset-x-0 bottom-0 z-40 border-t border-marfil/15 bg-verde pb-[env(safe-area-inset-bottom)] md:hidden"
+  class="chrome-barra fixed inset-x-0 bottom-[calc(0.75rem_+_env(safe-area-inset-bottom))] z-40 flex justify-center md:hidden"
 >
-  <ul class="grid grid-cols-3">
-    <li>
-      <a
-        href={ancla('#inicio', ruta)}
-        aria-current={ruta === '/' ? 'page' : undefined}
-        class="flex h-16 flex-col items-center justify-center gap-1 text-marfil/85 transition-colors hover:text-marfil"
-      >
-        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d={iconoInicio}></path>
-        </svg>
-        <span class="text-[0.62rem] font-semibold uppercase tracking-[0.14em]">Inicio</span>
-      </a>
-    </li>
-    <li>
-      <a
-        href="/menu/"
-        aria-current={ruta.startsWith('/menu') ? 'page' : undefined}
-        class="flex h-16 flex-col items-center justify-center gap-1 text-marfil/85 transition-colors hover:text-marfil"
-      >
-        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-          <path d={trazos.menu}></path>
-        </svg>
-        <span class="text-[0.62rem] font-semibold uppercase tracking-[0.14em]">Menú</span>
-      </a>
-    </li>
-    <li>
-      <button
-        id="boton-mas"
-        type="button"
-        aria-expanded="false"
-        aria-controls="menu-rapido"
-        class="flex h-16 w-full flex-col items-center justify-center gap-1 text-marfil/85 transition-colors hover:text-marfil"
-      >
-        <svg
-          aria-hidden="true"
-          class="h-5 w-5"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-        >
-          <path class="linea-morph linea-morph-1" d="M4 7h16"></path>
-          <path class="linea-morph linea-morph-2" d="M4 12h16"></path>
-          <path class="linea-morph linea-morph-3" d="M4 17h16"></path>
-        </svg>
-        <span class="text-[0.62rem] font-semibold uppercase tracking-[0.14em]">Más</span>
-      </button>
-    </li>
-  </ul>
+  <div data-dock data-dock-css class="dock dock-vidrio w-[min(20rem,calc(100%-1.5rem))] rounded-full p-1.5">
+    <div
+      data-dock-pista
+      data-indice-inicial={indiceActivo ?? undefined}
+      class="relative"
+      style={indiceActivo !== null ? `--i: ${indiceActivo}` : undefined}
+    >
+      <span
+        data-dock-indicador
+        data-visible={indiceActivo !== null ? '' : undefined}
+        class="dock-indicador"
+        aria-hidden="true"
+      ></span>
+      <ul class="dock-fila relative grid grid-cols-3 items-center gap-1">
+        <li>
+          <a
+            href="/menu/"
+            data-dock-item
+            aria-current={ruta.startsWith('/menu') ? 'page' : undefined}
+            class="dock-item dock-item-movil"
+          >
+            <Icono nombre="cubiertos" class="icono-normal h-[1.35rem] w-[1.35rem]" />
+            <Icono nombre="cubiertosLlena" class="icono-activo h-[1.35rem] w-[1.35rem]" />
+            <span>Menú</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href={ancla('#inicio', ruta)}
+            data-dock-item
+            aria-current={ruta === '/' ? 'page' : undefined}
+            class="dock-item dock-item-movil"
+          >
+            <Icono nombre="casa" class="icono-normal h-[1.35rem] w-[1.35rem]" />
+            <Icono nombre="casaLlena" class="icono-activo h-[1.35rem] w-[1.35rem]" />
+            <span>Inicio</span>
+          </a>
+        </li>
+        <li>
+          <button
+            id="boton-mas"
+            type="button"
+            data-dock-item
+            aria-expanded="false"
+            aria-controls="menu-rapido"
+            class="dock-item dock-item-movil"
+          >
+            <Icono nombre="mas" class="icono-normal h-[1.35rem] w-[1.35rem]" />
+            <Icono nombre="masLlena" class="icono-activo h-[1.35rem] w-[1.35rem]" />
+            <span>Más</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
 </nav>
 
-<!-- Botón flotante "Reservar mesa" (sobre la barra, se oculta con el overlay) -->
+<!-- Botón flotante de reserva: agenda + frases que salen hacia la izquierda -->
 <a
   id="fab-reserva"
   href={whatsappReserva}
   target="_blank"
   rel="noopener noreferrer"
-  class="fixed bottom-[calc(4rem_+_env(safe-area-inset-bottom)_+_0.75rem)] right-4 z-40 inline-flex items-center gap-2 bg-marfil px-5 py-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-verde shadow-lg transition-colors hover:bg-beige md:hidden"
+  aria-label="Reservar mesa por WhatsApp"
+  class="fab fixed bottom-[calc(5.75rem_+_env(safe-area-inset-bottom))] right-4 z-40 md:hidden"
 >
-  <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-    <path d={trazos.reservar}></path>
-  </svg>
-  Reservar mesa
+  <span class="fab-etiqueta" aria-hidden="true">
+    <span class="fab-frases">
+      {frases.map((f) => <span class="fab-frase">{f}</span>)}
+    </span>
+  </span>
+  <span class="fab-boton">
+    <Icono nombre="agenda" class="h-6 w-6" />
+  </span>
 </a>
 
-<!-- Overlay de acciones rápidas a pantalla completa -->
+<!-- Overlay de acciones rápidas: velo translúcido, marca arriba y opciones
+     centradas, sin divisiones. -->
 <div
   id="menu-rapido"
   role="dialog"
   aria-modal="true"
-  aria-labelledby="titulo-menu-rapido"
+  aria-label="Acciones rápidas"
   hidden
-  class="fixed inset-0 z-50 flex flex-col bg-verde pb-[env(safe-area-inset-bottom)] md:hidden"
+  class="menu-rapido fixed inset-0 z-50 flex flex-col pb-[calc(1.5rem_+_env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] md:hidden"
 >
-  <div class="flex items-center justify-between border-b border-marfil/15 px-5 py-4">
-    <img
-      src="/logo-claro-160.png"
-      alt=""
-      aria-hidden="true"
-      width={160}
-      height={173}
-      class="h-10 w-auto"
-    />
+  <div class="relative flex justify-end px-5 pt-4">
     <button
       id="boton-cerrar-mas"
       type="button"
       aria-label="Cerrar menú"
-      class="flex h-11 w-11 items-center justify-center border border-marfil/40 text-marfil transition-colors hover:bg-marfil hover:text-verde"
+      class="flex h-11 w-11 items-center justify-center rounded-full bg-marfil/10 text-marfil transition-colors hover:bg-marfil hover:text-azul"
     >
-      <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <path d="M6 6l12 12M18 6L6 18"></path>
-      </svg>
+      <Icono nombre="cerrar" class="h-5 w-5" />
     </button>
   </div>
 
-  <div class="flex-1 overflow-y-auto px-5 py-8">
-    <h2 id="titulo-menu-rapido" class="antetitulo mb-6 text-beige">Acciones rápidas</h2>
-    <ul class="space-y-2">
+  <div class="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 pb-6 text-center">
+    <div class="menu-rapido-marca flex flex-col items-center gap-3">
+      <img
+        src="/logo-oscuro-200.webp"
+        alt=""
+        aria-hidden="true"
+        width={184}
+        height={200}
+        loading="lazy"
+        decoding="async"
+        class="h-20 w-auto brightness-0 invert"
+      />
+      <span class="font-display text-[1.7rem] leading-none text-marfil">La Cañadita</span>
+    </div>
+
+    <ul class="mt-12 flex flex-col items-center gap-2">
       {
         accionesRapidas.map((accion) => (
           <li>
             <a
               href={ancla(accion.href, ruta)}
               {...(accion.externo ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              class="menu-rapido-enlace flex min-h-14 items-center gap-4 border border-marfil/20 px-5 py-4 text-lg text-marfil transition-colors hover:bg-marfil hover:text-verde"
+              class="menu-rapido-enlace inline-flex min-h-12 items-center whitespace-nowrap px-4 font-sans text-[1.3rem] font-medium leading-none tracking-[-0.01em] text-marfil transition-colors hover:text-oro"
             >
-              <svg aria-hidden="true" class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d={trazos[accion.id] ?? trazos.menu}></path>
-              </svg>
-              <span class="font-display tracking-wide">{accion.etiqueta}</span>
+              {accion.etiqueta}
             </a>
           </li>
         ))
       }
     </ul>
-
-    <p class="mt-8 text-sm text-marfil/70">
-      O llámanos al
-      <a href={contacto.telefono.href} class="text-marfil underline underline-offset-4">
-        {contacto.telefono.visible}
-      </a>
-    </p>
   </div>
+
+  <p class="text-center text-sm text-marfil/70">
+    O llámanos al
+    <a href={contacto.telefono.href} class="text-marfil underline underline-offset-4">
+      {contacto.telefono.visible}
+    </a>
+  </p>
 </div>
 
 <script>
@@ -166,8 +176,7 @@ const iconoInicio = 'M3 10.5 12 3l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 
     const boton = document.getElementById<HTMLButtonElement>('boton-mas');
     const overlay = document.getElementById<HTMLElement>('menu-rapido');
     const botonCerrar = document.getElementById<HTMLButtonElement>('boton-cerrar-mas');
-    const fab = document.getElementById<HTMLElement>('fab-reserva');
-    if (!boton || !overlay || !botonCerrar || !fab) return;
+    if (!boton || !overlay || !botonCerrar) return;
     overlay.dataset.listos = 'true';
 
     const bloqueables = document.querySelectorAll<HTMLElement>('header, main, footer, #barra-inferior');
@@ -188,7 +197,6 @@ const iconoInicio = 'M3 10.5 12 3l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 
       overlay.setAttribute('data-estado', 'abierto');
       boton.setAttribute('aria-expanded', 'true');
       boton.dataset.abierto = 'true';
-      fab.hidden = true;
       document.body.classList.add('sin-scroll');
       bloqueables.forEach((elemento) => elemento.setAttribute('inert', ''));
       elementosFocuseables()[0]?.focus();
@@ -206,7 +214,6 @@ const iconoInicio = 'M3 10.5 12 3l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 
       if (!estaAbierto()) return;
       boton.setAttribute('aria-expanded', 'false');
       delete boton.dataset.abierto;
-      fab.hidden = false;
       overlay.setAttribute('data-estado', 'cerrando');
       // El overlay se oculta al terminar la animación de salida (200 ms).
       temporizadorCierre = setTimeout(finalizarCierre, 260);
@@ -243,9 +250,8 @@ const iconoInicio = 'M3 10.5 12 3l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 
   }
 
   /**
-   * Arranque: inmediato con carga normal y también en cada `astro:page-load`
-   * (evento del ClientRouter, que se reintegra en la Fase 4). El guard por
-   * elemento evita registrar los listeners dos veces.
+   * Arranque: inmediato con carga normal y también en cada `astro:page-load`.
+   * El guard por elemento evita registrar los listeners dos veces.
    */
   function iniciar(): void {
     const overlay = document.getElementById('menu-rapido');
@@ -259,4 +265,98 @@ const iconoInicio = 'M3 10.5 12 3l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 
     iniciar();
   }
   document.addEventListener('astro:page-load', iniciar);
+
+  /**
+   * Botón de reserva: aparece a partir de "Nuestra casa" (#experiencia) y se
+   * queda de ahí hacia abajo; arriba no estorba al hero ni a la cinta.
+   * Fuera de la home se muestra siempre.
+   */
+  function iniciarFab(): void {
+    const fab = document.getElementById('fab-reserva');
+    if (!fab || fab.dataset.listo === 'true') return;
+    fab.dataset.listo = 'true';
+    const desde = document.getElementById('experiencia');
+    if (!desde) {
+      fab.setAttribute('data-visible', '');
+      return;
+    }
+    // Una sola lectura por frame (rAF): sin layout forzado repetido aunque
+    // lleguen muchos eventos de scroll. (Un IntersectionObserver no detecta
+    // saltos directos de abajo hacia arriba, p. ej. "volver al inicio".)
+    let pendiente = false;
+    const actualizar = () => {
+      pendiente = false;
+      fab.toggleAttribute('data-visible', desde.getBoundingClientRect().top < window.innerHeight * 0.75);
+    };
+    const pedir = () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(actualizar);
+    };
+    window.addEventListener('scroll', pedir, { passive: true });
+    window.addEventListener('resize', pedir, { passive: true });
+    actualizar();
+  }
+  iniciarFab();
+  document.addEventListener('astro:page-load', iniciarFab);
+
+  /**
+   * Píldora del dock: la posición inicial ya viene del servidor (--i). Al
+   * tocar un enlace a otra página, la píldora y el icono relleno se deslizan
+   * al destino y después se navega. Si se vuelve con "atrás" (bfcache) se
+   * restaura el estado original.
+   */
+  function iniciarPildora(): void {
+    const pista = document.querySelector<HTMLElement>('#barra-inferior [data-dock-pista]');
+    if (!pista || pista.dataset.listo === 'true') return;
+    pista.dataset.listo = 'true';
+    const indicador = pista.querySelector<HTMLElement>('[data-dock-indicador]');
+    const items = Array.from(pista.querySelectorAll<HTMLElement>('[data-dock-item]'));
+    if (!indicador) return;
+    const inicial = items.find((i) => i.hasAttribute('aria-current')) ?? null;
+
+    const marcar = (destino: HTMLElement | null): void => {
+      items.forEach((i) => i.toggleAttribute('data-activo', i === destino));
+      items.forEach((i) => {
+        if (i !== destino) i.removeAttribute('aria-current');
+      });
+      if (destino) destino.setAttribute('aria-current', 'page');
+      const indice = destino ? items.indexOf(destino) : -1;
+      if (indice < 0) {
+        indicador.removeAttribute('data-visible');
+        return;
+      }
+      pista.style.setProperty('--i', String(indice));
+      indicador.setAttribute('data-visible', '');
+    };
+
+    const reducir = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let navegando = false;
+
+    items.forEach((item) => {
+      if (!(item instanceof HTMLAnchorElement)) return;
+      item.addEventListener('click', (e) => {
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const destino = new URL(item.href);
+        // Solo navegaciones a otra página: un ancla en la misma no cambia el activo.
+        if (destino.pathname === location.pathname) return;
+        // Cada cambio de página es una carga completa: la píldora se desliza
+        // primero (con la página actual aún viva, sin trabarse) y luego se
+        // navega. La página nueva ya trae la píldora en el mismo lugar.
+        e.preventDefault();
+        if (navegando) return;
+        navegando = true;
+        marcar(item);
+        window.setTimeout(() => location.assign(item.href), reducir.matches ? 0 : 340);
+      });
+    });
+
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      navegando = false;
+      marcar(inicial);
+    });
+  }
+  iniciarPildora();
+  document.addEventListener('astro:page-load', iniciarPildora);
 </script>

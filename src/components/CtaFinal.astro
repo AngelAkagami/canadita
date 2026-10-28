@@ -1,44 +1,101 @@
 ---
-import Ornamento from './Ornamento.astro';
+/**
+ * Cierre: "Te guardamos una mesa." Sin fotografía: la tipografía sobre el
+ * lienzo y una tarjeta de "Reservado" como las que se ponen sobre la mesa.
+ * En la tarjeta se elige el día y cuántas personas, y el botón arma el
+ * mensaje de WhatsApp con eso. Sin JS el botón abre el mensaje general.
+ */
+import Icono from './Icono.astro';
 import { contacto, enlaceWhatsApp } from '../data/site';
 
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+/** Enlace con marcador: el script cambia __MSG__ por el mensaje armado. */
+const plantilla = enlaceWhatsApp('__MSG__');
+
+const dias = [
+  { valor: 'hoy', etiqueta: 'Hoy' },
+  { valor: 'mañana', etiqueta: 'Mañana' },
+  { valor: 'el sábado', etiqueta: 'Sábado' },
+  { valor: 'el domingo', etiqueta: 'Domingo' },
+];
+const personas = [
+  { valor: 'para 2 personas', etiqueta: '2' },
+  { valor: 'para 3 a 4 personas', etiqueta: '3–4' },
+  { valor: 'para 5 a 8 personas', etiqueta: '5–8' },
+  { valor: 'para más de 8 personas', etiqueta: '9+' },
+];
 ---
 
-<section
-  class="fusion-beige-verde bg-verde py-20 text-center text-marfil md:py-28"
-  aria-labelledby="titulo-cta"
->
-  <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-    <Ornamento variante="claro" class="mx-auto mb-7 h-12 w-12 opacity-90" />
-    <h2 id="titulo-cta" class="text-4xl sm:text-5xl md:text-6xl">
-      Te esperamos en <em class="font-normal italic">La Cañadita.</em>
+<section data-tono="teal" class="relative py-24 md:py-36" aria-labelledby="titulo-cta">
+  <div class="mx-auto grid max-w-[1440px] gap-12 px-5 md:grid-cols-12 md:items-center md:gap-10 md:px-6 lg:px-10">
+    <h2 id="titulo-cta" data-titular class="display-xl text-azul md:col-span-6 md:text-[clamp(3.5rem,6.2vw,6.5rem)]">
+      <span class="mascara"><span data-linea>Te guardamos</span></span>
+      <span class="mascara"><span data-linea><em class="texto-oro pr-3 italic">una mesa.</em></span></span>
     </h2>
-    <p class="mt-5 text-lg text-marfil/90">Ven a compartir una buena mesa. Estamos en Cuernavaca.</p>
 
-    <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-      <a
-        href={whatsappReserva}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
-      >
+    <div data-reveal data-reserva data-plantilla={plantilla} class="reservado md:col-span-6 lg:col-span-5 lg:col-start-8">
+      <div class="reservado-cabeza">
+        <img src="/ornamento-oscuro-160.webp" alt="" width="160" height="160" class="h-11 w-11" loading="lazy" />
+        <p class="font-display text-[2.1rem] italic leading-none text-azul">Reservado</p>
+        <p class="text-[0.82rem] font-medium text-azul/60">para ti y los tuyos</p>
+      </div>
+
+      <fieldset class="reservado-grupo">
+        <legend class="reservado-leyenda">¿Qué día?</legend>
+        <div class="grid grid-cols-4 gap-2">
+          {
+            dias.map((d, i) => (
+              <label class="ficha">
+                <input type="radio" name="reserva-dia" value={d.valor} checked={i === 0} class="sr-only" />
+                {d.etiqueta}
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="reservado-grupo">
+        <legend class="reservado-leyenda">¿Cuántas personas?</legend>
+        <div class="grid grid-cols-4 gap-2">
+          {
+            personas.map((p, i) => (
+              <label class="ficha tabular-nums">
+                <input type="radio" name="reserva-personas" value={p.valor} checked={i === 0} class="sr-only" />
+                {p.etiqueta}
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <a href={whatsappReserva} data-reserva-enlace target="_blank" rel="noopener noreferrer" class="accion accion-principal mt-7 w-full">
+        <Icono nombre="whatsapp" class="h-[1.15rem] w-[1.15rem]" />
         Reservar por WhatsApp
       </a>
-      <a
-        href="/menu/"
-        class="inline-flex items-center justify-center border border-marfil/80 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-marfil hover:text-verde"
-      >
-        Ver menú
-      </a>
-      <a
-        href={contacto.maps.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center justify-center border border-marfil/80 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-marfil hover:text-verde"
-      >
-        Cómo llegar
-      </a>
+      <p class="mt-4 text-center text-[0.88rem] text-azul/65">
+        o llama al <a href={contacto.telefono.href} class="enlace font-semibold text-azul">{contacto.telefono.visible}</a>
+      </p>
     </div>
   </div>
 </section>
+
+<script>
+  /** Arma el mensaje de WhatsApp con el día y las personas elegidas. */
+  function iniciarReserva(): void {
+    const tarjeta = document.querySelector<HTMLElement>('[data-reserva]');
+    const enlace = tarjeta?.querySelector<HTMLAnchorElement>('[data-reserva-enlace]');
+    const plantilla = tarjeta?.dataset.plantilla;
+    if (!tarjeta || !enlace || !plantilla || tarjeta.dataset.listo) return;
+    tarjeta.dataset.listo = 'true';
+
+    const elegido = (nombre: string) =>
+      tarjeta.querySelector<HTMLInputElement>(`input[name="${nombre}"]:checked`)?.value ?? '';
+    const actualizar = () => {
+      const mensaje = `Hola, me gustaría reservar una mesa ${elegido('reserva-dia')} ${elegido('reserva-personas')} en La Cañadita.`;
+      enlace.href = plantilla.replace('__MSG__', encodeURIComponent(mensaje));
+    };
+    tarjeta.addEventListener('change', actualizar);
+    actualizar();
+  }
+  iniciarReserva();
+</script>

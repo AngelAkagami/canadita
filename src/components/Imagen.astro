@@ -13,11 +13,13 @@ interface Props {
   sizes?: string;
   /** Carga prioritaria solo para la imagen principal de la página. */
   prioritaria?: boolean;
+  /** Visible al cargar pero no es la principal: sin lazy, prioridad normal. */
+  inmediata?: boolean;
   /** Recorte del contenedor para móvil y escritorio. */
   objectPosition?: string;
 }
 
-const { nombre, alt, class: clase = '', sizes = '100vw', prioritaria = false, objectPosition } = Astro.props;
+const { nombre, alt, class: clase = '', sizes = '100vw', prioritaria = false, inmediata = false, objectPosition } = Astro.props;
 
 /** Ancho y alto reales de cada archivo generado. */
 const DIMENSIONES: Record<string, [number, number]> = {
@@ -30,12 +32,10 @@ const DIMENSIONES: Record<string, [number, number]> = {
   peras: [972, 716],
   omelette: [950, 730],
   'buffet-copas': [1800, 1080],
-  'buffet-plato': [1440, 1080],
   'hero-patio': [1920, 1440],
   barra: [1448, 1086],
   'buffet-sopas': [1440, 1440],
   panaderia: [1800, 1200],
-  croissants: [1600, 1067],
   capirotada: [1440, 1920],
 };
 
@@ -55,7 +55,7 @@ const posicion = objectPosition ? { 'object-position': objectPosition } : {};
   {alt}
   width={ancho}
   height={alto}
-  loading={prioritaria ? 'eager' : 'lazy'}
+  loading={prioritaria || inmediata ? 'eager' : 'lazy'}
   decoding={prioritaria ? 'sync' : 'async'}
   fetchpriority={prioritaria ? 'high' : 'auto'}
   class={clase}

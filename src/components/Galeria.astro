@@ -1,47 +1,52 @@
 ---
-import Imagen from './Imagen.astro';
-
 /**
- * Galería editorial con las mejores fotografías disponibles:
- * platillos, desayunos y ambiente del restaurante.
+ * "Un recorrido por la casa": la sección se fija y las fotos avanzan de
+ * lado con el scroll, flotando a distintas velocidades (GSAP, ver
+ * scripts/animaciones.ts), en todas las pantallas. Sin JS o con movimiento
+ * reducido es un carrusel con scroll-snap nativo.
  */
+import Imagen from './Imagen.astro';
+import TextoIluminado from './TextoIluminado.astro';
+
 const piezas = [
-  { nombre: 'pulpo', alt: 'Pulpo ahumado sobre puré de camote con espárragos', clase: 'col-span-2 row-span-2 aspect-square md:col-span-2 md:row-span-2' },
-  { nombre: 'ceviche', alt: 'Ceviche servido en plato de talavera con crema de coco', clase: 'col-span-2 aspect-[2/1] md:col-span-2' },
-  { nombre: 'omelette', alt: 'Omelette de flor de calabaza con ensalada fresca', clase: 'aspect-square' },
-  { nombre: 'churros', alt: 'Churros de mesa con trilogía de helados artesanales', clase: 'aspect-square' },
-  { nombre: 'desayuno-mesa', alt: 'Mesa de desayuno con chilaquiles, jugo de naranja y fruta fresca', clase: 'col-span-2 aspect-[2/1] md:col-span-2' },
-  { nombre: 'peras', alt: 'Peras al vino tinto con helado de frutos secos', clase: 'aspect-square' },
-  { nombre: 'capirotada', alt: 'Pan dulce con crema, fresas, moras y frutas de temporada', clase: 'aspect-square' },
+  { nombre: 'exterior', alt: 'Terraza con mesas bajo la pérgola y jardines', pie: 'La terraza', clase: 'w-[82vw] lg:w-[44vw] h-[56vw] lg:h-[60vh]' },
+  { nombre: 'pulpo', alt: 'Pulpo ahumado sobre puré de camote con espárragos', pie: 'Pulpo ahumado', clase: 'w-[64vw] lg:w-[24vw] h-[84vw] lg:h-[66vh]' },
+  { nombre: 'barra', alt: 'Barra con estantería iluminada y detalles de madera', pie: 'La barra', clase: 'w-[82vw] lg:w-[34vw] h-[60vw] lg:h-[52vh]' },
+  { nombre: 'capirotada', alt: 'Pan dulce con crema, fresas, moras y frutas de temporada', pie: 'Dulces de la casa', clase: 'w-[64vw] lg:w-[22vw] h-[84vw] lg:h-[62vh]' },
+  { nombre: 'desayuno-mesa', alt: 'Mesa de desayuno con chilaquiles, jugo de naranja y fruta fresca', pie: 'Desayunos', clase: 'w-[82vw] lg:w-[38vw] h-[60vw] lg:h-[56vh]' },
+  { nombre: 'buffet-sopas', alt: 'Fuentes de sopa y consomé en la línea del buffet', pie: 'El buffet', clase: 'w-[70vw] lg:w-[28vw] h-[70vw] lg:h-[64vh]' },
 ];
 ---
 
 <section
   id="galeria"
-  class="fusion-beige-marfil scroll-mt-20 bg-marfil py-20 md:py-28"
+  data-paneo
+  data-tono="oro"
+  class="scroll-mt-20 overflow-hidden py-24 lg:flex lg:h-[100dvh] lg:items-center lg:py-0"
   aria-labelledby="titulo-galeria"
 >
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto mb-12 max-w-2xl text-center md:mb-16">
-      <p class="antetitulo mb-3 text-verde-suave">Galería</p>
-      <h2 id="titulo-galeria" class="text-4xl text-verde sm:text-5xl">
-        Sabores y momentos <em class="font-normal italic">de La Cañadita</em>
+  <div data-pista class="sin-barra relative flex scroll-px-5 snap-x snap-mandatory items-center gap-5 overflow-x-auto px-5 md:px-6 lg:snap-none lg:gap-12 lg:overflow-visible lg:pl-10 lg:pr-[10vw]">
+    <div class="relative z-10 w-[82vw] shrink-0 snap-start lg:w-[34vw]">
+      <h2 id="titulo-galeria" class="display-lg text-azul">
+        Un recorrido <em class="texto-oro pr-2 italic">por la casa.</em>
       </h2>
+      <TextoIluminado
+        class="mt-8 max-w-[30ch] font-display text-2xl leading-snug text-azul md:text-3xl"
+        texto="Jardines, pérgolas, la barra y la cocina: así se vive La Cañadita."
+      />
     </div>
-
-    <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-      {
-        piezas.map((pieza) => (
-          <figure class={`relative overflow-hidden bg-beige ${pieza.clase}`}>
-            <Imagen
-              nombre={pieza.nombre}
-              alt={pieza.alt}
-              class="absolute inset-0 h-full w-full object-cover"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-            />
-          </figure>
-        ))
-      }
-    </div>
+    {
+      piezas.map((p, i) => (
+        <figure data-flota class:list={['relative z-10 shrink-0 snap-start', p.clase]}>
+          <div class="h-full w-full overflow-hidden rounded-sm bg-beige shadow-[0_40px_80px_-30px_rgba(0,47,89,0.35)]">
+            <Imagen nombre={p.nombre} alt={p.alt} class="h-full w-full object-cover" sizes="(min-width: 1024px) 44vw, 82vw" />
+          </div>
+          <figcaption class="mt-4 flex items-baseline gap-3 text-sm text-azul/70">
+            <span class="font-display text-lg italic text-oro-oscuro">0{i + 1}</span>
+            {p.pie}
+          </figcaption>
+        </figure>
+      ))
+    }
   </div>
 </section>

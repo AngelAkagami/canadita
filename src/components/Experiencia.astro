@@ -1,61 +1,53 @@
 ---
-import Imagen from './Imagen.astro';
-import Ornamento from './Ornamento.astro';
-import { resumenHorarios } from '../data/horarios';
+/**
+ * Nuestra casa: el manifiesto se ilumina palabra por palabra mientras se lee
+ * y lo acompaña el horario de la casa, compuesto como el letrero de una
+ * puerta: día, línea punteada y hora. La tipografía es la protagonista.
+ */
+import TextoIluminado from './TextoIluminado.astro';
+import { horarios } from '../data/horarios';
+import { contacto } from '../data/site';
+
+/** "08:00" → "8:00". */
+const hora = (h: string) => h.replace(/^0/, '');
+const tramo = (t: { apertura: string; cierre: string }) => `${hora(t.apertura)} – ${hora(t.cierre)}`;
+
+const filas = [
+  { dia: horarios.entreSemana.etiqueta, valor: tramo(horarios.entreSemana) },
+  { dia: horarios.finDeSemana.etiqueta, valor: tramo(horarios.finDeSemana) },
+];
 ---
 
-<section
-  id="experiencia"
-  class="fusion-verde-marfil scroll-mt-20 bg-marfil py-20 md:py-28"
-  aria-labelledby="titulo-experiencia"
->
-  <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
-    <!-- Texto a la derecha en tablet y escritorio; primero en celular -->
-    <div class="md:order-2">
-      <Ornamento variante="oscuro" class="mb-6 h-10 w-10" />
-      <p class="antetitulo mb-4 text-verde-suave">Nuestra experiencia</p>
-      <h2 id="titulo-experiencia" class="text-4xl text-verde sm:text-5xl">
-        Un espacio donde la tradición se sirve <em class="font-normal italic">con una mirada actual.</em>
-      </h2>
+<section id="experiencia" data-tono="teal" class="scroll-mt-20 py-24 md:py-36" aria-labelledby="titulo-experiencia">
+  <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
+    <h2 id="titulo-experiencia" class="sr-only">Nuestra casa</h2>
+    <TextoIluminado
+      class="font-display text-[clamp(2.2rem,5.4vw,5.8rem)] leading-[1.04] tracking-[-0.025em] text-azul"
+      texto="En el corazón de Cuernavaca, una casa con jardín donde la cocina mexicana llega *recién hecha* a la mesa, con ingredientes frescos, técnica y herencia culinaria, y una sobremesa que *dura lo que tú quieras.*"
+    />
 
-      <div class="mt-7 max-w-[60ch] space-y-5 text-[0.98rem] leading-relaxed text-tinta/85">
-        <p>
-          En el corazón de Cuernavaca, La Cañadita reúne cocina contemporánea, jardines cuidados y un
-          servicio pensado para que cada visita se disfrute sin prisa.
-        </p>
-        <p>
-          Cada platillo es una historia: <em class="not-italic font-medium text-verde">ingredientes frescos,
-          técnica y herencia cultural en cada bocado.</em> Lo mejor de la cocina mexicana contemporánea,
-          servida entre la calidez de nuestra mesa.
-        </p>
-      </div>
-
-      <dl class="mt-9 grid max-w-[60ch] gap-6 border-t border-beige pt-7 sm:grid-cols-2">
-        <div>
-          <dt class="antetitulo mb-1 text-verde-suave">Horario</dt>
-          <dd class="text-sm text-tinta/85">{resumenHorarios}</dd>
-        </div>
-        <div>
-          <dt class="antetitulo mb-1 text-verde-suave">Reservaciones</dt>
-          <dd class="text-sm text-tinta/85">777 781 00 03</dd>
+    <div class="mt-20 md:mt-28 md:grid md:grid-cols-12 md:gap-10">
+      <dl data-reveal class="horario md:col-span-7 md:col-start-6" aria-label="Horario y reservaciones">
+        {
+          filas.map((f) => (
+            <div class="horario-fila">
+              <dt class="horario-dia">{f.dia}</dt>
+              <span class="horario-puntos" aria-hidden="true"></span>
+              <dd class="horario-valor">{f.valor}</dd>
+            </div>
+          ))
+        }
+        <div class="horario-fila">
+          <dt class="horario-dia">
+            Reservaciones
+            <span class="mt-0.5 block text-[0.78rem] font-medium text-oro-oscuro">Teléfono y WhatsApp</span>
+          </dt>
+          <span class="horario-puntos" aria-hidden="true"></span>
+          <dd class="horario-valor">
+            <a href={contacto.telefono.href} class="enlace">{contacto.telefono.visible}</a>
+          </dd>
         </div>
       </dl>
-    </div>
-
-    <!-- Imagen a la izquierda en desktop, con desplazamiento sutil -->
-    <div class="relative md:order-1 md:-translate-y-5">
-      <Imagen
-        nombre="barra"
-        alt="Barra de La Cañadita con estantería iluminada y detalles de madera"
-        class="aspect-[5/4] w-full object-cover"
-        sizes="(min-width: 768px) 45vw, 100vw"
-      />
-      <Imagen
-        nombre="medallon"
-        alt="Medallón de res a la pimienta con puré de camote y espárragos"
-        class="absolute -bottom-8 -left-4 hidden w-2/3 border-8 border-marfil object-cover sm:block md:-left-10 md:w-3/5"
-        sizes="(min-width: 640px) 30vw, 1px"
-      />
     </div>
   </div>
 </section>

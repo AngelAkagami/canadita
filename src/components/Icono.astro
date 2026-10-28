@@ -1,0 +1,40 @@
+---
+/**
+ * Iconos de Phosphor (MIT, @phosphor-icons/core) incrustados como SVG.
+ * Un solo sistema y un solo peso en todo el sitio. Se importan uno por uno
+ * para no meter la librería completa al build.
+ */
+import casa from '@phosphor-icons/core/assets/regular/house-line.svg?raw';
+import cubiertos from '@phosphor-icons/core/assets/regular/fork-knife.svg?raw';
+import mas from '@phosphor-icons/core/assets/regular/dots-three.svg?raw';
+import agenda from '@phosphor-icons/core/assets/regular/calendar-dots.svg?raw';
+import ubicacion from '@phosphor-icons/core/assets/regular/map-pin.svg?raw';
+import whatsapp from '@phosphor-icons/core/assets/regular/whatsapp-logo.svg?raw';
+import cerrar from '@phosphor-icons/core/assets/regular/x.svg?raw';
+import casaLlena from '@phosphor-icons/core/assets/fill/house-line-fill.svg?raw';
+import cubiertosLlena from '@phosphor-icons/core/assets/fill/fork-knife-fill.svg?raw';
+import masLlena from '@phosphor-icons/core/assets/bold/dots-three-bold.svg?raw';
+import llegar from '@phosphor-icons/core/assets/regular/navigation-arrow.svg?raw';
+import abrir from '@phosphor-icons/core/assets/regular/plus.svg?raw';
+import instagram from '@phosphor-icons/core/assets/regular/instagram-logo.svg?raw';
+import facebook from '@phosphor-icons/core/assets/regular/facebook-logo.svg?raw';
+import tiktok from '@phosphor-icons/core/assets/regular/tiktok-logo.svg?raw';
+import copiar from '@phosphor-icons/core/assets/regular/copy.svg?raw';
+import listo from '@phosphor-icons/core/assets/regular/check.svg?raw';
+import buscar from '@phosphor-icons/core/assets/regular/magnifying-glass.svg?raw';
+
+const iconos = {
+  casa, cubiertos, mas, agenda, ubicacion, whatsapp, cerrar, casaLlena, cubiertosLlena, masLlena,
+  llegar, abrir, instagram, facebook, tiktok, copiar, listo, buscar,
+} as const;
+export type NombreIcono = keyof typeof iconos;
+
+interface Props {
+  nombre: NombreIcono;
+  class?: string;
+}
+
+const { nombre, class: clase = 'h-6 w-6' } = Astro.props;
+---
+
+<span aria-hidden="true" class:list={['icono inline-block shrink-0', clase]} set:html={iconos[nombre]} />

@@ -1,0 +1,42 @@
+---
+/**
+ * Texto que se "ilumina" palabra por palabra al hacer scroll: cada palabra
+ * empieza tenue y se enciende conforme el bloque avanza en pantalla (GSAP
+ * ScrollTrigger con scrub, ver scripts/animaciones.ts).
+ *
+ * Las palabras entre asteriscos (*así*) se marcan como énfasis en dorado
+ * cursiva. Sin JS o con prefers-reduced-motion el texto se ve completo.
+ */
+interface Props {
+  texto: string;
+  /** Etiqueta del elemento contenedor. */
+  como?: 'p' | 'blockquote' | 'h2';
+  class?: string;
+  id?: string;
+}
+
+const { texto, como: Etiqueta = 'p', class: clase = '', id } = Astro.props;
+
+/** Divide en tramos normales y enfatizados, y cada tramo en palabras. */
+const palabras = texto
+  .split(/(\*[^*]+\*)/)
+  .filter(Boolean)
+  .flatMap((tramo) => {
+    const enfasis = tramo.startsWith('*');
+    return tramo
+      .replace(/\*/g, '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((palabra) => ({ palabra, enfasis }));
+  });
+---
+
+<Etiqueta data-iluminar id={id} class={clase}>
+  {
+    palabras.map(({ palabra, enfasis }) => (
+      <>
+        <span class:list={['palabra', { 'texto-oro pr-[0.08em] italic': enfasis }]}>{palabra}</span>{' '}
+      </>
+    ))
+  }
+</Etiqueta>

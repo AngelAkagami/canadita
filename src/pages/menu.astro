@@ -6,6 +6,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MenuCategoria from '../components/MenuCategoria.astro';
+import Icono from '../components/Icono.astro';
 import Ornamento from '../components/Ornamento.astro';
 import { menuSugerencias } from '../data/menu';
 import menuDatos from '../data/menu.json';
@@ -140,52 +141,111 @@ const secciones = [...chef, ...desayunos, jugos, calientes].map((seccion, indice
 }));
 
 const chips = secciones.map((seccion) => ({ href: `#${seccion.id}`, etiqueta: seccion.nombre }));
+
+const totalPlatillos = secciones.reduce((suma, seccion) => suma + seccion.items.length, 0);
+
+/** Índice de la portada: los tres apartados de la carta con su número de platillos. */
+const cuenta = (grupo: string) =>
+  secciones.filter((s) => s.grupo === grupo).reduce((suma, s) => suma + s.items.length, 0);
+const indice = [
+  { numeral: 'I', nombre: 'Sugerencias del chef', href: '#grupo-chef', total: cuenta('Sugerencias del chef') },
+  { numeral: 'II', nombre: 'Desayunos', href: '#grupo-desayunos', total: cuenta('Desayunos') },
+  { numeral: 'III', nombre: 'Bebidas', href: '#grupo-bebidas', total: cuenta('Bebidas') },
+];
+
+/** Platillos reales que el buscador "escribe" como sugerencia. */
+const sugerencias = [
+  ...menuSugerencias.flatMap((categoria) => categoria.platillos.slice(0, 1).map((p) => p.nombre)),
+  ...datos.desayunos
+    .filter((categoria) => categoria.categoria !== 'Extras')
+    .flatMap((categoria) => categoria.items.slice(0, 1).map((p) => p.nombre)),
+].map((nombre) => nombre.replace(/\s*\(.*?\)/g, ''));
 ---
 
 <BaseLayout
   titulo="Menú — Carta completa de La Cañadita Restaurant"
   descripcion="Sugerencias del chef, desayunos, jugos y bebidas calientes de La Cañadita Restaurant en Cuernavaca, Morelos. Precios en pesos mexicanos."
-  imagenOG="/img/croissants-1280.webp"
 >
-  <header class="bg-beige pb-12 pt-14 md:pb-14 md:pt-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <p class="antetitulo mb-4 text-verde-suave">Menú</p>
-      <h1 class="max-w-3xl text-4xl text-verde sm:text-5xl md:text-6xl">
-        La carta completa de <em class="font-normal italic">La Cañadita.</em>
-      </h1>
-      <p class="mt-6 max-w-[62ch] text-[1.02rem] leading-relaxed text-tinta/80">
-        Sugerencias del chef, desayunos, jugos y bebidas calientes, elaborados al momento con
-        ingredientes frescos. Precios en pesos mexicanos (MXN).
-      </p>
+  <header class="pb-10 pt-14 md:pb-16 md:pt-36">
+    <div class="mx-auto max-w-[1400px] px-5 md:px-6 lg:px-10">
+      <div class="md:grid md:grid-cols-[1.1fr_1fr] md:items-end md:gap-16">
+        <div>
+          <Ornamento variante="oscuro" class="h-11 w-auto opacity-80" />
+          <h1 class="display-xl mt-5 text-azul">La carta</h1>
+          <p class="mt-4 text-[0.9rem] text-tinta/60">
+            {totalPlatillos} platillos, precios en pesos mexicanos.
+          </p>
+        </div>
+        <ol class="carta-indice mt-10 md:mt-0">
+          {
+            indice.map((apartado) => (
+              <li>
+                <a href={apartado.href}>
+                  <span class="carta-indice-numeral">{apartado.numeral}</span>
+                  <span class="carta-indice-nombre">{apartado.nombre}</span>
+                  <span class="horario-puntos" aria-hidden="true" />
+                  <span class="carta-indice-total">{apartado.total}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
     </div>
   </header>
 
-  <nav aria-label="Categorías del menú" class="sticky top-0 z-30 border-y border-verde/20 bg-beige md:top-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <ul
-        class="sin-barra flex snap-x gap-2 overflow-x-auto py-3 md:flex-wrap md:justify-center md:gap-x-2 md:gap-y-2 md:overflow-visible"
-      >
-        {
-          chips.map((chip) => (
-            <li class="snap-start">
-              <a
-                href={chip.href}
-                class="inline-block border border-verde/30 px-3.5 py-1.5 text-[0.7rem] font-medium uppercase tracking-[0.12em] text-verde-suave transition-colors hover:border-verde hover:bg-verde hover:text-marfil"
-              >
-                {chip.etiqueta}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+  <div class="sticky top-0 z-30 border-y border-tinta/10 bg-marfil/95 backdrop-blur-md md:top-[5.25rem]">
+    <div class="mx-auto max-w-[1400px] px-5 md:px-6 lg:px-10">
+      <search class="block pt-3">
+        <label for="buscar-platillo" class="sr-only">Buscar un platillo</label>
+        <div class="buscador relative flex items-center">
+          <Icono nombre="buscar" class="pointer-events-none absolute left-4 h-[1.1rem] w-[1.1rem] text-teal" />
+          <input
+            id="buscar-platillo"
+            type="search"
+            autocomplete="off"
+            enterkeyhint="search"
+            placeholder=""
+            data-sugerencias={JSON.stringify(sugerencias)}
+            aria-describedby="buscar-estado"
+            class="h-11 w-full rounded-full border border-tinta/12 bg-white/70 pl-11 pr-4 text-[0.95rem] text-tinta placeholder:text-tinta/45 focus:border-teal focus:bg-white focus:outline-none md:max-w-md"
+          />
+        </div>
+        <p id="buscar-estado" aria-live="polite" class="sr-only"></p>
+      </search>
+      <nav aria-label="Categorías del menú">
+        <ul
+          class="sin-barra flex snap-x gap-2 overflow-x-auto py-3 md:flex-wrap md:gap-x-2 md:gap-y-2 md:overflow-visible"
+        >
+          {
+            chips.map((chip) => (
+              <li class="snap-start" data-chip={chip.href.slice(1)}>
+                <a
+                  href={chip.href}
+                  class="inline-block whitespace-nowrap rounded-full border border-tinta/15 px-4 py-1.5 text-[0.8rem] font-medium text-tinta/75 transition-colors hover:border-teal hover:bg-teal hover:text-marfil"
+                >
+                  {chip.etiqueta}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
-  </nav>
+  </div>
 
-  <div class="bg-marfil">
-    <div class="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
-      <section aria-labelledby="grupo-chef" class="pt-14">
+  <div>
+    <div class="mx-auto max-w-[1400px] px-5 pb-4 md:px-6 lg:px-10">
+      <div id="sin-resultados" hidden class="py-20 text-center">
+        <p class="font-display text-3xl text-azul">No encontramos ese platillo.</p>
+        <p class="mt-3 text-sm text-tinta/65">
+          Prueba con otra palabra o
+          <a href={whatsappCarta} target="_blank" rel="noopener noreferrer" class="enlace font-semibold text-teal">pregúntanos por WhatsApp</a>.
+        </p>
+      </div>
+      <section aria-labelledby="grupo-chef" data-grupo class="pt-14">
         <div class="max-w-[62ch]">
-          <h2 id="grupo-chef" class="text-2xl text-verde sm:text-3xl">Sugerencias del chef</h2>
+          <h2 id="grupo-chef" class="scroll-mt-40 md:scroll-mt-64 text-2xl text-azul sm:text-3xl">Sugerencias del chef</h2>
           <p class="mt-2 text-sm leading-relaxed text-tinta/70">
             Entradas, cremas y sopas, ensaladas, pastas, aves, pescados y mariscos, carnes y
             postres.
@@ -200,9 +260,9 @@ const chips = secciones.map((seccion) => ({ href: `#${seccion.id}`, etiqueta: se
         </div>
       </section>
 
-      <section aria-labelledby="grupo-desayunos" class="pt-16">
+      <section aria-labelledby="grupo-desayunos" data-grupo class="pt-16">
         <div class="max-w-[62ch]">
-          <h2 id="grupo-desayunos" class="text-2xl text-verde sm:text-3xl">Desayunos</h2>
+          <h2 id="grupo-desayunos" class="scroll-mt-40 md:scroll-mt-64 text-2xl text-azul sm:text-3xl">Desayunos</h2>
           <p class="mt-2 text-sm leading-relaxed text-tinta/70">
             Dulces y frescos, tostados y omelette, huevos y antojitos, chilaquiles y moles, y
             extras para acompañar.
@@ -217,9 +277,9 @@ const chips = secciones.map((seccion) => ({ href: `#${seccion.id}`, etiqueta: se
         </div>
       </section>
 
-      <section aria-labelledby="grupo-bebidas" class="pt-16">
+      <section aria-labelledby="grupo-bebidas" data-grupo class="pt-16">
         <div class="max-w-[62ch]">
-          <h2 id="grupo-bebidas" class="text-2xl text-verde sm:text-3xl">Bebidas</h2>
+          <h2 id="grupo-bebidas" class="scroll-mt-40 md:scroll-mt-64 text-2xl text-azul sm:text-3xl">Bebidas</h2>
           <p class="mt-2 text-sm leading-relaxed text-tinta/70">
             Jugos naturales en dos tamaños y bebidas calientes para cerrar la comida.
           </p>
@@ -235,31 +295,138 @@ const chips = secciones.map((seccion) => ({ href: `#${seccion.id}`, etiqueta: se
     </div>
   </div>
 
-  <section class="fusion-marfil-verde bg-verde py-16 text-center text-marfil md:py-20" aria-labelledby="titulo-cierre-menu">
-    <div class="mx-auto max-w-2xl px-4 sm:px-6">
-      <Ornamento variante="claro" class="mx-auto mb-6 h-10 w-10 opacity-90" />
-      <h2 id="titulo-cierre-menu" class="text-3xl sm:text-4xl">
-        ¿Preguntas sobre la <em class="font-normal italic">carta?</em>
-      </h2>
-      <p class="mt-4 text-marfil/90">
-        Escríbenos y con gusto te ayudamos con tus pedidos y reservaciones.
-      </p>
-      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <a
-          href={whatsappCarta}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
-        >
+  <section class="mt-16 bg-azul-noche py-24 text-marfil md:py-32" aria-labelledby="titulo-cierre-menu">
+    <div class="mx-auto flex max-w-[1400px] flex-col gap-10 px-5 md:flex-row md:items-end md:justify-between md:px-6 lg:px-10">
+      <div>
+        <h2 id="titulo-cierre-menu" class="display-lg">
+          ¿Dudas sobre <em class="italic text-oro">la carta?</em>
+        </h2>
+        <p class="mt-6 max-w-[40ch] text-marfil/70">
+          Escríbenos y con gusto te ayudamos con tus pedidos y reservaciones.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
+        <a href={whatsappCarta} target="_blank" rel="noopener noreferrer" class="boton group bg-marfil text-azul-noche hover:bg-oro">
           Escribir por WhatsApp
+          <span class="boton-icono bg-azul-noche/10">
+            <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </span>
         </a>
-        <a
-          href="/"
-          class="inline-flex items-center justify-center border border-marfil/50 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-marfil hover:text-verde"
-        >
-          Volver al inicio
-        </a>
+        <a href="/" class="enlace pb-1 text-[0.95rem] font-semibold">Volver al inicio</a>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  const entrada = document.getElementById('buscar-platillo') as HTMLInputElement | null;
+  const estado = document.getElementById('buscar-estado');
+  const vacio = document.getElementById('sin-resultados');
+
+  if (entrada) {
+    const normalizar = (texto: string) =>
+      texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+    const categorias = [...document.querySelectorAll<HTMLElement>('[data-categoria]')];
+    const grupos = [...document.querySelectorAll<HTMLElement>('[data-grupo]')];
+    const platos = categorias.map((categoria) =>
+      [...categoria.querySelectorAll<HTMLElement>('[data-plato]')].map((plato) => ({
+        el: plato,
+        texto: normalizar(plato.dataset.plato ?? ''),
+      })),
+    );
+
+    /* ---- Filtro ---- */
+    const filtrar = () => {
+      const terminos = normalizar(entrada.value).split(/\s+/).filter(Boolean);
+      let total = 0;
+      categorias.forEach((categoria, i) => {
+        let visibles = 0;
+        platos[i].forEach(({ el, texto }) => {
+          const coincide = terminos.every((t) => texto.includes(t));
+          el.hidden = !coincide;
+          if (coincide) visibles++;
+        });
+        categoria.hidden = visibles === 0;
+        document
+          .querySelector<HTMLElement>(`[data-chip="${categoria.id}"]`)
+          ?.toggleAttribute('hidden', visibles === 0);
+        total += visibles;
+      });
+      grupos.forEach((grupo) => {
+        grupo.hidden = !grupo.querySelector('[data-categoria]:not([hidden])');
+      });
+      if (vacio) vacio.hidden = total > 0;
+
+      // Si la barra ya está fija, lleva la vista al inicio de los resultados.
+      const barra = entrada.closest<HTMLElement>('.sticky');
+      const contenido = barra?.nextElementSibling as HTMLElement | null;
+      if (barra && contenido) {
+        const destino =
+          contenido.getBoundingClientRect().top + window.scrollY - barra.offsetHeight - parseFloat(getComputedStyle(barra).top);
+        if (window.scrollY > destino) window.scrollTo({ top: destino });
+      }
+      if (estado) {
+        estado.textContent = terminos.length
+          ? total === 0
+            ? 'Sin resultados'
+            : `${total} ${total === 1 ? 'platillo' : 'platillos'}`
+          : '';
+      }
+    };
+
+    let espera = 0;
+    entrada.addEventListener('input', () => {
+      clearTimeout(espera);
+      espera = window.setTimeout(filtrar, 120);
+    });
+    entrada.addEventListener('keydown', (evento) => {
+      if (evento.key === 'Enter') entrada.blur();
+    });
+
+    // Al buscar, la lista se lleva al inicio de los resultados.
+    entrada.addEventListener('focus', () => {
+      const barra = entrada.closest<HTMLElement>('.sticky');
+      if (barra && barra.getBoundingClientRect().top > 100) {
+        window.scrollTo({ top: window.scrollY + barra.getBoundingClientRect().top, behavior: 'smooth' });
+      }
+    });
+
+    /* ---- Máquina de escribir en el placeholder ---- */
+    const sugerencias: string[] = JSON.parse(entrada.dataset.sugerencias ?? '[]');
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (quieto && sugerencias.length) entrada.placeholder = sugerencias[0];
+
+    if (!quieto && sugerencias.length) {
+      const lista = [...sugerencias].sort(() => Math.random() - 0.5);
+      let indice = 0;
+      let letras = 0;
+      let borrando = false;
+
+      const pausado = () => document.activeElement === entrada || entrada.value !== '' || document.hidden;
+
+      const paso = () => {
+        if (pausado()) {
+          entrada.placeholder = '';
+          window.setTimeout(paso, 600);
+          return;
+        }
+        const palabra = lista[indice];
+        letras += borrando ? -1 : 1;
+        entrada.placeholder = palabra.slice(0, letras);
+
+        let demora = borrando ? 28 : 60 + Math.random() * 50;
+        if (!borrando && letras === palabra.length) {
+          borrando = true;
+          demora = 1700;
+        } else if (borrando && letras === 0) {
+          borrando = false;
+          indice = (indice + 1) % lista.length;
+          demora = 350;
+        }
+        window.setTimeout(paso, demora);
+      };
+      window.setTimeout(paso, 900);
+    }
+  }
+</script>

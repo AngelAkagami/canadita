@@ -1,107 +1,166 @@
 ---
 /**
- * Sección de menú de la home: selección breve de platillos tomados de la
- * carta completa (menu.ts + menu.json) con enlace a /menu. La carta
- * completa vive en la vista /menu.
+ * Índice de platillos.
+ * - Móvil: carrusel vertical de postales; al hacer scroll la sección se fija
+ *   y los platillos pasan por el centro, donde la tarjeta se expande.
+ * - Escritorio: lista tipográfica grande; al pasar el puntero aparece la
+ *   fotografía del platillo siguiendo al cursor.
+ * Solo se listan platillos con foto real; nombres y precios se leen de los
+ * datos oficiales (menu.ts / menu.json).
  */
 import Imagen from './Imagen.astro';
 import { menuSugerencias } from '../data/menu';
 import menuDatos from '../data/menu.json';
+import { pesos } from '../data/horarios';
 
-const platillosChef = menuSugerencias.flatMap((categoria) => categoria.platillos);
+const chef = menuSugerencias.flatMap((c) => c.platillos.map((p) => ({ ...p, categoria: c.nombre })));
 const desayunos = (
-  menuDatos as unknown as { desayunos: { items: { nombre: string; precio: number }[] }[] }
-).desayunos.flatMap((categoria) => categoria.items);
+  menuDatos as unknown as { desayunos: { categoria: string; items: { nombre: string; precio: number }[] }[] }
+).desayunos.flatMap((c) => c.items.map((p) => ({ nombre: p.nombre, precio: pesos(p.precio), categoria: 'Desayunos' })));
 
-/** Selección breve; los precios se leen de los archivos de datos (no se repiten a mano). */
-const muestra: { nombre: string; precio: string }[] = [
-  {
-    nombre: 'Trilogía de maíz',
-    precio: platillosChef.find((platillo) => platillo.nombre === 'Trilogía de maíz')?.precio ?? '',
-  },
-  {
-    nombre: 'Tostado Jardín',
-    precio: `$${desayunos.find((platillo) => platillo.nombre === 'Tostado Jardín')?.precio ?? 0}`,
-  },
-  {
-    nombre: 'Pulpo ahumado',
-    precio: platillosChef.find((platillo) => platillo.nombre === 'Pulpo ahumado')?.precio ?? '',
-  },
-  {
-    nombre: 'Chilaquiles Fundidos',
-    precio: `$${desayunos.find((platillo) => platillo.nombre === 'Chilaquiles Fundidos')?.precio ?? 0}`,
-  },
-  {
-    nombre: 'Medallón de res a la pimienta 200 g',
-    precio:
-      platillosChef.find((platillo) => platillo.nombre === 'Medallón de res a la pimienta 200 g')
-        ?.precio ?? '',
-  },
-  {
-    nombre: 'Churros de mesa',
-    precio: platillosChef.find((platillo) => platillo.nombre === 'Churros de mesa')?.precio ?? '',
-  },
-];
+const buscar = (nombre: string) => [...chef, ...desayunos].find((p) => p.nombre === nombre);
+
+const seleccion = [
+  { nombre: 'Chilaquiles Fundidos', foto: 'desayuno-mesa', alt: 'Mesa de desayuno con chilaquiles, jugo de naranja y fruta' },
+  { nombre: 'Omelette de Flor Rellena', foto: 'omelette', alt: 'Omelette de flor de calabaza con ensalada fresca' },
+  { nombre: 'Ceviche de robalo', foto: 'ceviche', alt: 'Ceviche servido en plato de talavera con crema de coco' },
+  { nombre: 'Pulpo ahumado', foto: 'pulpo', alt: 'Pulpo ahumado sobre puré de camote con espárragos' },
+  { nombre: 'Medallón de res a la pimienta 200 g', foto: 'medallon', alt: 'Medallón de res a la pimienta con puré de camote' },
+  { nombre: 'Churros de mesa', foto: 'churros', alt: 'Churros de mesa con trilogía de helados artesanales' },
+  { nombre: 'Peras al vino tinto', foto: 'peras', alt: 'Peras al vino tinto con helado de frutos secos' },
+]
+  .map((s) => ({ ...s, plato: buscar(s.nombre) }))
+  .filter((s) => s.plato);
 ---
 
-<section
-  id="menu"
-  class="fusion-verde-beige scroll-mt-20 bg-beige py-20 md:py-28"
-  aria-labelledby="titulo-menu"
->
-  <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
-    <!-- Texto a la izquierda; imagen a la derecha en desktop -->
-    <div>
-      <p class="antetitulo mb-4 text-verde-suave">Menú</p>
-      <h2 id="titulo-menu" class="text-4xl text-verde sm:text-5xl">
-        Una carta para <em class="font-normal italic">volver.</em>
+<section id="menu" data-tono="oro" class="scroll-mt-20 py-24 md:py-36" aria-labelledby="titulo-menu">
+  <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
+    <!-- En móvil, título y carrusel forman una escena que se fija mientras
+         pasan los platillos. -->
+    <div data-carrusel-escena class="carrusel-escena">
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <h2 id="titulo-menu" data-titular class="display-lg text-azul">
+        <span class="mascara"><span data-linea>Una carta</span></span>
+        <span class="mascara"><span data-linea><em class="texto-oro pr-2 italic">para volver.</em></span></span>
       </h2>
-      <p class="mt-6 max-w-[54ch] text-[0.98rem] leading-relaxed text-tinta/80">
-        Del desayuno al postre: sugerencias del chef, chilaquiles, tostados, mariscos, carnes y
-        bebidas, elaborados al momento. Esta es solo una muestra.
-      </p>
+      <div class="hidden md:block">
+        <a href="/menu/" data-reveal class="boton group border border-azul/25 text-azul hover:border-azul hover:bg-azul hover:text-marfil">
+          Carta completa
+          <span class="boton-icono bg-azul/10">
+            <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </span>
+        </a>
+      </div>
+    </div>
 
-      <ul class="mt-8 max-w-[54ch]">
-        {
-          muestra.map((platillo) => (
-            <li class="flex items-baseline gap-3 border-b border-verde/20 py-3">
-              <span class="text-[1.02rem] font-semibold text-tinta">{platillo.nombre}</span>
-              <span aria-hidden="true" class="leader flex-1"></span>
-              <span class="shrink-0 text-[1.02rem] font-semibold tabular-nums text-verde">
-                {platillo.precio}
+    <!-- Móvil: carrusel vertical. Las tarjetas esperan pequeñas y la que
+         llega al centro se expande (GSAP, ver animaciones.ts). Sin JS o con
+         movimiento reducido es una lista normal de postales. -->
+    <ol data-carrusel class="carrusel mt-14 md:hidden" aria-label="Platillos de la casa">
+      {
+        seleccion.map((s, i) => (
+          <li data-plato class="carrusel-item">
+            <a href="/menu/" class="carrusel-tarjeta">
+              <span class="carrusel-foto">
+                <Imagen nombre={s.foto} alt={s.alt} class="h-full w-full object-cover" sizes="80vw" />
+                <span class="carrusel-velo" aria-hidden="true"></span>
               </span>
-            </li>
-          ))
-        }
-      </ul>
-
-      <a
-        href="/menu/"
-        class="mt-8 inline-flex items-center gap-2 bg-verde px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-marfil transition-colors hover:bg-verde-oscuro"
-      >
-        Ver menú completo
-        <svg
-          aria-hidden="true"
-          class="h-4 w-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M5 12h14M13 6l6 6-6 6"></path>
-        </svg>
-      </a>
+              <span class="carrusel-pie">
+                <span class="min-w-0">
+                  <span class="block text-[0.72rem] font-semibold text-azul/55">{s.plato!.categoria}</span>
+                  <span class="mt-0.5 block font-display text-[1.55rem] leading-[1.08] text-azul">{s.plato!.nombre}</span>
+                </span>
+                <span class="shrink-0 font-display text-[1.35rem] lining-nums tabular-nums text-oro-oscuro">{s.plato!.precio}</span>
+              </span>
+            </a>
+            <span class="carrusel-numero" aria-hidden="true">{i + 1} / {seleccion.length}</span>
+          </li>
+        ))
+      }
+    </ol>
     </div>
 
-    <div class="relative md:translate-y-4">
-      <Imagen
-        nombre="croissants"
-        alt="Croissants recién horneados con glaseado de chocolate en el jardín de La Cañadita"
-        class="aspect-[4/3] w-full object-cover"
-        sizes="(min-width: 768px) 50vw, 100vw"
-      />
-    </div>
+    <a href="/menu/" class="boton group mt-10 border border-azul/25 text-azul hover:border-azul hover:bg-azul hover:text-marfil md:hidden">
+      Carta completa
+      <span class="boton-icono bg-azul/10">
+        <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </span>
+    </a>
+
+    <ul class="mt-16 hidden border-t border-azul/15 md:mt-20 md:block" id="indice-menu">
+      {
+        seleccion.map((s) => (
+          <li data-reveal class="border-b border-azul/15">
+            <a
+              href="/menu/"
+              data-foto={s.foto}
+              class="group grid grid-cols-[1fr_12rem_7rem] items-center gap-8 py-7"
+            >
+              <span class="font-display text-[clamp(2rem,3.4vw,3.2rem)] leading-tight text-azul transition-[color,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-3 group-hover:text-teal">
+                {s.plato!.nombre}
+              </span>
+              <span class="text-sm text-azul/50">{s.plato!.categoria}</span>
+              <span class="text-right font-display text-2xl lining-nums tabular-nums text-oro-oscuro">{s.plato!.precio}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <!-- Fotos flotantes del índice (solo escritorio con puntero fino). -->
+  <div class="hidden" id="fotos-menu" aria-hidden="true">
+    {
+      seleccion.map((s) => (
+        <div class="menu-flotante overflow-hidden rounded-sm bg-beige shadow-[0_30px_60px_-20px_rgba(0,47,89,0.35)]" data-foto-id={s.foto}>
+          <Imagen nombre={s.foto} alt="" class="h-full w-full object-cover" sizes="288px" />
+        </div>
+      ))
+    }
   </div>
 </section>
+
+<script>
+  function iniciarIndice(): void {
+    const puntero = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const contenedor = document.getElementById('fotos-menu');
+    const indice = document.getElementById('indice-menu');
+    if (!puntero || !contenedor || !indice || indice.dataset.listo) return;
+    indice.dataset.listo = 'true';
+    contenedor.classList.remove('hidden');
+
+    const fotos = new Map<string, HTMLElement>();
+    contenedor.querySelectorAll<HTMLElement>('[data-foto-id]').forEach((f) => fotos.set(f.dataset.fotoId!, f));
+
+    let x = 0, y = 0, cx = 0, cy = 0, activa: HTMLElement | null = null, raf = 0;
+    // El bucle se detiene solo cuando la foto alcanza al cursor y se
+    // reanuda con el siguiente movimiento: sin trabajo con el ratón quieto.
+    const mover = () => {
+      cx += (x - cx) * 0.16;
+      cy += (y - cy) * 0.16;
+      fotos.forEach((f) => (f.style.translate = `${cx}px ${cy}px`));
+      raf = Math.abs(x - cx) + Math.abs(y - cy) > 0.5 ? requestAnimationFrame(mover) : 0;
+    };
+    const arrancar = () => {
+      if (!raf) raf = requestAnimationFrame(mover);
+    };
+
+    indice.querySelectorAll<HTMLElement>('[data-foto]').forEach((fila) => {
+      fila.addEventListener('mouseenter', (e) => {
+        if (!activa) { cx = x = e.clientX + 40; cy = y = e.clientY; arrancar(); }
+        activa?.removeAttribute('data-visible');
+        activa = fotos.get(fila.dataset.foto!) ?? null;
+        activa?.setAttribute('data-visible', 'true');
+      });
+    });
+    indice.addEventListener('mousemove', (e) => { x = e.clientX + 40; y = e.clientY; arrancar(); });
+    indice.addEventListener('mouseleave', () => {
+      activa?.removeAttribute('data-visible');
+      activa = null;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarIndice, { once: true });
+  else iniciarIndice();
+</script>

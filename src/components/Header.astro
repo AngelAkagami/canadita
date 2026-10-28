@@ -1,8 +1,15 @@
 ---
 /**
- * Barra superior de tablet (>=768 px) y escritorio. En móvil la navegación
- * vive en NavInferior.astro (barra inferior fija + overlay + FAB).
- * En tablet se muestran los destinos esenciales; en escritorio, todos.
+ * Dock superior flotante (>=768 px). En móvil la navegación vive en
+ * NavInferior.astro (dock inferior).
+ *
+ * Estados:
+ * - Hover / foco: una píldora se desliza bajo el enlace señalado.
+ * - Activo: la sección visible se marca (color + punto dorado) y la píldora
+ *   regresa a ella al quitar el puntero.
+ * - Scroll: al bajar el dock se esconde y al subir regresa; con la página
+ *   desplazada se vuelve más opaco.
+ * Sin JS el dock funciona igual, solo sin píldora ni espía de secciones.
  */
 import { navegacion, contacto, enlaceWhatsApp, ancla } from '../data/site';
 
@@ -10,47 +17,182 @@ const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 const ruta = Astro.url.pathname;
 ---
 
-<header class="chrome-cabecera sticky top-0 z-50 hidden border-b border-marfil/15 bg-verde/95 backdrop-blur-sm md:block">
-  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 md:h-20 md:py-0 lg:px-8">
-    <a href={ancla('#inicio', ruta)} class="flex shrink-0 items-center" aria-label="La Cañadita — ir al inicio">
-      <img
-        src="/logo-claro-160.png"
-        srcset="/logo-claro-160.png 160w, /logo-claro-240.png 240w, /logo-claro-360.png 360w, /logo-claro.png 872w"
-        sizes="120px"
-        alt="La Cañadita Restaurant"
-        width={872}
-        height={948}
-        class="h-12 w-auto md:h-14"
-      />
+<header class="chrome-cabecera pointer-events-none fixed inset-x-0 top-0 z-50 hidden justify-center px-4 pt-4 md:flex">
+  <div data-dock data-dock-ocultable class="dock pointer-events-auto flex items-center gap-1 rounded-full p-1.5">
+    <a href={ancla('#inicio', ruta)} class="dock-logo group flex items-center gap-2.5 rounded-full pr-1 lg:pr-3" aria-label="La Cañadita, ir al inicio">
+      <span class="dock-logo-marco">
+        <img src="/logo-oscuro-200.webp" alt="" width={184} height={200} class="h-7 w-auto" />
+      </span>
+      <span class="hidden font-display text-[1.25rem] leading-none text-azul lg:inline">La Cañadita</span>
     </a>
 
-    <nav aria-label="Navegación principal" class="hidden items-center gap-6 md:flex lg:gap-7">
-      {
-        navegacion.map((item) => (
-          <a
-            href={ancla(item.href, ruta)}
-            aria-current={item.href === ruta ? 'page' : undefined}
-            class:list={[
-              'text-[0.8rem] font-medium uppercase tracking-[0.14em] text-marfil/85 transition-colors hover:text-marfil',
-              item.esencial ? 'hidden md:inline' : 'hidden lg:inline',
-            ]}
-          >
-            {item.etiqueta}
-          </a>
-        ))
-      }
+    <span class="dock-separador" aria-hidden="true"></span>
+
+    <nav aria-label="Navegación principal">
+      <div data-dock-pista class="relative">
+        <span data-dock-indicador class="dock-indicador" aria-hidden="true"></span>
+        <ul class="relative flex items-center">
+          {
+            navegacion
+              .filter((item) => item.href !== '#inicio')
+              .map((item) => (
+                <li class:list={[item.esencial ? 'block' : 'hidden lg:block']}>
+                  <a
+                    href={ancla(item.href, ruta)}
+                    data-dock-item
+                    data-espia={item.href.startsWith('#') ? '' : undefined}
+                    aria-current={item.href === ruta ? 'page' : undefined}
+                    class="dock-item"
+                  >
+                    {item.etiqueta}
+                  </a>
+                </li>
+              ))
+          }
+        </ul>
+      </div>
     </nav>
 
-    <a
-      href={whatsappReserva}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-flex shrink-0 items-center gap-2 bg-marfil px-5 py-2.5 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
-    >
-      <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <path d="M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"></path>
-      </svg>
+    <span class="dock-separador" aria-hidden="true"></span>
+
+    <a href={whatsappReserva} target="_blank" rel="noopener noreferrer" class="dock-reservar">
       Reservar mesa
+      <span class="dock-reservar-icono" aria-hidden="true">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </span>
     </a>
   </div>
 </header>
+
+<script>
+  /**
+   * Comportamiento de los docks (superior e inferior): píldora que sigue al
+   * puntero/foco, espía de secciones y ocultar/mostrar con el scroll.
+   */
+  function iniciarDock(dock: HTMLElement): void {
+    if (dock.dataset.listo === 'true') return;
+    dock.dataset.listo = 'true';
+    // El dock móvil posiciona su píldora con CSS (NavInferior.astro).
+    if (dock.hasAttribute('data-dock-css')) return;
+
+    const pista = dock.querySelector<HTMLElement>('[data-dock-pista]');
+    const indicador = dock.querySelector<HTMLElement>('[data-dock-indicador]');
+    if (!pista || !indicador) return;
+
+    const items = Array.from(pista.querySelectorAll<HTMLElement>('[data-dock-item]'));
+    let activo: HTMLElement | null = items.find((i) => i.hasAttribute('aria-current')) ?? null;
+    let sobre: HTMLElement | null = null;
+
+    /** Mueve la píldora al enlace señalado o, si no hay, al activo. */
+    const pintar = (): void => {
+      const destino = sobre ?? activo;
+      if (!destino || destino.offsetParent === null) {
+        indicador.removeAttribute('data-visible');
+        return;
+      }
+      // Si estaba oculta, aparece en su lugar sin deslizarse desde el borde.
+      const estabaOculta = !indicador.hasAttribute('data-visible');
+      if (estabaOculta) indicador.style.transition = 'opacity 250ms ease';
+      const caja = pista.getBoundingClientRect();
+      const objetivo = destino.getBoundingClientRect();
+      indicador.style.setProperty('--x', `${objetivo.left - caja.left}px`);
+      indicador.style.setProperty('--w', `${objetivo.width}px`);
+      if (estabaOculta) {
+        void indicador.offsetWidth;
+        indicador.style.transition = '';
+      }
+      indicador.setAttribute('data-visible', '');
+    };
+
+    const puntero = (e: PointerEvent) => e.pointerType === 'mouse' || e.pointerType === 'pen';
+    items.forEach((item) => {
+      item.addEventListener('pointerenter', (e) => {
+        if (!puntero(e)) return;
+        sobre = item;
+        pintar();
+      });
+      item.addEventListener('focus', () => {
+        sobre = item;
+        pintar();
+      });
+      item.addEventListener('blur', () => {
+        sobre = null;
+        pintar();
+      });
+    });
+    pista.addEventListener('pointerleave', () => {
+      sobre = null;
+      pintar();
+    });
+
+    // Espía de secciones: marca el enlace de la sección que cruza el centro.
+    const objetivos = new Map<Element, HTMLElement>();
+    items
+      .filter((i) => i.hasAttribute('data-espia'))
+      .forEach((i) => {
+        const href = i.getAttribute('href') ?? '';
+        const seccion = href.startsWith('#') ? document.querySelector(href) : null;
+        if (seccion) objetivos.set(seccion, i);
+      });
+    if (objetivos.size > 0) {
+      const visibles = new Set<Element>();
+      const observador = new IntersectionObserver(
+        (entradas) => {
+          entradas.forEach((e) => (e.isIntersecting ? visibles.add(e.target) : visibles.delete(e.target)));
+          const seccion = Array.from(objetivos.keys()).find((s) => visibles.has(s));
+          const nuevo = seccion ? objetivos.get(seccion)! : null;
+          if (nuevo === activo) return;
+          activo?.removeAttribute('data-activo');
+          activo = nuevo;
+          activo?.setAttribute('data-activo', '');
+          pintar();
+        },
+        { rootMargin: '-45% 0px -54% 0px' },
+      );
+      objetivos.forEach((_, s) => observador.observe(s));
+    }
+
+    // Ocultar al bajar, mostrar al subir.
+    if (dock.hasAttribute('data-dock-ocultable')) {
+      let ultimoY = window.scrollY;
+      let pendiente = false;
+      const alDesplazar = (): void => {
+        pendiente = false;
+        const y = window.scrollY;
+        dock.toggleAttribute('data-desplazado', y > 24);
+        const delta = y - ultimoY;
+        if (Math.abs(delta) < 8) return;
+        dock.toggleAttribute('data-oculto', delta > 0 && y > 160 && !dock.matches(':focus-within'));
+        ultimoY = y;
+      };
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (pendiente) return;
+          pendiente = true;
+          requestAnimationFrame(alDesplazar);
+        },
+        { passive: true },
+      );
+      dock.addEventListener('focusin', () => dock.removeAttribute('data-oculto'));
+      requestAnimationFrame(alDesplazar);
+    }
+
+    window.addEventListener('resize', pintar);
+    document.fonts?.ready.then(pintar);
+    // Primera medida en el siguiente frame (no durante la carga del script):
+    // así no fuerza un layout síncrono de toda la página antes de pintar.
+    requestAnimationFrame(pintar);
+  }
+
+  function iniciar(): void {
+    document.querySelectorAll<HTMLElement>('[data-dock]').forEach(iniciarDock);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+  } else {
+    iniciar();
+  }
+  document.addEventListener('astro:page-load', iniciar);
+</script>

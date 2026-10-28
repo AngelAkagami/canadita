@@ -1,83 +1,273 @@
 ---
+/**
+ * Fines de semana como una semana de calendario.
+ *
+ * Una ruta dorada recorre los días (lunes → domingo). Al llegar al sábado
+ * "entramos" a ese día: su ventana del calendario se abre hasta llenar la
+ * pantalla con el buffet. Al seguir, cambiamos de día y el domingo se abre
+ * encima con el brunch.
+ *
+ * Modos (atributo data-modo de la sección):
+ * - sin JS:       calendario y los dos paneles uno tras otro.
+ * - "pestanas":   (movimiento reducido) un panel a la vez; al tocar un
+ *                 día se entra con View Transitions.
+ * - "escenario":  (todas las pantallas con GSAP) sección fijada y recorrido
+ *                 con el scroll; ver scripts/animaciones.ts.
+ * Precios y horarios salen de horarios.json.
+ */
 import Imagen from './Imagen.astro';
-import Ornamento from './Ornamento.astro';
 import { contacto, enlaceWhatsApp } from '../data/site';
 import { horarios, pesos } from '../data/horarios';
 
-const whatsappBuffet = enlaceWhatsApp(contacto.whatsapp.mensajeBuffet);
+const { entreSemana, buffetSabatino: buffet, brunchDominical: brunch } = horarios;
+
+const experiencias = [
+  {
+    id: 'buffet',
+    dia: 'Sábado',
+    corto: 'Sáb',
+    titulo: 'Buffet',
+    texto: 'Fuentes calientes, panadería y fruta servidas al aire libre, entre el jardín y la pérgola.',
+    datos: buffet,
+    foto: 'buffet-copas',
+    alt: 'Fuentes del buffet de La Cañadita con platillos calientes en el jardín',
+    enlace: enlaceWhatsApp(contacto.whatsapp.mensajeBuffet),
+    accion: 'Consultar disponibilidad',
+  },
+  {
+    id: 'brunch',
+    dia: 'Domingo',
+    corto: 'Dom',
+    titulo: 'Brunch',
+    texto: 'Una mesa larga de pan dulce, postres y platillos de temporada para quedarse toda la mañana.',
+    datos: brunch,
+    foto: 'panaderia',
+    alt: 'Mesa de panadería y postres del brunch entre los jardines de La Cañadita',
+    enlace: enlaceWhatsApp(contacto.whatsapp.mensajeBrunch),
+    accion: 'Reservar brunch',
+  },
+];
+
+const entreSemanaDias = [
+  { corto: 'Lun', nombre: 'Lunes' },
+  { corto: 'Mar', nombre: 'Martes' },
+  { corto: 'Mié', nombre: 'Miércoles' },
+  { corto: 'Jue', nombre: 'Jueves' },
+  { corto: 'Vie', nombre: 'Viernes' },
+];
+// getDay(): 0 = domingo. Índice de cada columna para marcar "hoy".
+const indiceDia = [1, 2, 3, 4, 5, 6, 0];
 ---
 
 <section
-  id="buffet"
-  class="fusion-beige-verde scroll-mt-20 bg-verde py-20 text-marfil md:py-28"
-  aria-labelledby="titulo-buffet"
+  id="fines-de-semana"
+  data-semana
+  data-tono="jardin"
+  class="scroll-mt-20"
+  aria-labelledby="titulo-fines"
 >
-  <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
-    <div class="relative order-2 md:order-1 md:translate-y-6">
-      <Imagen
-        nombre="buffet-copas"
-        alt="Fuentes del buffet de La Cañadita con platillos calientes en el jardín"
-        class="aspect-[4/3] w-full object-cover"
-        sizes="(min-width: 768px) 50vw, 100vw"
-      />
-      <Imagen
-        nombre="buffet-plato"
-        alt="Fuente de buffet con calabacita y queso recién servida"
-        class="absolute -bottom-8 -right-4 hidden w-1/2 border-8 border-verde object-cover sm:block md:-right-10 md:w-2/5"
-        sizes="(min-width: 640px) 25vw, 1px"
-      />
+  <div data-escenario class="relative">
+    <!-- Calendario de la semana -->
+    <div data-calendario class="mx-auto flex max-w-[1440px] flex-col justify-center px-5 pb-14 pt-24 md:px-6 md:pt-32 lg:px-10">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <h2 id="titulo-fines" data-titular class="display-xl text-azul lg:text-[min(8vw,14vh)]">
+          <span class="mascara"><span data-linea>Sábados y</span></span>
+          <span class="mascara"><span data-linea><em class="texto-oro pr-3 italic">domingos.</em></span></span>
+        </h2>
+        <p data-reveal class="max-w-[34ch] text-[1.02rem] leading-relaxed text-azul/75 lg:mb-4">
+          Entre semana se come a la carta. El fin de semana la casa pone la mesa larga: elige tu día y entra.
+        </p>
+      </div>
+
+      <!-- Ruta: nombres de los días y la línea que los une -->
+      <div class="relative mt-12 grid grid-cols-7 md:mt-16" aria-hidden="true">
+        <span class="semana-guia"></span>
+        <span data-ruta-relleno class="semana-relleno"></span>
+        {
+          [...entreSemanaDias, ...experiencias].map((d, i) => (
+            <div class="flex flex-col items-center gap-3" data-columna={indiceDia[i]}>
+              <span class:list={['text-[0.7rem] font-semibold uppercase tracking-[0.18em] md:text-xs', i < 5 ? 'text-azul/55' : 'text-oro-oscuro']}>
+                {d.corto}
+              </span>
+              <span data-ruta-dia class:list={['semana-punto', i >= 5 && 'semana-punto-fin']}></span>
+            </div>
+          ))
+        }
+      </div>
+
+      <ol class="mt-5 grid grid-cols-7 items-start">
+        {
+          entreSemanaDias.map((d, i) => (
+            <li data-columna={indiceDia[i]} data-dia-celda class="semana-celda flex flex-col items-center px-1 text-center">
+              <span class="sr-only">{d.nombre}: a la carta de {entreSemana.apertura} a {entreSemana.cierre} h</span>
+              <span aria-hidden="true" class="font-display text-lg italic text-azul/70 md:text-2xl">Carta</span>
+              <span aria-hidden="true" class="mt-1 hidden text-xs tabular-nums text-azul/50 md:block">
+                {entreSemana.apertura}–{entreSemana.cierre}
+              </span>
+              <span aria-hidden="true" class="semana-hoy">hoy</span>
+            </li>
+          ))
+        }
+        {
+          experiencias.map((e, i) => (
+            <li data-columna={indiceDia[5 + i]} data-dia-celda class="semana-celda px-0.5 md:px-2">
+              <button
+                type="button"
+                data-entrar={e.id}
+                aria-controls={e.id}
+                class="group/dia flex w-full flex-col items-center text-center"
+              >
+                <span data-ventana={e.id} class="relative block aspect-[3/4] w-full overflow-hidden rounded-sm bg-beige shadow-[0_30px_60px_-30px_rgba(0,47,89,0.45)] lg:aspect-auto lg:h-[26vh]">
+                  <Imagen nombre={e.foto} alt="" class="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/dia:scale-[1.06]" sizes="(min-width: 1024px) 14vw, 14vw" />
+                </span>
+                <span class="mt-3 font-display text-lg italic text-oro-oscuro md:text-2xl">{e.titulo}</span>
+                <span class="mt-1 hidden text-xs tabular-nums text-azul/60 md:block">
+                  {e.datos.apertura}–{e.datos.cierre}
+                </span>
+                <span class="sr-only">: {e.dia}, entrar al {e.titulo.toLowerCase()}</span>
+                <span aria-hidden="true" class="semana-hoy">hoy</span>
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="mt-10 hidden items-center gap-3 text-sm text-azul/55 lg:flex" data-pista-scroll>
+        <span class="inline-block h-px w-10 bg-oro"></span>
+        Sigue bajando para entrar al fin de semana
+      </p>
     </div>
 
-    <div class="order-1 md:order-2">
-      <Ornamento variante="claro" class="mb-6 h-10 w-10 opacity-90" />
-      <p class="antetitulo mb-4 text-beige/90">Los sábados</p>
-      <h2 id="titulo-buffet" class="text-4xl sm:text-5xl">
-        Sábados de buffet <em class="font-normal italic">en La Cañadita.</em>
-      </h2>
-      <p class="mt-6 max-w-lg text-[1.02rem] leading-relaxed text-marfil/90">
-        Haz del sábado una ocasión especial para disfrutar la mesa y compartir buenos momentos.
-      </p>
-      <p class="mt-4 max-w-lg text-sm leading-relaxed text-marfil/70">
-        Ven con hambre y quédate por el momento. Consulta disponibilidad y detalles de la
-        experiencia antes de tu visita.
-      </p>
+    <!-- Los días por dentro -->
+    <div data-paneles class="grid md:grid-cols-2">
+      {
+        experiencias.map((e, i) => (
+          <article
+            id={e.id}
+            data-panel={e.id}
+            data-activo={i === 0 ? '' : undefined}
+            class="group relative isolate flex min-h-[88svh] scroll-mt-20 items-end overflow-hidden md:min-h-[92dvh]"
+            aria-labelledby={`titulo-${e.id}`}
+          >
+            <div class="absolute inset-0 -z-20 overflow-hidden">
+              <div data-panel-foto class="h-full w-full">
+                <Imagen nombre={e.foto} alt={e.alt} class="h-full w-full object-cover" sizes="100vw" />
+              </div>
+            </div>
+            <div class="velo absolute inset-0 -z-10" aria-hidden="true"></div>
+            <div class="absolute inset-x-0 top-0 -z-10 h-48 bg-gradient-to-b from-azul-noche/55 to-transparent" aria-hidden="true"></div>
 
-      <p
-        class="mt-7 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 border border-marfil/25 px-5 py-3 text-sm text-marfil/85"
-      >
-        <svg
-          aria-hidden="true"
-          class="h-4 w-4 shrink-0"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-        >
-          <circle cx="12" cy="12" r="9"></circle>
-          <path stroke-linecap="round" d="M12 7v5l3 2"></path>
-        </svg>
-        <span class="font-semibold text-marfil"
-          >{horarios.buffetSabatino.dia}, de {horarios.buffetSabatino.apertura} a {
-            horarios.buffetSabatino.cierre
-          } h</span
-        >
-        <span class="text-marfil/65"
-          >· Adultos {pesos(horarios.buffetSabatino.precioAdultos)} · Niños {pesos(
-            horarios.buffetSabatino.precioNinos,
-          )}</span
-        >
-      </p>
+            <!-- La ruta continúa dentro del día: sábado → domingo -->
+            <nav data-panel-nav class="absolute left-6 right-6 top-24 md:left-10 lg:left-14 lg:top-28" aria-label="Cambiar de día">
+              <div class="flex max-w-sm items-center gap-3">
+                {experiencias.map((o, j) => (
+                  <>
+                    {j === 1 && (
+                      <span class="relative h-3 flex-1" aria-hidden="true">
+                        <span class="dia-guia"></span>
+                        <span data-dia-relleno class="dia-relleno" style={`--fin:${i}`}></span>
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      data-entrar={o.id}
+                      aria-current={o.id === e.id ? 'true' : undefined}
+                      class="flex items-center gap-2.5 text-sm font-semibold text-marfil/70 transition-colors hover:text-marfil aria-[current=true]:text-marfil"
+                      style={j === 0 ? 'flex-direction:row-reverse' : undefined}
+                    >
+                      <span class:list={['dia-punto', j <= i && 'dia-punto-activo']} aria-hidden="true"></span>
+                      {o.dia}
+                    </button>
+                  </>
+                ))}
+              </div>
+            </nav>
 
-      <div class="mt-9">
-        <a
-          href={whatsappBuffet}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center justify-center bg-marfil px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-verde transition-colors hover:bg-beige"
-        >
-          Consultar disponibilidad
-        </a>
-      </div>
+            <div data-panel-texto class="w-full p-6 md:p-10 lg:p-14">
+              <p class="font-display text-2xl italic text-oro">{e.dia}</p>
+              <h3 id={`titulo-${e.id}`} class="mt-1 font-display text-[clamp(3.4rem,6vw,6.5rem)] leading-[0.9] text-marfil">{e.titulo}</h3>
+              <p class="mt-5 max-w-[36ch] text-[1.02rem] leading-relaxed text-marfil/80">{e.texto}</p>
+              <dl class="mt-8 grid max-w-md grid-cols-3 gap-px overflow-hidden rounded-sm border border-marfil/15 bg-marfil/15">
+                <div class="bg-azul-noche/75 p-4">
+                  <dt class="text-xs text-marfil/60">Horario</dt>
+                  <dd class="mt-1 whitespace-nowrap font-display text-[1.15rem] lining-nums tabular-nums text-marfil md:text-2xl">{e.datos.apertura.replace(/^0/, '')}–{e.datos.cierre}</dd>
+                </div>
+                <div class="bg-azul-noche/75 p-4">
+                  <dt class="text-xs text-marfil/60">Adultos</dt>
+                  <dd class="mt-1 font-display text-xl lining-nums tabular-nums text-oro md:text-2xl">{pesos(e.datos.precioAdultos)}</dd>
+                </div>
+                <div class="bg-azul-noche/75 p-4">
+                  <dt class="text-xs text-marfil/60">Niños</dt>
+                  <dd class="mt-1 font-display text-xl lining-nums tabular-nums text-oro md:text-2xl">{pesos(e.datos.precioNinos)}</dd>
+                </div>
+              </dl>
+              <a href={e.enlace} target="_blank" rel="noopener noreferrer" class="boton mt-8 bg-marfil text-azul-noche hover:bg-oro">
+                {e.accion}
+                <span class="boton-icono bg-azul-noche/10">
+                  <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+                </span>
+              </a>
+            </div>
+          </article>
+        ))
+      }
     </div>
   </div>
 </section>
+
+<script>
+  /**
+   * Pestañas con View Transitions (móvil, tablet y movimiento reducido).
+   * En modo "escenario" el clic se delega a GSAP (evento semana:ir), que
+   * lleva el scroll hasta ese día.
+   */
+  const seccion = document.querySelector<HTMLElement>('[data-semana]');
+  if (seccion) {
+    if (!seccion.dataset.modo) seccion.dataset.modo = 'pestanas';
+
+    // Marca "hoy" en la columna del día actual.
+    const hoy = String(new Date().getDay());
+    seccion.querySelectorAll<HTMLElement>(`[data-dia-celda][data-columna="${hoy}"]`).forEach((c) => c.setAttribute('data-hoy', ''));
+
+    const paneles = seccion.querySelector<HTMLElement>('[data-paneles]')!;
+    const reducir = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const activar = (id: string) => {
+      seccion.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => p.toggleAttribute('data-activo', p.dataset.panel === id));
+    };
+
+    seccion.addEventListener('click', (evento) => {
+      const boton = (evento.target as Element).closest<HTMLElement>('[data-entrar]');
+      if (!boton) return;
+      const id = boton.dataset.entrar!;
+
+      if (seccion.dataset.modo === 'escenario') {
+        window.dispatchEvent(new CustomEvent('semana:ir', { detail: id }));
+        return;
+      }
+
+      const actual = seccion.querySelector<HTMLElement>('[data-panel][data-activo]');
+      const llevar = () => {
+        const caja = paneles.getBoundingClientRect();
+        if (caja.top > window.innerHeight * 0.35 || caja.top < -40) paneles.scrollIntoView({ behavior: reducir.matches ? 'auto' : 'smooth', block: 'start' });
+      };
+      if (actual?.dataset.panel === id) return llevar();
+
+      // El nuevo día se abre en círculo desde el botón tocado.
+      const caja = paneles.getBoundingClientRect();
+      const origen = boton.getBoundingClientRect();
+      document.documentElement.style.setProperty('--dia-x', `${origen.left + origen.width / 2 - caja.left}px`);
+      document.documentElement.style.setProperty('--dia-y', `${origen.top + origen.height / 2 - caja.top}px`);
+
+      if (!document.startViewTransition || reducir.matches) {
+        activar(id);
+        return llevar();
+      }
+      paneles.classList.add('dia-en-transicion');
+      const transicion = document.startViewTransition(() => activar(id));
+      transicion.finished.finally(() => {
+        paneles.classList.remove('dia-en-transicion');
+        llevar();
+      });
+    });
+  }
+</script>

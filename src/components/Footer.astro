@@ -1,114 +1,61 @@
 ---
+/**
+ * Pie de página. En móvil va compacto: enlaces en dos columnas, contacto en
+ * dos renglones y redes como iconos, para llegar pronto al nombre.
+ */
+import Icono from './Icono.astro';
 import { sitio, contacto, navegacion, enlaceWhatsApp, ancla } from '../data/site';
 import { resumenHorariosCorto } from '../data/horarios';
 
 const ruta = Astro.url.pathname;
-
 const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
 const anio = new Date().getFullYear();
-const { direccion, telefono, whatsapp, redes } = contacto;
+const { direccion, telefono, redes } = contacto;
+const redesLista = [
+  { nombre: 'Instagram', href: redes.instagram, icono: 'instagram' },
+  { nombre: 'Facebook', href: redes.facebook, icono: 'facebook' },
+  { nombre: 'TikTok', href: redes.tiktok, icono: 'tiktok' },
+] as const;
 ---
 
-<footer class="fusion-verde-oscuro bg-verde-oscuro text-marfil/85">
-  <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8">
-    <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-      <div class="lg:col-span-1">
-        <img
-          src="/logo-claro-360.png"
-          srcset="/logo-claro-360.png 360w, /logo-claro.png 872w"
-          sizes="140px"
-          alt="La Cañadita Restaurant"
-          width={872}
-          height={948}
-          loading="lazy"
-          class="h-24 w-auto"
-        />
-        <p class="mt-5 max-w-xs text-sm leading-relaxed">{sitio.tagline}.</p>
+<footer class="overflow-hidden border-t border-azul/15 pt-14 text-azul md:pt-24">
+  <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
+    <div class="grid gap-9 text-sm md:grid-cols-12 md:gap-12">
+      <div class="md:col-span-4">
+        <p class="max-w-[28ch] font-display text-2xl leading-snug text-azul">{sitio.tagline}.</p>
       </div>
-
-      <nav aria-label="Navegación del pie de página">
-        <h2 class="antetitulo mb-4 text-beige">Navegación</h2>
-        <ul class="space-y-2.5 text-sm">
-          {
-            navegacion.map((item) => (
-              <li>
-                <a href={ancla(item.href, ruta)} class="transition-colors hover:text-marfil">
-                  {item.etiqueta}
-                </a>
-              </li>
-            ))
-          }
-          <li>
-            <a href={ancla('#brunch', ruta)} class="transition-colors hover:text-marfil">Brunch dominical</a>
-          </li>
-          <li>
-            <a href={ancla('#horarios', ruta)} class="transition-colors hover:text-marfil">Horarios</a>
-          </li>
+      <nav aria-label="Navegación del pie de página" class="md:col-span-3 md:col-start-5">
+        <ul class="grid grid-cols-2 gap-x-6 gap-y-1 md:grid-cols-1 md:gap-y-2.5">
+          {navegacion.map((item) => (
+            <li><a href={ancla(item.href, ruta)} class="pie-enlace">{item.etiqueta}</a></li>
+          ))}
+          <li><a href={ancla('#horarios', ruta)} class="pie-enlace">Horarios</a></li>
         </ul>
       </nav>
-
-      <div>
-        <h2 class="antetitulo mb-4 text-beige">Contacto</h2>
-        <ul class="space-y-2.5 text-sm not-italic">
+      <div class="text-azul/65 md:col-span-3">
+        <address class="not-italic">{direccion.linea1}, {direccion.linea2}<br class="hidden md:inline" /><span class="md:hidden"> · </span>{direccion.ciudad}, {direccion.estado}</address>
+        <p class="mt-2.5 flex flex-wrap items-center gap-x-2">
+          <a href={telefono.href} class="pie-enlace font-semibold text-azul">{telefono.visible}</a>
+          <span aria-hidden="true">·</span>
+          <a href={whatsappReserva} target="_blank" rel="noopener noreferrer" class="pie-enlace">WhatsApp</a>
+        </p>
+      </div>
+      <ul class="flex gap-3 md:col-span-2 md:justify-end" aria-label="Redes sociales">
+        {redesLista.map((r) => (
           <li>
-            <address class="not-italic">
-              {direccion.linea1}<br />{direccion.linea2}<br />{direccion.ciudad}, {direccion.estado}
-            </address>
-          </li>
-          <li>
-            <a href={telefono.href} class="transition-colors hover:text-marfil">{telefono.visible}</a>
-          </li>
-          <li>
-            <a href={whatsappReserva} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-marfil">
-              WhatsApp {whatsapp.visible}
+            <a href={r.href} target="_blank" rel="noopener noreferrer" class="red" aria-label={`${r.nombre} de La Cañadita`}>
+              <Icono nombre={r.icono} class="h-5 w-5" />
             </a>
           </li>
-        </ul>
-
-        <div class="mt-5 flex items-center gap-3">
-          <a
-            href={redes.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="La Cañadita en Facebook"
-            class="flex h-10 w-10 items-center justify-center border border-marfil/30 transition-colors hover:bg-marfil hover:text-verde-oscuro"
-          >
-            <svg aria-hidden="true" class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.57v1.88h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94z"></path>
-            </svg>
-          </a>
-          <a
-            href={redes.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="La Cañadita en Instagram"
-            class="flex h-10 w-10 items-center justify-center border border-marfil/30 transition-colors hover:bg-marfil hover:text-verde-oscuro"
-          >
-            <svg aria-hidden="true" class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-              <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-              <circle cx="12" cy="12" r="4"></circle>
-              <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
-            </svg>
-          </a>
-        </div>
-      </div>
-
-      <div>
-        <h2 class="antetitulo mb-4 text-beige">Menú</h2>
-        <ul class="space-y-2.5 text-sm">
-          <li>
-            <a href={ancla('#menu', ruta)} class="transition-colors hover:text-marfil">Sugerencias del chef</a>
-          </li>
-          <li>
-            <a href={sitio.web} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-marfil">
-              lacanadita.com
-            </a>
-          </li>
-        </ul>
-      </div>
+        ))}
+      </ul>
     </div>
 
-    <div class="mt-14 flex flex-col items-center justify-between gap-3 border-t border-marfil/15 pt-7 text-xs sm:flex-row">
+    <p class="mt-12 select-none whitespace-nowrap font-display text-[17.5vw] leading-[0.8] tracking-[-0.045em] texto-oro md:mt-28 xl:text-[15.2rem]" aria-hidden="true">
+      La Cañadita
+    </p>
+
+    <div class="flex flex-col justify-between gap-2 border-t border-azul/15 py-6 text-xs text-azul/50 sm:flex-row">
       <p>© {anio} {sitio.nombreCompleto}. Cuernavaca, Morelos, México.</p>
       <p>{resumenHorariosCorto}</p>
     </div>

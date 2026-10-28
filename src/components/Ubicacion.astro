@@ -1,120 +1,251 @@
 ---
-import Imagen from './Imagen.astro';
+/**
+ * Visítanos.
+ * - Estado de hoy con la hora de Cuernavaca (abierto, abre más tarde, cerrado).
+ * - Dirección con botón para copiarla.
+ * - Mapa embebido en un marco con barra de título; en táctil se activa con
+ *   un toque para no atrapar el scroll de la página.
+ * - Debajo del mapa: Cómo llegar (Google Maps) y Contacto (WhatsApp).
+ * - Horario de la semana con el día de hoy marcado (#horarios).
+ * - Preguntas frecuentes en <details>: el texto vive en el HTML, visible para
+ *   buscadores y asistentes de IA, y en pantalla se abre una a la vez.
+ */
+import Icono from './Icono.astro';
 import { contacto, enlaceWhatsApp } from '../data/site';
-import { horarios, resumenHorarios, pesos } from '../data/horarios';
+import { horarios } from '../data/horarios';
+import { preguntas } from '../data/faq';
 
-const whatsappReserva = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
-const { direccion, telefono, whatsapp, maps, redes } = contacto;
+const { direccion, telefono, maps, redes } = contacto;
+const whatsappContacto = enlaceWhatsApp(contacto.whatsapp.mensajeReserva);
+const { entreSemana, finDeSemana, buffetSabatino: buffet, brunchDominical: brunch } = horarios;
+
+/** "08:00" → "8:00". */
+const hora = (h: string) => h.replace(/^0/, '');
+const tramo = (t: { apertura: string; cierre: string }) => `${hora(t.apertura)} – ${hora(t.cierre)}`;
+
+// getDay(): 0 = domingo. La semana se muestra de lunes a domingo.
+const semana = [
+  { dia: 1, nombre: 'Lunes', t: entreSemana },
+  { dia: 2, nombre: 'Martes', t: entreSemana },
+  { dia: 3, nombre: 'Miércoles', t: entreSemana },
+  { dia: 4, nombre: 'Jueves', t: entreSemana },
+  { dia: 5, nombre: 'Viernes', t: entreSemana },
+  { dia: 6, nombre: 'Sábado', t: finDeSemana, extra: `Buffet ${tramo(buffet)}` },
+  { dia: 0, nombre: 'Domingo', t: finDeSemana, extra: `Brunch ${tramo(brunch)}` },
+];
+/** Apertura y cierre por día (índice = getDay()) para el estado de hoy. */
+const porDia = [0, 1, 2, 3, 4, 5, 6].map((d) => semana.find((s) => s.dia === d)!.t);
+
+const redesLista = [
+  { nombre: 'Instagram', href: redes.instagram, icono: 'instagram' },
+  { nombre: 'Facebook', href: redes.facebook, icono: 'facebook' },
+  { nombre: 'TikTok', href: redes.tiktok, icono: 'tiktok' },
+] as const;
 ---
 
-<section
-  id="ubicacion"
-  class="fusion-marfil-beige scroll-mt-20 bg-beige py-20 md:py-28"
-  aria-labelledby="titulo-ubicacion"
->
-  <div class="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-2 md:gap-16 lg:px-8">
-    <!-- Texto primero en celular; a la derecha en desktop -->
-    <div class="md:order-2">
-      <p class="antetitulo mb-3 text-verde-suave">Ubicación y contacto</p>
-      <h2 id="titulo-ubicacion" class="text-4xl text-verde sm:text-5xl">
-        Visítanos en <em class="font-normal italic">Cuernavaca</em>
-      </h2>
+<section id="ubicacion" data-tono="oro" class="scroll-mt-20 py-24 md:py-36" aria-labelledby="titulo-ubicacion">
+  <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
+    <div class="grid gap-14 md:grid-cols-12 md:gap-10">
+      <!-- Columna de datos -->
+      <div class="md:col-span-5">
+        <h2 id="titulo-ubicacion" data-titular class="display-xl text-azul">
+          <span class="mascara"><span data-linea>Visítanos.</span></span>
+        </h2>
+        <p data-visita-estado data-horarios={JSON.stringify(porDia)} class="mt-5 flex items-center gap-2.5 text-[0.95rem] font-semibold text-azul">
+          <span class="estado-punto" aria-hidden="true"></span>
+          <span data-visita-estado-texto>Abierto todos los días</span>
+        </p>
 
-      <address class="mt-8 space-y-6 not-italic">
-        <div>
-          <h3 class="antetitulo mb-1 text-verde-suave">Dirección</h3>
-          <p class="text-[1.02rem] leading-relaxed text-tinta/85">
-            {direccion.linea1}<br />
-            {direccion.linea2}<br />
-            {direccion.ciudad}, {direccion.estado}
+        <address class="mt-10 not-italic">
+          <p class="font-display text-[clamp(1.9rem,6.5vw,2.6rem)] leading-[1.1] text-azul">
+            {direccion.linea1}<br />{direccion.linea2}, {direccion.ciudad}<br />{direccion.estado}
           </p>
-          <a
-            href={maps.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-verde underline decoration-verde/30 underline-offset-8 transition-colors hover:text-verde-suave"
-          >
-            Cómo llegar en Google Maps
+        </address>
+        <button type="button" data-copiar={direccion.completa} class="copiar mt-5">
+          <Icono nombre="copiar" class="copiar-icono h-[1.05rem] w-[1.05rem]" />
+          <Icono nombre="listo" class="copiar-listo h-[1.05rem] w-[1.05rem]" />
+          <span data-copiar-texto>Copiar dirección</span>
+        </button>
+        <span data-copiar-aviso class="sr-only" aria-live="polite"></span>
+
+      </div>
+
+      <!-- Mapa y acciones -->
+      <div class="md:col-span-7 md:col-start-6 md:row-span-2 md:row-start-1 md:pt-4">
+        <figure data-reveal class="mapa">
+          <figcaption class="mapa-barra">
+            <span class="flex min-w-0 items-center gap-2.5">
+              <span class="mapa-pin"><Icono nombre="ubicacion" class="h-4 w-4" /></span>
+              <span class="min-w-0">
+                <span class="block text-[0.88rem] font-semibold text-azul">La Cañadita</span>
+                <span class="block truncate text-[0.78rem] text-azul/60">{direccion.linea1}, {direccion.linea2}</span>
+              </span>
+            </span>
+          </figcaption>
+          <div class="mapa-lienzo">
+            <iframe
+              src={maps.embed}
+              title="Mapa de La Cañadita Restaurant en Cuernavaca, Morelos"
+              class="mapa-iframe"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen></iframe>
+            <!-- En táctil: el mapa se activa con un toque y no atrapa el scroll. -->
+            <button type="button" data-mapa-activar class="mapa-velo">
+              <span class="mapa-velo-aviso">Toca para mover el mapa</span>
+            </button>
+          </div>
+        </figure>
+
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <a href={maps.url} target="_blank" rel="noopener noreferrer" class="accion accion-principal">
+            <Icono nombre="llegar" class="h-[1.15rem] w-[1.15rem]" />
+            Cómo llegar
+          </a>
+          <a href={whatsappContacto} target="_blank" rel="noopener noreferrer" class="accion accion-secundaria">
+            <Icono nombre="whatsapp" class="h-[1.15rem] w-[1.15rem]" />
+            Contacto
           </a>
         </div>
+        <p class="mt-4 text-center text-[0.9rem] text-azul/65 md:text-left">
+          o llama al <a href={telefono.href} class="enlace font-semibold text-azul">{telefono.visible}</a>
+        </p>
 
-        <div>
-          <h3 class="antetitulo mb-1 text-verde-suave">Horario</h3>
-          <p class="text-[1.02rem] text-tinta/85">{resumenHorarios}</p>
-          <p class="mt-2 text-sm text-tinta/65">
-            {horarios.buffetSabatino.etiqueta} ({horarios.buffetSabatino.dia.toLowerCase()}) {
-              horarios.buffetSabatino.apertura
-            }–{horarios.buffetSabatino.cierre} h · {horarios.brunchDominical.etiqueta} ({
-              horarios.brunchDominical.dia.toLowerCase()
-            }) {horarios.brunchDominical.apertura}–{horarios.brunchDominical.cierre} h
-          </p>
-        </div>
-
-        <div>
-          <h3 class="antetitulo mb-1 text-verde-suave">Teléfono y reservaciones</h3>
-          <a href={telefono.href} class="block text-[1.02rem] text-tinta/85 transition-colors hover:text-verde">
-            {telefono.visible}
-          </a>
-        </div>
-
-        <div>
-          <h3 class="antetitulo mb-1 text-verde-suave">WhatsApp</h3>
-          <a
-            href={whatsappReserva}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="block text-[1.02rem] text-tinta/85 transition-colors hover:text-verde"
-          >
-            {whatsapp.visible}
-          </a>
-        </div>
-      </address>
-
-      <div class="mt-8 flex items-center gap-3">
-        <a
-          href={redes.facebook}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="La Cañadita en Facebook"
-          class="flex h-11 w-11 items-center justify-center border border-verde/30 text-verde transition-colors hover:bg-verde hover:text-marfil"
-        >
-          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.57v1.88h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94z"></path>
-          </svg>
-        </a>
-        <a
-          href={redes.instagram}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="La Cañadita en Instagram"
-          class="flex h-11 w-11 items-center justify-center border border-verde/30 text-verde transition-colors hover:bg-verde hover:text-marfil"
-        >
-          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-            <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-            <circle cx="12" cy="12" r="4"></circle>
-            <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
-          </svg>
-        </a>
+        <ul class="mt-10 flex items-center justify-center gap-3 md:justify-start" aria-label="Redes sociales">
+          {
+            redesLista.map((r) => (
+              <li>
+                <a href={r.href} target="_blank" rel="noopener noreferrer" class="red" aria-label={`${r.nombre} de La Cañadita`}>
+                  <Icono nombre={r.icono} class="h-5 w-5" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <!-- Horario de la semana (en móvil va después del mapa) -->
+      <div id="horarios" class="scroll-mt-24 md:col-span-5 md:row-start-2">
+        <h3 class="font-sans text-[0.95rem] font-semibold text-azul">Horario</h3>
+        <dl data-semana-visita class="semana-visita mt-3">
+          {
+            semana.map((s) => (
+              <div class="semana-visita-fila" data-dia={s.dia}>
+                <dt>
+                  <span class="font-semibold">{s.nombre}</span>
+                  <span class="semana-visita-hoy">Hoy</span>
+                  {s.extra && <span class="block text-[0.8rem] font-medium text-oro-oscuro">{s.extra}</span>}
+                </dt>
+                <dd class="font-display text-[1.4rem] leading-none lining-nums tabular-nums">{tramo(s.t)}</dd>
+              </div>
+            ))
+          }
+        </dl>
       </div>
     </div>
 
-    <div class="md:order-1 md:translate-y-4">
-      <Imagen
-        nombre="exterior"
-        alt="Terraza de La Cañadita con mesas bajo la pérgola y jardines"
-        class="aspect-[16/9] w-full object-cover"
-        sizes="(min-width: 768px) 50vw, 100vw"
-      />
-      <div class="mt-4 overflow-hidden border border-verde/15">
-        <iframe
-          src={maps.embed}
-          title="Mapa de ubicación de La Cañadita Restaurant en Cuernavaca, Morelos"
-          class="h-72 w-full md:h-[26rem]"
-          style="border:0"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen></iframe>
+    <!-- Preguntas frecuentes -->
+    <div class="mt-24 grid gap-8 md:mt-36 md:grid-cols-12 md:gap-10">
+      <h3 data-reveal class="font-display text-[clamp(2.2rem,4vw,3rem)] leading-tight text-azul md:col-span-4">Preguntas frecuentes</h3>
+      <div class="faq md:col-span-8">
+        {
+          preguntas.map((p, i) => (
+            <details class="faq-item" name="faq" open={i === 0}>
+              <summary class="faq-pregunta">
+                <span>{p.pregunta}</span>
+                <span class="faq-signo" aria-hidden="true"><Icono nombre="abrir" class="h-4 w-4" /></span>
+              </summary>
+              <p class="faq-respuesta">{p.respuesta}</p>
+            </details>
+          ))
+        }
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  import { ahoraEnCuernavaca, minutos } from '../scripts/cuernavaca';
+
+  /** Marca el día de hoy en el horario y escribe el estado (abierto/cerrado). */
+  function pintarVisita(): void {
+    const nodo = document.querySelector<HTMLElement>('[data-visita-estado]');
+    const texto = nodo?.querySelector<HTMLElement>('[data-visita-estado-texto]');
+    if (!nodo || !texto || !nodo.dataset.horarios) return;
+    const porDia = JSON.parse(nodo.dataset.horarios) as { apertura: string; cierre: string }[];
+    const { dia, min } = ahoraEnCuernavaca();
+    if (dia < 0) return;
+
+    document
+      .querySelectorAll<HTMLElement>('[data-semana-visita] [data-dia]')
+      .forEach((f) => f.toggleAttribute('data-hoy', f.dataset.dia === String(dia)));
+
+    const hora = (h: string) => h.replace(/^0/, '');
+    const hoy = porDia[dia];
+    let estado = 'cerrado';
+    if (min >= minutos(hoy.apertura) && min < minutos(hoy.cierre)) {
+      estado = 'abierto';
+      texto.textContent = `Abierto ahora · cerramos a las ${hora(hoy.cierre)}`;
+    } else if (min < minutos(hoy.apertura)) {
+      texto.textContent = `Hoy abrimos a las ${hora(hoy.apertura)}`;
+    } else {
+      texto.textContent = `Cerrado · mañana abrimos a las ${hora(porDia[(dia + 1) % 7].apertura)}`;
+    }
+    nodo.dataset.estado = estado;
+  }
+
+  /** Copiar la dirección, con respaldo para navegadores sin Clipboard API. */
+  function iniciarCopiar(): void {
+    const boton = document.querySelector<HTMLButtonElement>('[data-copiar]');
+    const etiqueta = boton?.querySelector<HTMLElement>('[data-copiar-texto]');
+    const aviso = document.querySelector<HTMLElement>('[data-copiar-aviso]');
+    if (!boton || !etiqueta || boton.dataset.listo) return;
+    boton.dataset.listo = 'true';
+    let temporizador = 0;
+
+    const copiar = async (texto: string): Promise<boolean> => {
+      try {
+        await navigator.clipboard.writeText(texto);
+        return true;
+      } catch {
+        const area = document.createElement('textarea');
+        area.value = texto;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.append(area);
+        area.select();
+        const ok = document.execCommand('copy');
+        area.remove();
+        return ok;
+      }
+    };
+
+    boton.addEventListener('click', async () => {
+      const ok = await copiar(boton.dataset.copiar ?? '');
+      window.clearTimeout(temporizador);
+      boton.toggleAttribute('data-copiado', ok);
+      etiqueta.textContent = ok ? 'Dirección copiada' : 'No se pudo copiar';
+      if (aviso) aviso.textContent = ok ? 'Dirección copiada al portapapeles' : 'No se pudo copiar la dirección';
+      temporizador = window.setTimeout(() => {
+        boton.removeAttribute('data-copiado');
+        etiqueta.textContent = 'Copiar dirección';
+      }, 2400);
+    });
+  }
+
+  /** Mapa en táctil: un toque lo activa; al salir de la vista vuelve a bloquearse. */
+  function iniciarMapa(): void {
+    const velo = document.querySelector<HTMLButtonElement>('[data-mapa-activar]');
+    const mapa = velo?.closest<HTMLElement>('.mapa');
+    if (!velo || !mapa || mapa.dataset.listo) return;
+    mapa.dataset.listo = 'true';
+    velo.addEventListener('click', () => mapa.setAttribute('data-activo', ''));
+    new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) mapa.removeAttribute('data-activo');
+    }).observe(mapa);
+  }
+
+  pintarVisita();
+  iniciarCopiar();
+  iniciarMapa();
+</script>
