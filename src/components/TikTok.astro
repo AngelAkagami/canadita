@@ -59,6 +59,13 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
 }
 
 <script>
+  /**
+   * Los reproductores de TikTok traen su propio JS (SDK, React, métricas)
+   * que sigue corriendo mientras el iframe existe, aunque ya no se vea: en
+   * móvil eso le quitaba ~10 ms por frame al scroll del resto de la página.
+   * Por eso cada tarjeta monta su iframe al estar en pantalla y lo desmonta
+   * al alejarse, salvo que el usuario lo haya usado (se queda reproduciendo).
+   */
   function montarTikTok(card: HTMLElement): void {
     if (card.dataset.montado === 'true') return;
     const id = card.dataset.tiktokId;
@@ -77,32 +84,59 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
     iframe.setAttribute('allowfullscreen', '');
     iframe.className = 'absolute inset-0 h-full w-full border-0';
     contenedor.appendChild(iframe);
-    boton.remove();
+    boton.hidden = true;
+  }
+
+  function desmontarTikTok(card: HTMLElement): void {
+    if (card.dataset.montado !== 'true' || card.dataset.usado === 'true') return;
+    card.querySelector('iframe')?.remove();
+    const boton = card.querySelector<HTMLButtonElement>('.tiktok-play');
+    if (boton) boton.hidden = false;
+    card.dataset.montado = 'false';
   }
 
   function iniciarTikTok(): void {
     const cards = Array.from(document.querySelectorAll<HTMLElement>('.tiktok-card[data-tiktok-id]'));
     if (cards.length === 0) return;
     cards.forEach((card) =>
-      card.querySelector('.tiktok-play')?.addEventListener('click', () => montarTikTok(card)),
+      card.querySelector('.tiktok-play')?.addEventListener('click', () => {
+        card.dataset.usado = 'true';
+        montarTikTok(card);
+      }),
     );
-    // Se monta solo la tarjeta que de verdad está en pantalla (en móvil, la
-    // del carrusel que se ve), cuando el navegador está libre.
-    if ('IntersectionObserver' in window) {
-      const libre = (fn: () => void) =>
-        'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 200);
-      const obs = new IntersectionObserver(
-        (entradas) =>
-          entradas.forEach((e) => {
-            if (e.isIntersecting) {
-              obs.unobserve(e.target);
-              libre(() => montarTikTok(e.target as HTMLElement));
-            }
-          }),
-        { threshold: 0.35 },
-      );
-      cards.forEach((card) => obs.observe(card));
-    }
+    // Tocar dentro de un iframe le quita el foco a la página: así se sabe
+    // qué video usó el usuario y ese no se desmonta.
+    window.addEventListener('blur', () => {
+      const activo = document.activeElement;
+      const card = activo instanceof HTMLIFrameElement ? activo.closest<HTMLElement>('.tiktok-card') : null;
+      if (card) card.dataset.usado = 'true';
+    });
+    if (!('IntersectionObserver' in window)) return;
+
+    const libre = (fn: () => void) =>
+      'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 200);
+    // Montar: cuando la tarjeta se ve al menos un tercio.
+    const alVer = new IntersectionObserver(
+      (entradas) =>
+        entradas.forEach((e) => {
+          const card = e.target as HTMLElement;
+          card.dataset.enVista = String(e.isIntersecting);
+          if (e.isIntersecting) libre(() => card.dataset.enVista === 'true' && montarTikTok(card));
+        }),
+      { threshold: 0.35 },
+    );
+    // Desmontar: cuando ya quedó lejos de la pantalla.
+    const alSalir = new IntersectionObserver(
+      (entradas) =>
+        entradas.forEach((e) => {
+          if (!e.isIntersecting) desmontarTikTok(e.target as HTMLElement);
+        }),
+      { rootMargin: '150px' },
+    );
+    cards.forEach((card) => {
+      alVer.observe(card);
+      alSalir.observe(card);
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarTikTok, { once: true });

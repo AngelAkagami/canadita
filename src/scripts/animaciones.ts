@@ -218,8 +218,18 @@ export async function iniciarAnimaciones(): Promise<void> {
       s = Math.min(carrusel.clientHeight * 0.4, tarjetas[0].offsetHeight * 0.74);
     };
     medir();
+    // Piezas de cada tarjeta y lo último escrito: solo se toca el DOM cuando
+    // un valor cambia, y solo transform/opacity (compositor, sin repintar).
+    const piezas = tarjetas.map((t) => ({
+      t,
+      sombra: t.querySelector<HTMLElement>('.carrusel-sombra'),
+      velo: t.querySelector<HTMLElement>('.carrusel-velo'),
+      foto: t.querySelector<HTMLElement>('.carrusel-foto img'),
+      numero: t.querySelector<HTMLElement>('.carrusel-numero'),
+      previo: '',
+    }));
     const pintar = (p: number) => {
-      tarjetas.forEach((t, i) => {
+      piezas.forEach((pz, i) => {
         const d = i - p;
         const a = Math.abs(d);
         const cerca = Math.min(a, 1);
@@ -229,10 +239,18 @@ export async function iniciarAnimaciones(): Promise<void> {
         // Las vecinas son opacas (el velo las apaga): así no se transparenta
         // la de atrás. Solo se desvanecen las que ya salen.
         const opacidad = Math.max(0, 1 - lejos / 1.1);
-        t.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0) scale(${escala.toFixed(4)})`;
-        t.style.opacity = opacidad.toFixed(3);
-        t.style.zIndex = String(100 - Math.round(a * 10));
-        t.style.setProperty('--foco', (1 - cerca).toFixed(3));
+        const foco = 1 - cerca;
+        const clave = `${y.toFixed(1)}|${escala.toFixed(3)}|${opacidad.toFixed(2)}|${foco.toFixed(3)}`;
+        if (clave === pz.previo) return;
+        pz.previo = clave;
+        pz.t.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0) scale(${escala.toFixed(4)})`;
+        pz.t.style.opacity = opacidad.toFixed(2);
+        const z = String(100 - Math.round(a * 10));
+        if (pz.t.style.zIndex !== z) pz.t.style.zIndex = z;
+        if (pz.sombra) pz.sombra.style.opacity = foco.toFixed(3);
+        if (pz.velo) pz.velo.style.opacity = (0.5 * (1 - foco)).toFixed(3);
+        if (pz.foto) pz.foto.style.transform = `scale(${(1.14 - 0.14 * foco).toFixed(4)})`;
+        if (pz.numero) pz.numero.style.opacity = (foco * foco).toFixed(3);
       });
     };
 
@@ -260,11 +278,13 @@ export async function iniciarAnimaciones(): Promise<void> {
     return () => {
       delete escena.dataset.modo;
       delete carrusel.dataset.modo;
-      tarjetas.forEach((t) => {
-        t.style.transform = '';
-        t.style.opacity = '';
-        t.style.zIndex = '';
-        t.style.removeProperty('--foco');
+      piezas.forEach((pz) => {
+        pz.t.style.transform = '';
+        pz.t.style.opacity = '';
+        pz.t.style.zIndex = '';
+        [pz.sombra, pz.velo, pz.numero].forEach((el) => el?.style.removeProperty('opacity'));
+        pz.foto?.style.removeProperty('transform');
+        pz.previo = '';
       });
     };
   });
@@ -306,15 +326,27 @@ export async function iniciarAnimaciones(): Promise<void> {
     const T = { entraSabado: 1.3, enSabado: 2.6, entraDomingo: 3.3, enDomingo: 4.6, fin: 5.2 };
 
     let linea: gsap.core.Timeline | undefined;
+    // Solo se toca el DOM cuando cambia algo (días alcanzados o qué panel
+    // recibe toques), no en cada frame del scrub.
+    let alcanzadosPrevio = -1;
+    let toquesPrevio = '';
     const marcar = () => {
       if (!linea) return;
       const s = Number(gsap.getProperty(relleno, 'scaleX'));
-      dias.forEach((d, k) => d.toggleAttribute('data-alcanzado', s >= k / 6 - 0.01));
-      celdas.forEach((c, k) => c.toggleAttribute('data-alcanzado', s >= k / 6 - 0.01));
+      const alcanzados = Math.floor((s + 0.01) * 6) + 1;
+      if (alcanzados !== alcanzadosPrevio) {
+        alcanzadosPrevio = alcanzados;
+        dias.forEach((d, k) => d.toggleAttribute('data-alcanzado', k < alcanzados));
+        celdas.forEach((c, k) => c.toggleAttribute('data-alcanzado', k < alcanzados));
+      }
       // Un día solo recibe clics cuando ya está abierto; antes, los recibe el calendario.
       const t = linea.time();
-      sabado.panel.style.pointerEvents = t >= T.enSabado - 0.3 ? 'auto' : 'none';
-      domingo.panel.style.pointerEvents = t >= T.enDomingo - 0.3 ? 'auto' : 'none';
+      const toques = `${t >= T.enSabado - 0.3}|${t >= T.enDomingo - 0.3}`;
+      if (toques !== toquesPrevio) {
+        toquesPrevio = toques;
+        sabado.panel.style.pointerEvents = t >= T.enSabado - 0.3 ? 'auto' : 'none';
+        domingo.panel.style.pointerEvents = t >= T.enDomingo - 0.3 ? 'auto' : 'none';
+      }
     };
 
     linea = gsap.timeline({

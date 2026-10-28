@@ -83,13 +83,25 @@ const redesLista = [
             </span>
           </figcaption>
           <div class="mapa-lienzo">
+            <!-- El mapa de Google trae mucho JS que, en Android, corre en el
+                 mismo proceso que la página: se carga cuando el mapa está en
+                 pantalla y el scroll se detiene (o al tocarlo), no mientras
+                 se pasa de largo. -->
             <iframe
-              src={maps.embed}
+              data-src={maps.embed}
               title="Mapa de La Cañadita Restaurant en Cuernavaca, Morelos"
               class="mapa-iframe"
-              loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
               allowfullscreen></iframe>
+            <noscript>
+              <iframe
+                src={maps.embed}
+                title="Mapa de La Cañadita Restaurant en Cuernavaca, Morelos"
+                class="mapa-iframe"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen></iframe>
+            </noscript>
             <!-- En táctil: el mapa se activa con un toque y no atrapa el scroll. -->
             <button type="button" data-mapa-activar class="mapa-velo">
               <span class="mapa-velo-aviso">Toca para mover el mapa</span>
@@ -239,8 +251,30 @@ const redesLista = [
     const mapa = velo?.closest<HTMLElement>('.mapa');
     if (!velo || !mapa || mapa.dataset.listo) return;
     mapa.dataset.listo = 'true';
-    velo.addEventListener('click', () => mapa.setAttribute('data-activo', ''));
+
+    // Carga diferida del iframe: en pantalla + 400 ms sin scroll, o al tocar.
+    const iframe = mapa.querySelector<HTMLIFrameElement>('iframe[data-src]');
+    let enVista = false;
+    let espera = 0;
+    const cargar = (): void => {
+      if (!iframe?.dataset.src) return;
+      iframe.src = iframe.dataset.src;
+      delete iframe.dataset.src;
+      window.removeEventListener('scroll', reprogramar);
+    };
+    const reprogramar = (): void => {
+      clearTimeout(espera);
+      if (enVista) espera = window.setTimeout(cargar, 400);
+    };
+    window.addEventListener('scroll', reprogramar, { passive: true });
+
+    velo.addEventListener('click', () => {
+      cargar();
+      mapa.setAttribute('data-activo', '');
+    });
     new IntersectionObserver(([e]) => {
+      enVista = e.isIntersecting;
+      reprogramar();
       if (!e.isIntersecting) mapa.removeAttribute('data-activo');
     }).observe(mapa);
   }

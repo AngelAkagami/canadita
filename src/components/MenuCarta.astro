@@ -60,6 +60,7 @@ const seleccion = [
       {
         seleccion.map((s, i) => (
           <li data-plato class="carrusel-item">
+            <span class="carrusel-sombra" aria-hidden="true"></span>
             <a href="/menu/" class="carrusel-tarjeta">
               <span class="carrusel-foto">
                 <Imagen nombre={s.foto} alt={s.alt} class="h-full w-full object-cover" sizes="80vw" />
