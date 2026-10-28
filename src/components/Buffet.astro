@@ -148,6 +148,9 @@ const indiceDia = [1, 2, 3, 4, 5, 6, 0];
             class="group relative isolate flex min-h-[88svh] scroll-mt-20 items-end overflow-hidden md:min-h-[92dvh]"
             aria-labelledby={`titulo-${e.id}`}
           >
+            <!-- Interior: en el escenario se contra-escala para que el día
+                 crezca desde su ventana solo con transform (animaciones.ts). -->
+            <div data-panel-interior class="panel-interior">
             <div class="absolute inset-0 -z-20 overflow-hidden">
               <div data-panel-foto class="h-full w-full">
                 <Imagen nombre={e.foto} alt={e.alt} class="h-full w-full object-cover" sizes="100vw" />
@@ -206,6 +209,7 @@ const indiceDia = [1, 2, 3, 4, 5, 6, 0];
                   <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
                 </span>
               </a>
+            </div>
             </div>
           </article>
         ))

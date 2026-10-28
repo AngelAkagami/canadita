@@ -861,7 +861,16 @@ html.sin-entrada #inicio [data-reveal] {
 }/* La capa del patio solo existe con JS (GSAP la recorta y la abre). */
 .hero-portal {
   visibility: hidden;
-  will-change: clip-path;
+  /* Crece con transform desde la ventana (animaciones.ts): el origen es la
+     esquina para que las cuentas de escala/traslado sean directas. */
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.hero-portal > [data-hero-portal-foto],
+.hero-portal > .hero-portal-velo,
+.hero-portal > [data-hero-portal-info] {
+  transform-origin: 0 0;
+  will-change: transform;
 }
 html:not(.js) .hero-portal {
   display: none;
@@ -1056,7 +1065,22 @@ html:not(.js) .hero-portal {
   position: absolute;
   inset: 0;
   min-height: 0;
-  will-change: clip-path;
+  /* Crece desde la ventana del calendario con transform (animaciones.ts). */
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* Fuera del escenario el interior no existe para el layout. */
+.panel-interior {
+  display: contents;
+}
+[data-modo="escenario"] .panel-interior {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 /* Móvil: el calendario y el texto de cada día libran el dock inferior. */
 @media (max-width: 767px) {
@@ -1183,6 +1207,147 @@ html:not(.js) .hero-portal {
   font-size: 1.05rem;
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--color-oro-oscuro);
+}
+
+/* ------------------------------------------------------------------ */
+/* Carrusel "gelatina" (móvil con animaciones ligadas al scroll).       */
+/* La pista alta da el recorrido; la escena se queda fija (sticky) y    */
+/* cada tarjeta se anima con la línea de tiempo de la pista. Lo mueve   */
+/* el compositor del navegador, pegado al dedo y sin JS por frame. Al   */
+/* llegar al centro la tarjeta se pasa un poco y regresa (rebote), y el */
+/* scroll se asienta solo en cada platillo (scroll-snap).               */
+/* Fuera de este bloque: GSAP (animaciones.ts) o la lista simple.       */
+/* ------------------------------------------------------------------ */
+.carrusel-parada {
+  display: none;
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    html {
+      scroll-snap-type: y proximity;
+    }
+    .carrusel-pista {
+      position: relative;
+      /* 100svh de escena + medio alto de pantalla por cada platillo. */
+      height: calc(100svh + (var(--n) - 1) * 50svh);
+      view-timeline: --carta block;
+    }
+    .carrusel-parada {
+      display: block;
+      position: absolute;
+      top: calc(var(--k) * 50svh);
+      left: 0;
+      width: 1px;
+      height: 1px;
+      scroll-snap-align: start;
+      scroll-snap-stop: normal;
+    }
+    .carrusel-pista > .carrusel-escena {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100svh;
+      padding-top: calc(1.75rem + env(safe-area-inset-top));
+      padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    }
+    .carrusel-pista .carrusel {
+      /* Separación centro → vecina: 74 % del alto de la tarjeta, sin pasar
+         del 40 % del alto disponible (mismo cálculo que hacía GSAP). */
+      --paso: min(
+        calc((0.5rem + (min(18rem, 76vw) - 1rem) * 0.75 + 5.2rem) * 0.74),
+        calc((100svh - 15rem) * 0.4)
+      );
+      position: relative;
+      display: block;
+      flex: 1;
+      min-height: 0;
+      margin: 1.25rem -1.25rem 0;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+    }
+    .carrusel-pista .carrusel-item {
+      /* Tramo de la línea de tiempo de esta tarjeta: de 2.5 platillos antes
+         a 2.5 después de estar al centro (al 50 % está centrada). */
+      --rango: contain calc((var(--i) - 2.5) / (var(--n) - 1) * 100%)
+        contain calc((var(--i) + 2.5) / (var(--n) - 1) * 100%);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(18rem, 76vw);
+      translate: -50% -50%;
+      animation:
+        carta-pasa linear both,
+        carta-capa linear both;
+      animation-timeline: --carta, --carta;
+      animation-range: var(--rango), var(--rango);
+    }
+    .carrusel-pista .carrusel-sombra,
+    .carrusel-pista .carrusel-velo,
+    .carrusel-pista .carrusel-foto img,
+    .carrusel-pista .carrusel-numero {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --carta;
+      animation-range: var(--rango);
+    }
+    .carrusel-pista .carrusel-sombra { animation-name: carta-sombra; }
+    .carrusel-pista .carrusel-velo { animation-name: carta-velo; }
+    .carrusel-pista .carrusel-foto img { animation-name: carta-foto; }
+    .carrusel-pista .carrusel-numero {
+      display: block;
+      position: absolute;
+      top: -2rem;
+      right: 0.25rem;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-variant-numeric: lining-nums tabular-nums;
+      color: var(--color-oro-oscuro);
+      animation-name: carta-numero;
+    }
+
+    /* Posición/escala/opacidad (mismos valores que antes) con rebote en la
+       llegada y la salida del centro: se pasa un poco y regresa. */
+    @keyframes carta-pasa {
+      0% { transform: translateY(calc(var(--paso) * 1.45)) scale(0.53); opacity: 0; }
+      10% { transform: translateY(calc(var(--paso) * 1.3)) scale(0.58); opacity: 0.09; }
+      30% {
+        transform: translateY(var(--paso)) scale(0.68);
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.3, 1.45, 0.55, 1);
+      }
+      50% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.45, 0, 0.7, -0.45);
+      }
+      70% { transform: translateY(calc(var(--paso) * -1)) scale(0.68); opacity: 1; }
+      90% { transform: translateY(calc(var(--paso) * -1.3)) scale(0.58); opacity: 0.09; }
+      100% { transform: translateY(calc(var(--paso) * -1.45)) scale(0.53); opacity: 0; }
+    }
+    /* La del centro siempre queda encima de sus vecinas. */
+    @keyframes carta-capa {
+      0%, 100% { z-index: 75; }
+      30%, 70% { z-index: 90; }
+      50% { z-index: 100; }
+    }
+    @keyframes carta-sombra {
+      0%, 30%, 70%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+    @keyframes carta-velo {
+      0%, 30%, 70%, 100% { opacity: 0.5; }
+      50% { opacity: 0; }
+    }
+    @keyframes carta-foto {
+      0%, 30%, 70%, 100% { transform: scale(1.14); }
+      50% { transform: scale(1); }
+    }
+    @keyframes carta-numero {
+      0%, 30%, 70%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+  }
 }
 
 /* Horario de "Nuestra casa": letrero de puerta (día · puntos · hora). */

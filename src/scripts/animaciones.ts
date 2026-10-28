@@ -156,44 +156,74 @@ export async function iniciarAnimaciones(): Promise<void> {
   const contenido = hero?.querySelector<HTMLElement>('[data-hero-contenido]');
   // La entrada de la frase (pieza por pieza) es CSS: ver global.css.
   if (hero && portal && ventana && marco && contenido) {
-    // Recorte del patio a la medida de la ventana (la máscara exterior no se
-    // transforma, así que mide bien aunque la pieza esté entrando).
-    const desdeVentana = () => {
+    const foto = portal.querySelector<HTMLElement>('[data-hero-portal-foto]');
+    const info = portal.querySelector<HTMLElement>('[data-hero-portal-info]');
+    const velo = portal.querySelector<HTMLElement>('.hero-portal-velo');
+    const marca = hero.querySelector<HTMLElement>('[data-hero-marca]');
+    const logo = marca?.querySelector('.hero-marca-logo') ?? null;
+
+    // El patio crece desde la ventana de "jardines" hasta llenar la pantalla
+    // solo con transform (antes clip-path, que repintaba la foto completa en
+    // cada frame). La capa se escala desde el rectángulo de la ventana y su
+    // contenido se contra-escala para que no se deforme: lo resuelve el
+    // compositor. Se mide al refrescar, no en cada frame.
+    let W = 1, H = 1, x0 = 0, y0 = 0, w0 = 1, h0 = 1;
+    const medirVentana = () => {
       const h = hero.getBoundingClientRect();
       const r = ventana.getBoundingClientRect();
       const estilo = getComputedStyle(ventana);
-      const ancho = marco.offsetWidth;
-      const alto = marco.offsetHeight;
-      const arriba = r.top - h.top + parseFloat(estilo.paddingTop);
-      const izquierda = r.left - h.left + parseFloat(estilo.paddingLeft);
-      const radio = parseFloat(getComputedStyle(marco).borderTopLeftRadius) || 0;
-      return `inset(${arriba}px ${h.width - izquierda - ancho}px ${h.height - arriba - alto}px ${izquierda}px round ${radio}px)`;
+      W = h.width;
+      H = h.height;
+      w0 = marco.offsetWidth;
+      h0 = marco.offsetHeight;
+      x0 = r.left - h.left + parseFloat(estilo.paddingLeft);
+      y0 = r.top - h.top + parseFloat(estilo.paddingTop);
     };
-    const foto = portal.querySelector<HTMLElement>('[data-hero-portal-foto]');
-    const info = portal.querySelector<HTMLElement>('[data-hero-portal-info]');
-    const marca = hero.querySelector<HTMLElement>('[data-hero-marca]');
-    const logo = marca?.querySelector('.hero-marca-logo') ?? null;
+    const crecer = { p: 0, zoom: 1.3 };
+    const pintarPortal = () => {
+      const { p, zoom } = crecer;
+      const sx = w0 / W + (1 - w0 / W) * p;
+      const sy = h0 / H + (1 - h0 / H) * p;
+      const tx = x0 * (1 - p);
+      const ty = y0 * (1 - p);
+      portal.style.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${sx.toFixed(5)}, ${sy.toFixed(5)})`;
+      // Contra-escala: cada punto de la foto queda donde estaría a pantalla
+      // completa (más el zoom de 1.3 → 1 alrededor del centro).
+      if (foto) {
+        foto.style.transform = `translate(${((W / 2) * (1 - zoom) - tx) / sx}px, ${((H / 2) * (1 - zoom) - ty) / sy}px) scale(${(zoom / sx).toFixed(5)}, ${(zoom / sy).toFixed(5)})`;
+      }
+      const inversa = `translate(${-tx / sx}px, ${-ty / sy}px) scale(${(1 / sx).toFixed(5)}, ${(1 / sy).toFixed(5)})`;
+      if (velo) velo.style.transform = inversa;
+      if (info) info.style.transform = inversa;
+    };
+    medirVentana();
+    pintarPortal();
 
     gsap
       .timeline({
         defaults: { ease: 'none' },
+        onUpdate: pintarPortal,
         scrollTrigger: {
           trigger: hero,
           start: 'top top',
           end: '+=120%',
           pin: true,
-          scrub: 0.6,
+          scrub: 0.5,
           invalidateOnRefresh: true,
+          onRefresh: () => {
+            medirVentana();
+            pintarPortal();
+          },
         },
       })
       .fromTo(portal, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, 0)
-      .fromTo(portal, { clipPath: desdeVentana }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: 1, ease: 'power2.inOut' }, 0)
-      .fromTo(foto, { scale: 1.3 }, { scale: 1, duration: 1, ease: 'power1.out' }, 0)
+      .fromTo(crecer, { p: 0 }, { p: 1, duration: 1, ease: 'power2.inOut' }, 0)
+      .fromTo(crecer, { zoom: 1.3 }, { zoom: 1, duration: 1, ease: 'power1.out' }, 0)
       .to(contenido, { autoAlpha: 0, y: -40, duration: 0.45 }, 0.12)
       // La marca se queda: nombre y logotipo pasan a blanco sobre el patio.
       .to(marca, { color: '#ffffff', duration: 0.25 }, 0.55)
       .fromTo(logo, { filter: 'brightness(1) invert(0)' }, { filter: 'brightness(0) invert(1)', duration: 0.25 }, 0.55)
-      .fromTo(info, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' }, 0.85)
+      .fromTo(info, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }, 0.85)
       .to({}, { duration: 0.35 }, 1.2);
   }
 
@@ -201,6 +231,9 @@ export async function iniciarAnimaciones(): Promise<void> {
   // por el centro; el del centro crece, se aclara y gana sombra, los demás
   // esperan pequeños detrás. Se ajusta (snap) a un platillo por parada.
   mm.add('(max-width: 767px)', () => {
+    // Si el navegador anima el carrusel con el scroll (CSS, global.css),
+    // GSAP no lo toca: así va en el compositor, pegado al dedo.
+    if (CSS.supports('animation-timeline: view()')) return;
     const escena = document.querySelector<HTMLElement>('[data-carrusel-escena]');
     const carrusel = escena?.querySelector<HTMLElement>('[data-carrusel]');
     const tarjetas = carrusel ? Array.from(carrusel.querySelectorAll<HTMLElement>('[data-plato]')) : [];
@@ -304,23 +337,52 @@ export async function iniciarAnimaciones(): Promise<void> {
       const panel = semana.querySelector<HTMLElement>(`[data-panel="${id}"]`)!;
       return {
         panel,
+        interior: panel.querySelector<HTMLElement>('[data-panel-interior]'),
         foto: panel.querySelector<HTMLElement>('[data-panel-foto]')!,
         texto: [panel.querySelector('[data-panel-texto]'), panel.querySelector('[data-panel-nav]')],
         relleno: panel.querySelector<HTMLElement>('[data-dia-relleno]')!,
         ventana: semana.querySelector<HTMLElement>(`[data-ventana="${id}"]`)!,
+        // Rectángulo de la ventana dentro del escenario y avance 0→1.
+        caja: { x: 0, y: 0, w: 1, h: 1 },
+        abre: { p: 0 },
       };
     };
     const sabado = dia('buffet');
     const domingo = dia('brunch');
     semana.dataset.modo = 'escenario';
 
-    // Recorte que coincide con la ventana del día en el calendario.
-    const desdeVentana = (ventana: HTMLElement) => () => {
+    // El día crece desde su ventana del calendario hasta la pantalla
+    // completa solo con transform: el panel se escala desde el rectángulo
+    // de la ventana y su interior se contra-escala para no deformarse.
+    // Antes era clip-path, que repintaba la foto completa en cada frame.
+    let W = 1;
+    let H = 1;
+    const medir = () => {
       const e = escenario.getBoundingClientRect();
-      const r = ventana.getBoundingClientRect();
-      return `inset(${r.top - e.top}px ${e.right - r.right}px ${e.bottom - r.bottom}px ${r.left - e.left}px round 4px)`;
+      W = e.width;
+      H = e.height;
+      [sabado, domingo].forEach((d) => {
+        const r = d.ventana.getBoundingClientRect();
+        d.caja = { x: r.left - e.left, y: r.top - e.top, w: r.width, h: r.height };
+      });
     };
-    const abierto = 'inset(0px 0px 0px 0px round 0px)';
+    const abrir = (d: typeof sabado) => {
+      const { p } = d.abre;
+      const sx = d.caja.w / W + (1 - d.caja.w / W) * p;
+      const sy = d.caja.h / H + (1 - d.caja.h / H) * p;
+      const tx = d.caja.x * (1 - p);
+      const ty = d.caja.y * (1 - p);
+      d.panel.style.transform = `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${sx.toFixed(5)}, ${sy.toFixed(5)})`;
+      if (d.interior) {
+        d.interior.style.transform = `translate(${(-tx / sx).toFixed(2)}px, ${(-ty / sy).toFixed(2)}px) scale(${(1 / sx).toFixed(5)}, ${(1 / sy).toFixed(5)})`;
+      }
+    };
+    const pintarDias = () => {
+      abrir(sabado);
+      abrir(domingo);
+    };
+    medir();
+    pintarDias();
 
     // Tiempos de la línea (segundos de timeline, no reales).
     const T = { entraSabado: 1.3, enSabado: 2.6, entraDomingo: 3.3, enDomingo: 4.6, fin: 5.2 };
@@ -352,15 +414,23 @@ export async function iniciarAnimaciones(): Promise<void> {
     linea = gsap.timeline({
       defaults: { ease: 'none' },
       // Se marca en cada cuadro del timeline (con scrub va detrás del scroll).
-      onUpdate: () => marcar(),
+      onUpdate: () => {
+        marcar();
+        pintarDias();
+      },
       scrollTrigger: {
         trigger: escenario,
         start: 'top top',
-        end: '+=360%',
+        // Recorrido más corto (antes 360 %): la semana se lee en menos scroll.
+        end: '+=240%',
         pin: true,
-        scrub: 0.8,
+        scrub: 0.5,
         invalidateOnRefresh: true,
-        onRefresh: () => marcar(),
+        onRefresh: () => {
+          medir();
+          pintarDias();
+          marcar();
+        },
       },
     });
 
@@ -370,7 +440,7 @@ export async function iniciarAnimaciones(): Promise<void> {
       // 2. Entramos al sábado: la foto del día aparece sobre su miniatura y
       //    la ventana se abre a pantalla completa.
       .fromTo(sabado.panel, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, T.entraSabado)
-      .fromTo(sabado.panel, { clipPath: desdeVentana(sabado.ventana) }, { clipPath: abierto, duration: 1.1, ease: 'power2.inOut' }, T.entraSabado)
+      .fromTo(sabado.abre, { p: 0 }, { p: 1, duration: 1.1, ease: 'power2.inOut' }, T.entraSabado)
       .fromTo(sabado.foto, { scale: 1.45 }, { scale: 1.05, duration: 1.3, ease: 'power1.out' }, T.entraSabado)
       .fromTo(sabado.texto, { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, T.entraSabado + 0.8)
       // 3. Cambiamos de día: el sábado se retira y el domingo se abre encima.
@@ -378,7 +448,7 @@ export async function iniciarAnimaciones(): Promise<void> {
       .to(sabado.texto, { autoAlpha: 0, y: -40, duration: 0.5 }, T.entraDomingo)
       .to(relleno, { scaleX: 1, duration: 0.8 }, T.entraDomingo)
       .fromTo(domingo.panel, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, T.entraDomingo)
-      .fromTo(domingo.panel, { clipPath: desdeVentana(domingo.ventana) }, { clipPath: abierto, duration: 1.1, ease: 'power2.inOut' }, T.entraDomingo)
+      .fromTo(domingo.abre, { p: 0 }, { p: 1, duration: 1.1, ease: 'power2.inOut' }, T.entraDomingo)
       .fromTo(domingo.foto, { scale: 1.45 }, { scale: 1.05, duration: 1.3, ease: 'power1.out' }, T.entraDomingo)
       .fromTo(domingo.relleno, { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: 'power2.inOut' }, T.entraDomingo + 0.6)
       .fromTo(domingo.texto, { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, T.entraDomingo + 0.8)
@@ -397,7 +467,11 @@ export async function iniciarAnimaciones(): Promise<void> {
     return () => {
       window.removeEventListener('semana:ir', ir);
       semana.dataset.modo = 'pestanas';
-      [sabado.panel, domingo.panel].forEach((p) => (p.style.pointerEvents = ''));
+      [sabado.panel, domingo.panel].forEach((p) => {
+        p.style.pointerEvents = '';
+        p.style.transform = '';
+      });
+      [sabado.interior, domingo.interior].forEach((i) => i?.style.removeProperty('transform'));
     };
   });
 

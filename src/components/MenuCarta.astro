@@ -35,8 +35,10 @@ const seleccion = [
 
 <section id="menu" data-tono="oro" class="scroll-mt-20 py-24 md:py-36" aria-labelledby="titulo-menu">
   <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
-    <!-- En móvil, título y carrusel forman una escena que se fija mientras
-         pasan los platillos. -->
+    <!-- En móvil, título y carrusel forman una escena fija (sticky) dentro de
+         una pista alta; el scroll de la pista mueve las tarjetas. -->
+    <div class="carrusel-pista" style={`--n: ${seleccion.length}`}>
+      {seleccion.map((_, k) => <span class="carrusel-parada" style={`--k: ${k}`} aria-hidden="true" />)}
     <div data-carrusel-escena class="carrusel-escena">
     <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <h2 id="titulo-menu" data-titular class="display-lg text-azul">
@@ -54,12 +56,13 @@ const seleccion = [
     </div>
 
     <!-- Móvil: carrusel vertical. Las tarjetas esperan pequeñas y la que
-         llega al centro se expande (GSAP, ver animaciones.ts). Sin JS o con
-         movimiento reducido es una lista normal de postales. -->
+         llega al centro se expande. Con soporte de animaciones ligadas al
+         scroll lo mueve el propio navegador (CSS, global.css); si no, GSAP
+         (animaciones.ts). Sin JS o con movimiento reducido es una lista. -->
     <ol data-carrusel class="carrusel mt-14 md:hidden" aria-label="Platillos de la casa">
       {
         seleccion.map((s, i) => (
-          <li data-plato class="carrusel-item">
+          <li data-plato class="carrusel-item" style={`--i: ${i}`}>
             <span class="carrusel-sombra" aria-hidden="true"></span>
             <a href="/menu/" class="carrusel-tarjeta">
               <span class="carrusel-foto">
@@ -79,6 +82,7 @@ const seleccion = [
         ))
       }
     </ol>
+    </div>
     </div>
 
     <a href="/menu/" class="boton group mt-10 border border-azul/25 text-azul hover:border-azul hover:bg-azul hover:text-marfil md:hidden">
