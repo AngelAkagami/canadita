@@ -41,14 +41,14 @@ const seleccion = [
       {seleccion.map((_, k) => <span class="carrusel-parada" style={`--k: ${k}`} aria-hidden="true" />)}
     <div data-carrusel-escena class="carrusel-escena">
     <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-      <h2 id="titulo-menu" data-titular class="display-lg text-azul">
+      <h2 id="titulo-menu" data-titular class="display-lg text-olivo">
         <span class="mascara"><span data-linea>Una carta</span></span>
         <span class="mascara"><span data-linea><em class="texto-oro pr-2 italic">para volver.</em></span></span>
       </h2>
       <div class="hidden md:block">
-        <a href="/menu/" data-reveal class="boton group border border-azul/25 text-azul hover:border-azul hover:bg-azul hover:text-marfil">
+        <a href="/menu/" data-reveal class="boton group border border-olivo/25 text-olivo hover:border-olivo hover:bg-olivo hover:text-marfil">
           Carta completa
-          <span class="boton-icono bg-azul/10">
+          <span class="boton-icono bg-olivo/10">
             <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
           </span>
         </a>
@@ -71,8 +71,8 @@ const seleccion = [
               </span>
               <span class="carrusel-pie">
                 <span class="min-w-0">
-                  <span class="block text-[0.72rem] font-semibold text-azul/55">{s.plato!.categoria}</span>
-                  <span class="mt-0.5 block font-display text-[1.55rem] leading-[1.08] text-azul">{s.plato!.nombre}</span>
+                  <span class="block text-[0.72rem] font-semibold text-olivo/55">{s.plato!.categoria}</span>
+                  <span class="mt-0.5 block font-display text-[1.55rem] leading-[1.08] text-olivo">{s.plato!.nombre}</span>
                 </span>
                 <span class="shrink-0 font-display text-[1.35rem] lining-nums tabular-nums text-oro-oscuro">{s.plato!.precio}</span>
               </span>
@@ -85,26 +85,26 @@ const seleccion = [
     </div>
     </div>
 
-    <a href="/menu/" class="boton group mt-10 border border-azul/25 text-azul hover:border-azul hover:bg-azul hover:text-marfil md:hidden">
+    <a href="/menu/" class="boton group mt-10 border border-olivo/25 text-olivo hover:border-olivo hover:bg-olivo hover:text-marfil md:hidden">
       Carta completa
-      <span class="boton-icono bg-azul/10">
+      <span class="boton-icono bg-olivo/10">
         <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
       </span>
     </a>
 
-    <ul class="mt-16 hidden border-t border-azul/15 md:mt-20 md:block" id="indice-menu">
+    <ul class="mt-16 hidden border-t border-olivo/15 md:mt-20 md:block" id="indice-menu">
       {
         seleccion.map((s) => (
-          <li data-reveal class="border-b border-azul/15">
+          <li data-reveal class="border-b border-olivo/15">
             <a
               href="/menu/"
               data-foto={s.foto}
               class="group grid grid-cols-[1fr_12rem_7rem] items-center gap-8 py-7"
             >
-              <span class="font-display text-[clamp(2rem,3.4vw,3.2rem)] leading-tight text-azul transition-[color,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-3 group-hover:text-teal">
+              <span class="font-display text-[clamp(2rem,3.4vw,3.2rem)] leading-tight text-olivo transition-[color,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-3 group-hover:text-olivo-claro">
                 {s.plato!.nombre}
               </span>
-              <span class="text-sm text-azul/50">{s.plato!.categoria}</span>
+              <span class="text-sm text-olivo/50">{s.plato!.categoria}</span>
               <span class="text-right font-display text-2xl lining-nums tabular-nums text-oro-oscuro">{s.plato!.precio}</span>
             </a>
           </li>
@@ -117,7 +117,7 @@ const seleccion = [
   <div class="hidden" id="fotos-menu" aria-hidden="true">
     {
       seleccion.map((s) => (
-        <div class="menu-flotante overflow-hidden rounded-sm bg-beige shadow-[0_30px_60px_-20px_rgba(0,47,89,0.35)]" data-foto-id={s.foto}>
+        <div class="menu-flotante overflow-hidden rounded-sm bg-beige shadow-[0_30px_60px_-20px_rgba(66,80,31,0.35)]" data-foto-id={s.foto}>
           <Imagen nombre={s.foto} alt="" class="h-full w-full object-cover" sizes="288px" />
         </div>
       ))

@@ -18,11 +18,11 @@ const redesLista = [
 ] as const;
 ---
 
-<footer class="overflow-hidden border-t border-azul/15 pt-14 text-azul md:pt-24">
+<footer class="overflow-hidden border-t border-olivo/15 pt-14 text-olivo md:pt-24">
   <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
     <div class="grid gap-9 text-sm md:grid-cols-12 md:gap-12">
       <div class="md:col-span-4">
-        <p class="max-w-[28ch] font-display text-2xl leading-snug text-azul">{sitio.tagline}.</p>
+        <p class="max-w-[28ch] font-display text-2xl leading-snug text-olivo">{sitio.tagline}.</p>
       </div>
       <nav aria-label="Navegación del pie de página" class="md:col-span-3 md:col-start-5">
         <ul class="grid grid-cols-2 gap-x-6 gap-y-1 md:grid-cols-1 md:gap-y-2.5">
@@ -32,10 +32,10 @@ const redesLista = [
           <li><a href={ancla('#horarios', ruta)} class="pie-enlace">Horarios</a></li>
         </ul>
       </nav>
-      <div class="text-azul/65 md:col-span-3">
+      <div class="text-olivo/65 md:col-span-3">
         <address class="not-italic">{direccion.linea1}, {direccion.linea2}<br class="hidden md:inline" /><span class="md:hidden"> · </span>{direccion.ciudad}, {direccion.estado}</address>
         <p class="mt-2.5 flex flex-wrap items-center gap-x-2">
-          <a href={telefono.href} class="pie-enlace font-semibold text-azul">{telefono.visible}</a>
+          <a href={telefono.href} class="pie-enlace font-semibold text-olivo">{telefono.visible}</a>
           <span aria-hidden="true">·</span>
           <a href={whatsappReserva} target="_blank" rel="noopener noreferrer" class="pie-enlace">WhatsApp</a>
         </p>
@@ -55,7 +55,7 @@ const redesLista = [
       La Cañadita
     </p>
 
-    <div class="flex flex-col justify-between gap-2 border-t border-azul/15 py-6 text-xs text-azul/50 sm:flex-row">
+    <div class="flex flex-col justify-between gap-2 border-t border-olivo/15 py-6 text-xs text-olivo/50 sm:flex-row">
       <p>© {anio} {sitio.nombreCompleto}. Cuernavaca, Morelos, México.</p>
       <p>{resumenHorariosCorto}</p>
     </div>

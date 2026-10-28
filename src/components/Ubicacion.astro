@@ -48,16 +48,16 @@ const redesLista = [
     <div class="grid gap-14 md:grid-cols-12 md:gap-10">
       <!-- Columna de datos -->
       <div class="md:col-span-5">
-        <h2 id="titulo-ubicacion" data-titular class="display-xl text-azul">
+        <h2 id="titulo-ubicacion" data-titular class="display-xl text-olivo">
           <span class="mascara"><span data-linea>Visítanos.</span></span>
         </h2>
-        <p data-visita-estado data-horarios={JSON.stringify(porDia)} class="mt-5 flex items-center gap-2.5 text-[0.95rem] font-semibold text-azul">
+        <p data-visita-estado data-horarios={JSON.stringify(porDia)} class="mt-5 flex items-center gap-2.5 text-[0.95rem] font-semibold text-olivo">
           <span class="estado-punto" aria-hidden="true"></span>
           <span data-visita-estado-texto>Abierto todos los días</span>
         </p>
 
         <address class="mt-10 not-italic">
-          <p class="font-display text-[clamp(1.9rem,6.5vw,2.6rem)] leading-[1.1] text-azul">
+          <p class="font-display text-[clamp(1.9rem,6.5vw,2.6rem)] leading-[1.1] text-olivo">
             {direccion.linea1}<br />{direccion.linea2}, {direccion.ciudad}<br />{direccion.estado}
           </p>
         </address>
@@ -77,8 +77,8 @@ const redesLista = [
             <span class="flex min-w-0 items-center gap-2.5">
               <span class="mapa-pin"><Icono nombre="ubicacion" class="h-4 w-4" /></span>
               <span class="min-w-0">
-                <span class="block text-[0.88rem] font-semibold text-azul">La Cañadita</span>
-                <span class="block truncate text-[0.78rem] text-azul/60">{direccion.linea1}, {direccion.linea2}</span>
+                <span class="block text-[0.88rem] font-semibold text-olivo">La Cañadita</span>
+                <span class="block truncate text-[0.78rem] text-olivo/60">{direccion.linea1}, {direccion.linea2}</span>
               </span>
             </span>
           </figcaption>
@@ -119,8 +119,8 @@ const redesLista = [
             Contacto
           </a>
         </div>
-        <p class="mt-4 text-center text-[0.9rem] text-azul/65 md:text-left">
-          o llama al <a href={telefono.href} class="enlace font-semibold text-azul">{telefono.visible}</a>
+        <p class="mt-4 text-center text-[0.9rem] text-olivo/65 md:text-left">
+          o llama al <a href={telefono.href} class="enlace font-semibold text-olivo">{telefono.visible}</a>
         </p>
 
         <ul class="mt-10 flex items-center justify-center gap-3 md:justify-start" aria-label="Redes sociales">
@@ -137,7 +137,7 @@ const redesLista = [
       </div>
       <!-- Horario de la semana (en móvil va después del mapa) -->
       <div id="horarios" class="scroll-mt-24 md:col-span-5 md:row-start-2">
-        <h3 class="font-sans text-[0.95rem] font-semibold text-azul">Horario</h3>
+        <h3 class="font-sans text-[0.95rem] font-semibold text-olivo">Horario</h3>
         <dl data-semana-visita class="semana-visita mt-3">
           {
             semana.map((s) => (
@@ -157,7 +157,7 @@ const redesLista = [
 
     <!-- Preguntas frecuentes -->
     <div class="mt-24 grid gap-8 md:mt-36 md:grid-cols-12 md:gap-10">
-      <h3 data-reveal class="font-display text-[clamp(2.2rem,4vw,3rem)] leading-tight text-azul md:col-span-4">Preguntas frecuentes</h3>
+      <h3 data-reveal class="font-display text-[clamp(2.2rem,4vw,3rem)] leading-tight text-olivo md:col-span-4">Preguntas frecuentes</h3>
       <div class="faq md:col-span-8">
         {
           preguntas.map((p, i) => (

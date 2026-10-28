@@ -3,26 +3,26 @@
 @import "@fontsource-variable/instrument-sans";
 
 /* ------------------------------------------------------------------ */
-/* Sistema visual "Talavera"                                           */
+/* Sistema visual "Jardín"                                             */
 /*                                                                     */
-/* Paleta tomada del sitio actual del cliente (lacanadita.com):        */
-/*   azul #002F59 · verde azulado #0E6B60 · dorado #D7AC69.            */
-/* Modo claro: fondo marfil con resplandores suaves verde azulado y    */
-/* dorado que fluyen entre secciones, y el patrón de azulejo de        */
-/* talavera muy tenue. El azul es la tinta; el dorado, el detalle.     */
-/*                                                                     */
+/* Paleta del logotipo (elegida por el cliente):                       */
+/*   olivo #42501F (primario: botones, títulos, dock) · olivo noche    */
+/*   #262E12 (secciones oscuras) · olivo claro #5A6A2C (hover,         */
+/*   enlaces) · dorado #D7AC69 (acento) · marfil #F4EFE4 (fondo).      */
+/* Contraste: marfil sobre olivo 8.8:1; olivo sobre marfil 7.6:1;      */
+/* olivo claro sobre marfil 5.1:1 (AA en texto pequeño).               */
+/* Fondo marfil con tonos de sección que fluyen y el patrón de         */
+/* talavera dorado muy tenue.                                          */
 /* ------------------------------------------------------------------ */
 @theme {
-  --color-azul: #002f59;
-  --color-azul-noche: #021a31;
-  --color-azul-medio: #0a3d66;
-  --color-teal: #0e6b60;
-  --color-teal-claro: #5fb3a5;
+  --color-olivo: #42501f;
+  --color-olivo-noche: #262e12;
+  --color-olivo-claro: #5a6a2c;
   --color-oro: #d7ac69;
   --color-oro-oscuro: #8a6326;
   --color-marfil: #f4efe4;
   --color-beige: #e6dcc6;
-  --color-tinta: #0f1f2e;
+  --color-tinta: #1d2311;
 
   --font-display: "Cormorant Garamond", "Cormorant respaldo", Georgia, "Times New Roman", serif;
   --font-sans: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -33,7 +33,7 @@
 :root {
   --tono-lienzo: oklch(95.6% 0.016 85); /* marfil */
 }
-:root[data-tono="teal"] {
+:root[data-tono="salvia"] {
   /* Salvia: el verde olivo del logotipo (#42501F, tono ~120) muy aclarado. */
   --tono-lienzo: oklch(94% 0.032 122);
 }
@@ -41,7 +41,7 @@
   --tono-lienzo: oklch(94% 0.026 80); /* cantera */
 }
 :root[data-tono="jardin"] {
-  --tono-lienzo: oklch(95% 0.01 240); /* azulejo */
+  --tono-lienzo: oklch(95.5% 0.02 100); /* hoja seca: entre salvia y cantera */
 }
 
 @layer base {
@@ -108,19 +108,19 @@
 @layer components {
   /* Índice de la portada de /menu: numeral, apartado, puntos y total. */
   .carta-indice {
-    border-top: 1px solid rgb(0 47 89 / 0.15);
+    border-top: 1px solid rgb(66 80 31 / 0.15);
   }
   .carta-indice a {
     display: flex;
     align-items: baseline;
     gap: 0.9rem;
     padding-block: 1rem;
-    border-bottom: 1px solid rgb(0 47 89 / 0.15);
-    color: var(--color-azul);
+    border-bottom: 1px solid rgb(66 80 31 / 0.15);
+    color: var(--color-olivo);
     transition: color 200ms ease;
   }
   .carta-indice a:hover {
-    color: var(--color-teal);
+    color: var(--color-olivo-claro);
   }
   .carta-indice-numeral {
     width: 1.9rem;
@@ -140,7 +140,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     font-variant-numeric: lining-nums tabular-nums;
-    color: rgb(15 31 46 / 0.6);
+    color: rgb(29 35 17 / 0.6);
   }
   /* Quita la X nativa del campo de búsqueda; el filtro se limpia borrando. */
   .buscador input::-webkit-search-cancel-button {
@@ -176,7 +176,7 @@
      Las secciones son transparentes y declaran `data-tono`; el lienzo
      cambia de tono plano con un fundido lento, así no hay cortes entre
      secciones. Los cuatro tonos salen de la marca: el papel marfil, el
-     celadón del verde azulado, la cantera del dorado y el azul del azulejo.
+     salvia del olivo, la cantera del dorado y la hoja seca del jardín.
      El patrón de talavera va encima, fijo y muy tenue. */
   .lienzo {
     position: fixed;
@@ -197,7 +197,7 @@
 
   /* Velo para texto sobre fotografía (de abajo hacia arriba). */
   .velo {
-    background-image: linear-gradient(to top, rgb(2 26 49 / 0.92) 0%, rgb(2 26 49 / 0.45) 45%, rgb(2 26 49 / 0) 75%);
+    background-image: linear-gradient(to top, rgb(38 46 18 / 0.92) 0%, rgb(38 46 18 / 0.45) 45%, rgb(38 46 18 / 0) 75%);
   }
 
   /* Texto que se ilumina palabra por palabra con el scroll. */
@@ -360,7 +360,7 @@
 
   /* Velo translúcido: la página se adivina detrás, desenfocada. */
   .menu-rapido {
-    background: rgb(2 26 49 / 0.86);
+    background: rgb(38 46 18 / 0.86);
     -webkit-backdrop-filter: blur(22px) saturate(1.3);
     backdrop-filter: blur(22px) saturate(1.3);
   }
@@ -428,10 +428,10 @@
   background: rgb(244 239 228 / 0.72);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);
   backdrop-filter: blur(18px) saturate(1.5);
-  border: 1px solid rgb(0 47 89 / 0.1);
+  border: 1px solid rgb(66 80 31 / 0.1);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.65),
-    0 18px 40px -24px rgb(0 47 89 / 0.45);
+    0 18px 40px -24px rgb(66 80 31 / 0.45);
   transition:
     background-color 500ms var(--ease-suave),
     box-shadow 500ms var(--ease-suave),
@@ -442,7 +442,7 @@
   background: rgb(244 239 228 / 0.9);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.7),
-    0 24px 50px -22px rgb(0 47 89 / 0.5);
+    0 24px 50px -22px rgb(66 80 31 / 0.5);
 }
 .dock[data-oculto] {
   translate: 0 calc(-100% - 1.5rem);
@@ -458,8 +458,8 @@
   width: var(--w, 0px);
   translate: var(--x, 0px) 0;
   border-radius: 999px;
-  background: rgb(0 47 89 / 0.07);
-  box-shadow: inset 0 0 0 1px rgb(0 47 89 / 0.06);
+  background: rgb(66 80 31 / 0.07);
+  box-shadow: inset 0 0 0 1px rgb(66 80 31 / 0.06);
   opacity: 0;
   pointer-events: none;
   transition:
@@ -481,14 +481,14 @@
   font-size: 0.88rem;
   font-weight: 500;
   white-space: nowrap;
-  color: rgb(0 47 89 / 0.68);
+  color: rgb(66 80 31 / 0.68);
   transition:
     color 300ms ease,
     scale 300ms var(--ease-suave);
 }
 .dock-item:hover,
 .dock-item:focus-visible {
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .dock-item:focus-visible {
   outline-offset: -2px;
@@ -498,7 +498,7 @@
 }
 .dock-item[aria-current],
 .dock-item[data-activo] {
-  color: var(--color-teal);
+  color: var(--color-olivo-claro);
 }
 /* Punto dorado del enlace activo. */
 .dock-item::after {
@@ -520,7 +520,7 @@
 }
 
 /* Dock móvil: vidrio marcado. Brillo arriba, tinte blanco suficiente para
-   que el texto azul se lea también sobre fotos oscuras. */
+   que el texto olivo se lea también sobre fotos oscuras. */
 .dock-vidrio {
   background: linear-gradient(180deg, rgb(255 255 255 / 0.66), rgb(255 255 255 / 0.44));
   /* 12 px (antes 22): el costo del desenfoque crece con el radio y se paga
@@ -530,8 +530,8 @@
   border: 1px solid rgb(255 255 255 / 0.65);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.9),
-    inset 0 -1px 0 rgb(0 47 89 / 0.06),
-    0 20px 40px -18px rgb(0 47 89 / 0.5);
+    inset 0 -1px 0 rgb(66 80 31 / 0.06),
+    0 20px 40px -18px rgb(66 80 31 / 0.5);
 }
 /* Activo en el dock móvil: una cápsula que abraza icono + etiqueta,
    concéntrica con el dock. Su posición sale del índice del botón activo
@@ -545,27 +545,27 @@
   height: 100%;
   width: 5.5rem;
   translate: none;
-  background: linear-gradient(180deg, rgb(14 107 96 / 0.16), rgb(14 107 96 / 0.1));
+  background: linear-gradient(180deg, rgb(90 106 44 / 0.16), rgb(90 106 44 / 0.1));
   box-shadow:
-    inset 0 0 0 1px rgb(14 107 96 / 0.14),
+    inset 0 0 0 1px rgb(90 106 44 / 0.14),
     inset 0 1px 0 rgb(255 255 255 / 0.55);
   transition:
     left 450ms var(--ease-suave),
     opacity 250ms ease;
 }
 .dock-vidrio .dock-item {
-  color: rgb(0 47 89 / 0.62);
+  color: rgb(66 80 31 / 0.62);
 }
 .dock-vidrio .dock-item::after {
   content: none;
 }
 .dock-vidrio .dock-item[aria-current],
 .dock-vidrio .dock-item[data-activo] {
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .dock-vidrio .dock-item[aria-current] .icono,
 .dock-vidrio .dock-item[data-activo] .icono {
-  color: var(--color-teal);
+  color: var(--color-olivo-claro);
 }
 .icono-activo {
   display: none !important;
@@ -600,11 +600,11 @@ html.js .fab:not([data-visible]) {
   width: 3.5rem;
   place-items: center;
   border-radius: 999px;
-  background: var(--color-azul);
+  background: var(--color-olivo);
   color: var(--color-marfil);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.18),
-    0 14px 30px -12px rgb(0 47 89 / 0.75);
+    0 14px 30px -12px rgb(66 80 31 / 0.75);
   transition:
     scale 300ms var(--ease-suave),
     background-color 300ms ease;
@@ -614,7 +614,7 @@ html.js .fab:not([data-visible]) {
 }
 .fab:hover .fab-boton,
 .fab:focus-visible .fab-boton {
-  background: var(--color-teal);
+  background: var(--color-olivo-claro);
 }
 .fab-etiqueta {
   height: 2.75rem;
@@ -625,14 +625,14 @@ html.js .fab:not([data-visible]) {
      repinta; antes se animaba max-width y forzaba layout en cada frame. El
      recorte también corta los toques, así no estorba cerrada. */
   clip-path: inset(0 0 0 100% round 999px);
-  color: var(--color-azul);
+  color: var(--color-olivo);
   font-size: 0.9rem;
   font-weight: 600;
   background: linear-gradient(180deg, rgb(255 255 255 / 0.76), rgb(255 255 255 / 0.55));
   -webkit-backdrop-filter: blur(10px) saturate(1.5);
   backdrop-filter: blur(10px) saturate(1.5);
   border: 1px solid rgb(255 255 255 / 0.7);
-  box-shadow: 0 12px 26px -16px rgb(0 47 89 / 0.5);
+  box-shadow: 0 12px 26px -16px rgb(66 80 31 / 0.5);
 }
 .fab-frases {
   display: flex;
@@ -695,7 +695,7 @@ html.js .fab:not([data-visible]) {
   place-items: center;
   border-radius: 999px;
   background: rgb(255 255 255 / 0.55);
-  box-shadow: inset 0 0 0 1px rgb(0 47 89 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(66 80 31 / 0.08);
   transition:
     rotate 600ms var(--ease-suave),
     scale 400ms var(--ease-suave),
@@ -712,7 +712,7 @@ html.js .fab:not([data-visible]) {
   height: 1.5rem;
   width: 1px;
   margin: 0 0.25rem;
-  background: rgb(0 47 89 / 0.12);
+  background: rgb(66 80 31 / 0.12);
 }
 
 /* Acción principal: el icono se abre al pasar el puntero. */
@@ -722,13 +722,13 @@ html.js .fab:not([data-visible]) {
   align-items: center;
   gap: 0.5rem;
   border-radius: 999px;
-  background: var(--color-azul);
+  background: var(--color-olivo);
   padding: 0 1.25rem;
   font-size: 0.88rem;
   font-weight: 600;
   white-space: nowrap;
   color: var(--color-marfil);
-  box-shadow: 0 10px 24px -14px rgb(0 47 89 / 0.8);
+  box-shadow: 0 10px 24px -14px rgb(66 80 31 / 0.8);
   transition:
     background-color 400ms var(--ease-suave),
     padding 450ms var(--ease-suave),
@@ -736,7 +736,7 @@ html.js .fab:not([data-visible]) {
 }
 .dock-reservar:hover,
 .dock-reservar:focus-visible {
-  background: var(--color-teal);
+  background: var(--color-olivo-claro);
   padding-right: 0.5rem;
 }
 .dock-reservar:active {
@@ -832,7 +832,7 @@ html.sin-entrada #inicio [data-reveal] {
   border-radius: 0.12em;
   background: var(--color-beige);
   vertical-align: -0.04em;
-  box-shadow: 0 0.1em 0.22em -0.08em rgb(0 47 89 / 0.45);
+  box-shadow: 0 0.1em 0.22em -0.08em rgb(66 80 31 / 0.45);
   transition: rotate 700ms var(--ease-suave);
 }
 .ventana-girada {
@@ -850,14 +850,14 @@ html.sin-entrada #inicio [data-reveal] {
     scale: 1.1;
   }
 }
-/* Marca del hero: azul sobre el lienzo, marfil sobre el patio (GSAP). */
+/* Marca del hero: olivo sobre el lienzo, marfil sobre el patio (GSAP). */
 .hero-marca {
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .hero-portal-velo {
   background-image:
-    linear-gradient(to bottom, rgb(2 26 49 / 0.55) 0%, rgb(2 26 49 / 0) 28%),
-    linear-gradient(to top, rgb(2 26 49 / 0.9) 0%, rgb(2 26 49 / 0.55) 38%, rgb(2 26 49 / 0) 70%);
+    linear-gradient(to bottom, rgb(38 46 18 / 0.55) 0%, rgb(38 46 18 / 0) 28%),
+    linear-gradient(to top, rgb(38 46 18 / 0.9) 0%, rgb(38 46 18 / 0.55) 38%, rgb(38 46 18 / 0) 70%);
 }/* La capa del patio solo existe con JS (GSAP la recorta y la abre). */
 .hero-portal {
   visibility: hidden;
@@ -881,11 +881,11 @@ html:not(.js) .hero-portal {
   height: 0.55rem;
   width: 0.55rem;
   border-radius: 999px;
-  background: rgb(0 47 89 / 0.3);
+  background: rgb(66 80 31 / 0.3);
 }
 [data-estado="abierto"] .estado-punto {
-  background: var(--color-teal);
-  box-shadow: 0 0 0 4px rgb(14 107 96 / 0.16);
+  background: var(--color-olivo-claro);
+  box-shadow: 0 0 0 4px rgb(90 106 44 / 0.16);
 }
 [data-estado="especial"] .estado-punto {
   background: #b98a45;
@@ -907,7 +907,7 @@ html:not(.js) .hero-portal {
   pointer-events: none;
 }
 .semana-guia {
-  border-top: 1.5px dashed rgb(0 47 89 / 0.2);
+  border-top: 1.5px dashed rgb(66 80 31 / 0.2);
 }
 .semana-relleno {
   height: 2.5px;
@@ -929,7 +929,7 @@ html:not(.js) .hero-portal {
   height: 0.55rem;
   width: 0.55rem;
   border-radius: 999px;
-  background: var(--color-teal);
+  background: var(--color-olivo-claro);
   transition:
     scale 500ms var(--ease-suave),
     background-color 400ms var(--ease-suave);
@@ -938,12 +938,12 @@ html:not(.js) .hero-portal {
   height: 1rem;
   width: 1rem;
   border: 2px solid #b98a45;
-  background: radial-gradient(circle, var(--color-teal) 0 32%, var(--color-marfil) 36%);
+  background: radial-gradient(circle, var(--color-olivo-claro) 0 32%, var(--color-marfil) 36%);
   box-shadow: 0 0 0 6px rgb(215 172 105 / 0.25);
 }
 [data-modo="escenario"] [data-ruta-dia]:not([data-alcanzado])::after {
   scale: 0.55;
-  background: rgb(0 47 89 / 0.25);
+  background: rgb(66 80 31 / 0.25);
   box-shadow: none;
   border-color: transparent;
 }
@@ -959,7 +959,7 @@ html:not(.js) .hero-portal {
   display: none;
   margin-top: 0.4rem;
   border-radius: 999px;
-  background: var(--color-azul);
+  background: var(--color-olivo);
   padding: 0.05rem 0.5rem;
   font-size: 0.62rem;
   font-weight: 600;
@@ -995,11 +995,11 @@ html:not(.js) .hero-portal {
   width: 0.85rem;
   border-radius: 999px;
   border: 2px solid rgb(244 239 228 / 0.55);
-  background: var(--color-azul-noche);
+  background: var(--color-olivo-noche);
 }
 .dia-punto-activo {
   border-color: #d7ac69;
-  background: radial-gradient(circle, #d7ac69 0 38%, var(--color-azul-noche) 42%);
+  background: radial-gradient(circle, #d7ac69 0 38%, var(--color-olivo-noche) 42%);
   box-shadow: 0 0 0 5px rgb(215 172 105 / 0.25);
 }
 
@@ -1045,8 +1045,11 @@ html:not(.js) .hero-portal {
 }
 
 /* Modo escenario: sección fijada a pantalla completa (escritorio + GSAP). */
+/* lvh: alto con la barra de URL oculta. Al bajar, el navegador esconde la
+   barra y la pantalla crece; con svh/dvh la escena fija quedaba corta y se
+   veía una franja abajo. */
 [data-modo="escenario"] [data-escenario] {
-  height: 100svh;
+  height: 100lvh;
   overflow: hidden;
 }
 [data-modo="escenario"] [data-calendario] {
@@ -1128,18 +1131,18 @@ html:not(.js) .hero-portal {
   background: #fbf8f1;
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.9) inset,
-    0 4px 14px -10px rgb(0 47 89 / 0.22);
+    0 4px 14px -10px rgb(66 80 31 / 0.22);
 }
 /* Sombra del platillo al centro: capa fija que solo cambia de opacidad. */
 .carrusel-sombra {
   position: absolute;
   inset: 0;
   border-radius: 0.35rem;
-  box-shadow: 0 26px 50px -18px rgb(0 47 89 / 0.42);
+  box-shadow: 0 26px 50px -18px rgb(66 80 31 / 0.42);
   pointer-events: none;
 }
 .carrusel-tarjeta:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-olivo-claro);
   outline-offset: 3px;
 }
 .carrusel-foto {
@@ -1352,8 +1355,8 @@ html:not(.js) .hero-portal {
 
 /* Horario de "Nuestra casa": letrero de puerta (día · puntos · hora). */
 .horario {
-  border-top: 1px solid rgb(0 47 89 / 0.16);
-  border-bottom: 1px solid rgb(0 47 89 / 0.16);
+  border-top: 1px solid rgb(66 80 31 / 0.16);
+  border-bottom: 1px solid rgb(66 80 31 / 0.16);
   padding: 0.5rem 0;
 }
 .horario-fila {
@@ -1366,13 +1369,13 @@ html:not(.js) .hero-portal {
   flex-shrink: 0;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .horario-puntos {
   flex: 1;
   min-width: 1.5rem;
   height: 0.2em;
-  background-image: radial-gradient(circle, rgb(0 47 89 / 0.32) 1.1px, transparent 1.4px);
+  background-image: radial-gradient(circle, rgb(66 80 31 / 0.32) 1.1px, transparent 1.4px);
   background-size: 7px 100%;
   background-repeat: repeat-x;
 }
@@ -1382,7 +1385,7 @@ html:not(.js) .hero-portal {
   font-size: clamp(1.75rem, 7vw, 2.75rem);
   line-height: 1;
   font-variant-numeric: lining-nums tabular-nums;
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 
 /* Reseñas como notas pegadas (Resenas.astro). La central encima; las otras
@@ -1398,10 +1401,10 @@ html:not(.js) .hero-portal {
   position: relative;
   padding: 2.1rem 1.4rem 1.4rem;
   border-radius: 0.15rem 0.15rem 0.35rem 0.15rem;
-  color: var(--color-azul);
+  color: var(--color-olivo);
   box-shadow:
-    0 1px 1px rgb(0 47 89 / 0.08),
-    0 16px 22px -14px rgb(0 47 89 / 0.38);
+    0 1px 1px rgb(66 80 31 / 0.08),
+    0 16px 22px -14px rgb(66 80 31 / 0.38);
   transition: rotate 600ms var(--ease-suave), translate 600ms var(--ease-suave);
 }
 /* Franja adhesiva: un poco más oscura arriba, como la tira de pegamento. */
@@ -1411,7 +1414,7 @@ html:not(.js) .hero-portal {
   inset: 0 0 auto;
   height: 1.35rem;
   border-radius: inherit;
-  background: rgb(0 47 89 / 0.045);
+  background: rgb(66 80 31 / 0.045);
   pointer-events: none;
 }
 .nota-papel {
@@ -1420,8 +1423,8 @@ html:not(.js) .hero-portal {
 .nota-salvia {
   background: oklch(92.5% 0.045 122);
 }
-.nota-azulejo {
-  background: oklch(93.5% 0.028 240);
+.nota-cantera {
+  background: oklch(92% 0.04 78);
 }
 .nota-centro {
   z-index: 2;
@@ -1456,12 +1459,12 @@ html:not(.js) .hero-portal {
   margin-top: 0.85rem;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .nota-autor::after {
   content: " · Comensal";
   font-weight: 400;
-  color: rgb(0 47 89 / 0.55);
+  color: rgb(66 80 31 / 0.55);
 }
 @media (min-width: 768px) {
   .nota-arriba,
@@ -1526,11 +1529,11 @@ html:not(.js) .hero-portal {
   align-items: center;
   gap: 0.55rem;
   border-radius: 999px;
-  border: 1px solid rgb(0 47 89 / 0.2);
+  border: 1px solid rgb(66 80 31 / 0.2);
   padding: 0 1.1rem 0 0.95rem;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--color-azul);
+  color: var(--color-olivo);
   transition:
     background-color 300ms ease,
     border-color 300ms ease,
@@ -1538,13 +1541,13 @@ html:not(.js) .hero-portal {
     scale 200ms var(--ease-suave);
 }
 .copiar:hover {
-  border-color: rgb(0 47 89 / 0.45);
+  border-color: rgb(66 80 31 / 0.45);
 }
 .copiar:active {
   scale: 0.97;
 }
 .copiar:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-olivo-claro);
   outline-offset: 2px;
 }
 .copiar-listo,
@@ -1555,14 +1558,14 @@ html:not(.js) .hero-portal {
   display: inline-block;
 }
 .copiar[data-copiado] {
-  border-color: rgb(14 107 96 / 0.35);
-  background: rgb(14 107 96 / 0.1);
-  color: var(--color-teal);
+  border-color: rgb(90 106 44 / 0.35);
+  background: rgb(90 106 44 / 0.1);
+  color: var(--color-olivo-claro);
 }
 
 /* Horario de la semana con hoy marcado. */
 .semana-visita {
-  border-top: 1px solid rgb(0 47 89 / 0.14);
+  border-top: 1px solid rgb(66 80 31 / 0.14);
 }
 .semana-visita-fila {
   display: flex;
@@ -1571,15 +1574,15 @@ html:not(.js) .hero-portal {
   gap: 1rem;
   margin: 0 -0.75rem;
   padding: 0.7rem 0.75rem;
-  border-bottom: 1px solid rgb(0 47 89 / 0.1);
-  color: var(--color-azul);
+  border-bottom: 1px solid rgb(66 80 31 / 0.1);
+  color: var(--color-olivo);
   font-size: 0.95rem;
 }
 .semana-visita-hoy {
   display: none;
   margin-left: 0.5rem;
   border-radius: 999px;
-  background: var(--color-teal);
+  background: var(--color-olivo-claro);
   padding: 0.1rem 0.5rem;
   font-size: 0.66rem;
   font-weight: 700;
@@ -1591,7 +1594,7 @@ html:not(.js) .hero-portal {
 .semana-visita-fila[data-hoy] {
   border-radius: 0.35rem;
   border-bottom-color: transparent;
-  background: rgb(14 107 96 / 0.1);
+  background: rgb(90 106 44 / 0.1);
 }
 .semana-visita-fila[data-hoy] .semana-visita-hoy {
   display: inline-block;
@@ -1601,11 +1604,11 @@ html:not(.js) .hero-portal {
 .mapa {
   overflow: hidden;
   border-radius: 0.6rem;
-  border: 1px solid rgb(0 47 89 / 0.12);
+  border: 1px solid rgb(66 80 31 / 0.12);
   background: #fbf8f1;
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.9) inset,
-    0 24px 44px -28px rgb(0 47 89 / 0.45);
+    0 24px 44px -28px rgb(66 80 31 / 0.45);
 }
 .mapa-barra {
   display: flex;
@@ -1613,7 +1616,7 @@ html:not(.js) .hero-portal {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 0.85rem 0.75rem 0.75rem;
-  border-bottom: 1px solid rgb(0 47 89 / 0.1);
+  border-bottom: 1px solid rgb(66 80 31 / 0.1);
 }
 .mapa-pin {
   display: grid;
@@ -1622,7 +1625,7 @@ html:not(.js) .hero-portal {
   flex-shrink: 0;
   place-items: center;
   border-radius: 999px;
-  background: var(--color-azul);
+  background: var(--color-olivo);
   color: #fbf8f1;
 }
 .mapa-lienzo {
@@ -1654,7 +1657,7 @@ html:not(.js) .hero-portal {
 }
 .mapa-velo-aviso {
   border-radius: 999px;
-  background: rgb(2 26 49 / 0.86);
+  background: rgb(38 46 18 / 0.86);
   padding: 0.45rem 0.9rem;
   font-size: 0.78rem;
   font-weight: 600;
@@ -1692,24 +1695,24 @@ html:not(.js) .hero-portal {
   scale: 0.97;
 }
 .accion:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-olivo-claro);
   outline-offset: 2px;
 }
 .accion-principal {
-  background: var(--color-azul);
+  background: var(--color-olivo);
   color: #fbf8f1;
-  box-shadow: 0 12px 24px -14px rgb(0 47 89 / 0.7);
+  box-shadow: 0 12px 24px -14px rgb(66 80 31 / 0.7);
 }
 .accion-principal:hover {
-  background: var(--color-teal);
+  background: var(--color-olivo-claro);
 }
 .accion-secundaria {
-  border: 1px solid rgb(0 47 89 / 0.22);
+  border: 1px solid rgb(66 80 31 / 0.22);
   background: rgb(255 255 255 / 0.4);
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .accion-secundaria:hover {
-  border-color: var(--color-azul);
+  border-color: var(--color-olivo);
 }
 
 .red {
@@ -1718,23 +1721,23 @@ html:not(.js) .hero-portal {
   width: 2.75rem;
   place-items: center;
   border-radius: 999px;
-  border: 1px solid rgb(0 47 89 / 0.16);
-  color: var(--color-azul);
+  border: 1px solid rgb(66 80 31 / 0.16);
+  color: var(--color-olivo);
   transition:
     background-color 300ms ease,
     color 300ms ease;
 }
 .red:hover {
-  background: var(--color-azul);
+  background: var(--color-olivo);
   color: #fbf8f1;
 }
 
 /* Preguntas frecuentes: una abierta a la vez (name="faq"). */
 .faq {
-  border-top: 1px solid rgb(0 47 89 / 0.16);
+  border-top: 1px solid rgb(66 80 31 / 0.16);
 }
 .faq-item {
-  border-bottom: 1px solid rgb(0 47 89 / 0.12);
+  border-bottom: 1px solid rgb(66 80 31 / 0.12);
 }
 .faq-pregunta {
   display: flex;
@@ -1746,13 +1749,13 @@ html:not(.js) .hero-portal {
   gap: 1rem;
   padding: 0.9rem 0;
   font-weight: 600;
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .faq-pregunta::-webkit-details-marker {
   display: none;
 }
 .faq-pregunta:focus-visible {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-olivo-claro);
   outline-offset: 2px;
   border-radius: 0.25rem;
 }
@@ -1763,7 +1766,7 @@ html:not(.js) .hero-portal {
   flex-shrink: 0;
   place-items: center;
   border-radius: 999px;
-  border: 1px solid rgb(0 47 89 / 0.18);
+  border: 1px solid rgb(66 80 31 / 0.18);
   transition:
     rotate 400ms var(--ease-suave),
     background-color 300ms ease,
@@ -1771,7 +1774,7 @@ html:not(.js) .hero-portal {
 }
 .faq-item[open] .faq-signo {
   rotate: 45deg;
-  background: var(--color-azul);
+  background: var(--color-olivo);
   color: #fbf8f1;
 }
 .faq-respuesta {
@@ -1779,7 +1782,7 @@ html:not(.js) .hero-portal {
   padding: 0 3rem 1.25rem 0;
   font-size: 0.98rem;
   line-height: 1.65;
-  color: rgb(0 47 89 / 0.72);
+  color: rgb(66 80 31 / 0.72);
 }
 @supports (interpolate-size: allow-keywords) {
   .faq {
@@ -1801,12 +1804,12 @@ html:not(.js) .hero-portal {
 .reservado {
   position: relative;
   border-radius: 0.6rem;
-  border: 1px solid rgb(0 47 89 / 0.1);
+  border: 1px solid rgb(66 80 31 / 0.1);
   background: #fbf8f1;
   padding: 1.75rem 1.25rem 1.5rem;
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.9) inset,
-    0 28px 50px -30px rgb(0 47 89 / 0.5);
+    0 28px 50px -30px rgb(66 80 31 / 0.5);
 }
 /* Doble filete interior, como el marco del logotipo. */
 .reservado::before {
@@ -1828,7 +1831,7 @@ html:not(.js) .hero-portal {
   align-items: center;
   gap: 0.5rem;
   padding-bottom: 1.4rem;
-  border-bottom: 1px dashed rgb(0 47 89 / 0.2);
+  border-bottom: 1px dashed rgb(66 80 31 / 0.2);
   text-align: center;
 }
 .reservado-grupo {
@@ -1838,7 +1841,7 @@ html:not(.js) .hero-portal {
   margin-bottom: 0.6rem;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--color-azul);
+  color: var(--color-olivo);
 }
 .ficha {
   position: relative;
@@ -1846,10 +1849,10 @@ html:not(.js) .hero-portal {
   min-height: 2.75rem;
   place-items: center;
   border-radius: 999px;
-  border: 1px solid rgb(0 47 89 / 0.18);
+  border: 1px solid rgb(66 80 31 / 0.18);
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--color-azul);
+  color: var(--color-olivo);
   cursor: pointer;
   transition:
     background-color 250ms ease,
@@ -1858,18 +1861,18 @@ html:not(.js) .hero-portal {
     scale 200ms var(--ease-suave);
 }
 .ficha:hover {
-  border-color: rgb(0 47 89 / 0.45);
+  border-color: rgb(66 80 31 / 0.45);
 }
 .ficha:active {
   scale: 0.96;
 }
 .ficha:has(:checked) {
-  border-color: var(--color-azul);
-  background: var(--color-azul);
+  border-color: var(--color-olivo);
+  background: var(--color-olivo);
   color: #fbf8f1;
 }
 .ficha:has(:focus-visible) {
-  outline: 2px solid var(--color-teal);
+  outline: 2px solid var(--color-olivo-claro);
   outline-offset: 2px;
 }
 
@@ -1878,11 +1881,11 @@ html:not(.js) .hero-portal {
   display: inline-flex;
   min-height: 2.5rem;
   align-items: center;
-  color: rgb(0 47 89 / 0.68);
+  color: rgb(66 80 31 / 0.68);
   transition: color 250ms ease;
 }
 .pie-enlace:hover {
-  color: var(--color-teal);
+  color: var(--color-olivo-claro);
 }
 @media (min-width: 768px) {
   .pie-enlace {

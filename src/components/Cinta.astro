@@ -14,14 +14,14 @@ const servicios = [
 ];
 ---
 
-<div class="overflow-hidden border-y border-azul/15 py-5" aria-label="Servicios de La Cañadita">
+<div class="overflow-hidden border-y border-olivo/15 py-5" aria-label="Servicios de La Cañadita">
   <div class="cinta">
     {
       [0, 1].map((copia) => (
         <ul class="flex shrink-0 items-center" aria-hidden={copia === 1 ? 'true' : undefined}>
           {servicios.map((servicio) => (
             <li class="flex items-center">
-              <span class="px-7 font-display text-[clamp(1.6rem,3vw,2.6rem)] italic leading-none text-azul/85">
+              <span class="px-7 font-display text-[clamp(1.6rem,3vw,2.6rem)] italic leading-none text-olivo/85">
                 {servicio}
               </span>
               <span aria-hidden="true" class="h-px w-8 bg-oro-oscuro/40"></span>

@@ -9,7 +9,7 @@ interface Props {
   titulo: string;
   descripcion: string;
   imagenOG?: string;
-  /** 'oscuro' = home inmersiva sobre azul; 'claro' = lectura (/menu). */
+  /** 'oscuro' = home inmersiva sobre olivo noche; 'claro' = lectura (/menu). */
   tema?: 'oscuro' | 'claro';
 }
 
@@ -105,10 +105,10 @@ const otraRuta = esInicio ? '/menu/' : '/';
       })}
     />
   </head>
-  <body class:list={['antialiased pb-[calc(5.75rem_+_env(safe-area-inset-bottom))] md:pb-0', tema === 'oscuro' && 'bg-azul-noche text-marfil']}>
+  <body class:list={['antialiased pb-[calc(5.75rem_+_env(safe-area-inset-bottom))] md:pb-0', tema === 'oscuro' && 'bg-olivo-noche text-marfil']}>
     <a
       href="#contenido"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-marfil focus:px-4 focus:py-2 focus:text-azul"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-marfil focus:px-4 focus:py-2 focus:text-olivo"
     >
       Saltar al contenido
     </a>

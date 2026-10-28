@@ -27,21 +27,21 @@ const piezas = [
 >
   <div data-pista class="sin-barra relative flex scroll-px-5 snap-x snap-mandatory items-center gap-5 overflow-x-auto px-5 md:px-6 lg:snap-none lg:gap-12 lg:overflow-visible lg:pl-10 lg:pr-[10vw]">
     <div class="relative z-10 w-[82vw] shrink-0 snap-start lg:w-[34vw]">
-      <h2 id="titulo-galeria" class="display-lg text-azul">
+      <h2 id="titulo-galeria" class="display-lg text-olivo">
         Un recorrido <em class="texto-oro pr-2 italic">por la casa.</em>
       </h2>
       <TextoIluminado
-        class="mt-8 max-w-[30ch] font-display text-2xl leading-snug text-azul md:text-3xl"
+        class="mt-8 max-w-[30ch] font-display text-2xl leading-snug text-olivo md:text-3xl"
         texto="Jardines, pérgolas, la barra y la cocina: así se vive La Cañadita."
       />
     </div>
     {
       piezas.map((p, i) => (
         <figure data-flota class:list={['relative z-10 shrink-0 snap-start', p.clase]}>
-          <div class="h-full w-full overflow-hidden rounded-sm bg-beige shadow-[0_40px_80px_-30px_rgba(0,47,89,0.35)]">
+          <div class="h-full w-full overflow-hidden rounded-sm bg-beige shadow-[0_40px_80px_-30px_rgba(66,80,31,0.35)]">
             <Imagen nombre={p.nombre} alt={p.alt} class="h-full w-full object-cover" sizes="(min-width: 1024px) 44vw, 82vw" />
           </div>
-          <figcaption class="mt-4 flex items-baseline gap-3 text-sm text-azul/70">
+          <figcaption class="mt-4 flex items-baseline gap-3 text-sm text-olivo/70">
             <span class="font-display text-lg italic text-oro-oscuro">0{i + 1}</span>
             {p.pie}
           </figcaption>

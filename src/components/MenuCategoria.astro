@@ -40,14 +40,14 @@ const textoBusqueda = (item: ItemMenu) =>
   [item.nombre, item.descripcion, ...(item.variantes ?? [])].filter(Boolean).join(' ');
 ---
 
-<section id={id} data-categoria class="scroll-mt-36 border-t border-azul/15 py-12 md:scroll-mt-60 md:py-16">
+<section id={id} data-categoria class="scroll-mt-36 border-t border-olivo/15 py-12 md:scroll-mt-60 md:py-16">
   <div class="grid items-center gap-7 md:grid-cols-2 md:gap-12">
     {
       invertir ? (
         <>
           <div class="md:order-1">
             <p class="mb-3 text-sm text-tinta/55">{grupo}</p>
-            <h3 class="font-display text-5xl text-azul sm:text-6xl">{nombre}</h3>
+            <h3 class="font-display text-5xl text-olivo sm:text-6xl">{nombre}</h3>
           </div>
           <figure class:list={['md:order-2', 'md:-translate-y-2']}>
             {imagen ? (
@@ -61,7 +61,7 @@ const textoBusqueda = (item: ItemMenu) =>
               <div class="flex aspect-[4/3] w-full items-center justify-center bg-beige">
                 <div class="text-center">
                   <Ornamento variante="oscuro" class="mx-auto h-9 w-9 opacity-70" />
-                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-teal">
+                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-olivo-claro">
                     Foto pendiente
                   </p>
                   <!-- TODO (cliente): sustituir por una foto real de la categoría. -->
@@ -85,7 +85,7 @@ const textoBusqueda = (item: ItemMenu) =>
               <div class="flex aspect-[4/3] w-full items-center justify-center bg-beige">
                 <div class="text-center">
                   <Ornamento variante="oscuro" class="mx-auto h-9 w-9 opacity-70" />
-                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-teal">
+                  <p class="mt-3 text-[0.68rem] uppercase tracking-[0.18em] text-olivo-claro">
                     Foto pendiente
                   </p>
                   <!-- TODO (cliente): sustituir por una foto real de la categoría. -->
@@ -96,7 +96,7 @@ const textoBusqueda = (item: ItemMenu) =>
           </figure>
           <div class="md:translate-y-2">
             <p class="mb-3 text-sm text-tinta/55">{grupo}</p>
-            <h3 class="font-display text-5xl text-azul sm:text-6xl">{nombre}</h3>
+            <h3 class="font-display text-5xl text-olivo sm:text-6xl">{nombre}</h3>
           </div>
         </>
       )
@@ -108,12 +108,12 @@ const textoBusqueda = (item: ItemMenu) =>
       <div class="mt-9 overflow-x-auto">
         <table class="w-full min-w-[30rem] border-collapse text-left">
           <thead>
-            <tr class="border-b border-azul/30">
-              <th scope="col" class="antetitulo py-2 pr-4 text-teal">
+            <tr class="border-b border-olivo/30">
+              <th scope="col" class="antetitulo py-2 pr-4 text-olivo-claro">
                 Bebida
               </th>
               {columnas.map((columna) => (
-                <th scope="col" class="antetitulo py-2 text-right text-teal">
+                <th scope="col" class="antetitulo py-2 text-right text-olivo-claro">
                   {columna}
                 </th>
               ))}
@@ -121,7 +121,7 @@ const textoBusqueda = (item: ItemMenu) =>
           </thead>
           <tbody>
             {items.map((item) => (
-              <tr data-plato={textoBusqueda(item)} class="border-b border-azul/10 align-top">
+              <tr data-plato={textoBusqueda(item)} class="border-b border-olivo/10 align-top">
                 <td class="py-4 pr-6">
                   <p class="text-[1.02rem] font-semibold text-tinta">{item.nombre}</p>
                   {item.descripcion && (
@@ -131,7 +131,7 @@ const textoBusqueda = (item: ItemMenu) =>
                   )}
                 </td>
                 {item.precios?.map((precio) => (
-                  <td class="py-4 text-right text-[1.02rem] lining-nums tabular-nums text-azul">{precio}</td>
+                  <td class="py-4 text-right text-[1.02rem] lining-nums tabular-nums text-olivo">{precio}</td>
                 ))}
               </tr>
             ))}
@@ -145,7 +145,7 @@ const textoBusqueda = (item: ItemMenu) =>
             <div class="flex items-baseline gap-3">
               <h4 class="text-[1.02rem] font-semibold text-tinta">{item.nombre}</h4>
               <span aria-hidden="true" class="leader flex-1"></span>
-              <span class="shrink-0 text-[1.02rem] font-semibold lining-nums tabular-nums text-teal">
+              <span class="shrink-0 text-[1.02rem] font-semibold lining-nums tabular-nums text-olivo-claro">
                 {item.precio}
               </span>
             </div>
