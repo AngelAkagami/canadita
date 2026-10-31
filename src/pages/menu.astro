@@ -1,14 +1,14 @@
 ---
 /**
- * Vista de la carta completa (/menu): sugerencias del chef (menu.ts),
- * desayunos y bebidas (menu.json). Categorías con chips sticky, imagen
+ * Vista de la carta completa (/menu): sugerencias del chef y mixología
+ * (menu.ts), desayunos y bebidas (menu.json). Categorías con chips sticky, imagen
  * alterna por categoría y precios alineados a la derecha.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MenuCategoria from '../components/MenuCategoria.astro';
 import Icono from '../components/Icono.astro';
 import Ornamento from '../components/Ornamento.astro';
-import { menuSugerencias } from '../data/menu';
+import { menuSugerencias, menuBarra } from '../data/menu';
 import menuDatos from '../data/menu.json';
 import { pesos } from '../data/horarios';
 import { contacto, enlaceWhatsApp } from '../data/site';
@@ -82,6 +82,11 @@ const IMAGENES: Record<string, { nombre: string; alt: string } | null> = {
   extras: null,
   jugos: null,
   'bebidas-calientes': null,
+  'cocteleria-de-autor': {
+    nombre: 'barra',
+    alt: 'Barra de La Cañadita con estantería iluminada y detalles de madera',
+  },
+  'mockteleria-de-autor': null,
 };
 
 const chef = menuSugerencias.map((categoria) => ({
@@ -134,8 +139,22 @@ const calientes = {
   })),
 };
 
+/** Coctelería y mocktelería de autor (menuBarra). */
+const barra = menuBarra.map((categoria) => ({
+  id: categoria.id,
+  nombre: categoria.nombre,
+  grupo: 'Mixología',
+  imagen: IMAGENES[categoria.id] ?? null,
+  items: categoria.platillos.map((platillo) => ({
+    nombre: platillo.nombre,
+    descripcion: platillo.descripcion,
+    precio: platillo.precio,
+    nota: platillo.nota,
+  })),
+}));
+
 /** Las imágenes alternan de lado de forma estricta entre categorías. */
-const secciones = [...chef, ...desayunos, jugos, calientes].map((seccion, indice) => ({
+const secciones = [...chef, ...desayunos, jugos, calientes, ...barra].map((seccion, indice) => ({
   ...seccion,
   invertir: indice % 2 === 1,
 }));
@@ -151,6 +170,7 @@ const indice = [
   { numeral: 'I', nombre: 'Sugerencias del chef', href: '#grupo-chef', total: cuenta('Sugerencias del chef') },
   { numeral: 'II', nombre: 'Desayunos', href: '#grupo-desayunos', total: cuenta('Desayunos') },
   { numeral: 'III', nombre: 'Bebidas', href: '#grupo-bebidas', total: cuenta('Bebidas') },
+  { numeral: 'IV', nombre: 'Mixología', href: '#grupo-mixologia', total: cuenta('Mixología') },
 ];
 
 /** Platillos reales que el buscador "escribe" como sugerencia. */
@@ -159,12 +179,13 @@ const sugerencias = [
   ...datos.desayunos
     .filter((categoria) => categoria.categoria !== 'Extras')
     .flatMap((categoria) => categoria.items.slice(0, 1).map((p) => p.nombre)),
+  ...menuBarra.flatMap((categoria) => categoria.platillos.slice(0, 1).map((p) => p.nombre)),
 ].map((nombre) => nombre.replace(/\s*\(.*?\)/g, ''));
 ---
 
 <BaseLayout
   titulo="Menú — Carta completa de La Cañadita Restaurant"
-  descripcion="Sugerencias del chef, desayunos, jugos y bebidas calientes de La Cañadita Restaurant en Cuernavaca, Morelos. Precios en pesos mexicanos."
+  descripcion="Sugerencias del chef, desayunos, jugos, bebidas calientes, coctelería y mocktelería de autor de La Cañadita Restaurant en Cuernavaca, Morelos. Precios en pesos mexicanos."
 >
   <header class="pb-10 pt-14 md:pb-16 md:pt-36">
     <div class="mx-auto max-w-[1400px] px-5 md:px-6 lg:px-10">
@@ -288,6 +309,22 @@ const sugerencias = [
           {
             secciones
               .filter((seccion) => seccion.grupo === 'Bebidas')
+              .map((seccion) => <MenuCategoria {...seccion} />)
+          }
+        </div>
+      </section>
+
+      <section aria-labelledby="grupo-mixologia" data-grupo class="pt-16">
+        <div class="max-w-[62ch]">
+          <h2 id="grupo-mixologia" class="scroll-mt-40 md:scroll-mt-64 text-2xl text-olivo sm:text-3xl">Mixología</h2>
+          <p class="mt-2 text-sm leading-relaxed text-tinta/70">
+            Coctelería de autor con gin, tequila y mezcal, y mocktelería de autor sin alcohol.
+          </p>
+        </div>
+        <div class="mt-8">
+          {
+            secciones
+              .filter((seccion) => seccion.grupo === 'Mixología')
               .map((seccion) => <MenuCategoria {...seccion} />)
           }
         </div>
