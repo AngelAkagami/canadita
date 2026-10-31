@@ -1,0 +1,241 @@
+---
+/**
+ * Eventos: "el programa de la casa". Las ocasiones se leen como el índice
+ * numerado de un programa impreso; al elegir una, la foto del salón con su
+ * montaje se abre y una segunda foto, como una impresión, se asienta en la
+ * esquina. El pie dice qué montaje y qué espacio se usan.
+ *
+ * El botón arma el mensaje de WhatsApp con la ocasión elegida.
+ *
+ * Modos (atributo data-modo de la sección):
+ * - sin JS:       las cuatro ocasiones una tras otra, cada una con su título.
+ * - "pestanas":   índice como pestañas (ARIA tabs, flechas del teclado) y
+ *                 una sola ocasión visible a la vez.
+ * Sin escena fijada: la página ya tiene tres; esta se recorre con un clic.
+ */
+import Imagen from './Imagen.astro';
+import Icono from './Icono.astro';
+import { contacto, enlaceWhatsApp } from '../data/site';
+
+const ocasiones = [
+  {
+    id: 'corporativo',
+    nombre: 'Reuniones corporativas',
+    texto: 'Juntas, capacitaciones y comidas de trabajo en un salón privado, con el montaje, el café y el menú resueltos por la casa.',
+    montaje: 'Herradura o imperial',
+    espacio: 'Salón con chimenea',
+    principal: { nombre: 'evento-corporativo', alt: 'Salón privado con mesas en herradura vestidas de azul, listas para una reunión de trabajo' },
+    inserto: { nombre: 'evento-herradura', alt: 'Montaje en herradura con manteles de lino y tazas de café junto a la chimenea' },
+    mensaje: 'una reunión corporativa',
+  },
+  {
+    id: 'celebraciones',
+    nombre: 'Celebraciones',
+    texto: 'Cumpleaños, aniversarios y reuniones familiares con mesas vestidas, flores y un menú pensado para tu grupo.',
+    montaje: 'Mesas imperiales',
+    espacio: 'Salón con ventanales al jardín',
+    principal: { nombre: 'evento-salon-jardin', alt: 'Salón con ventanales al jardín y mesas imperiales de madera con arreglos florales' },
+    inserto: { nombre: 'evento-celebracion', alt: 'Mesa de madera con flores, copas rosas y platos de borde dorado para una celebración' },
+    mensaje: 'una celebración',
+  },
+  {
+    id: 'ceremonias',
+    nombre: 'Ceremonias',
+    texto: 'Ceremonias civiles y brindis frente al jardín; al terminar, la mesa ya está puesta para celebrar.',
+    montaje: 'Auditorio y banquete',
+    espacio: 'Salón y pérgola',
+    principal: { nombre: 'evento-ceremonia', alt: 'Sillas de madera en filas frente a un arreglo de flores blancas para una ceremonia' },
+    inserto: { nombre: 'evento-pergola', alt: 'Mesas largas bajo la pérgola de cristal, rodeadas de jardín' },
+    mensaje: 'una ceremonia',
+  },
+  {
+    id: 'privadas',
+    nombre: 'Comidas privadas',
+    texto: 'Desayunos y comidas con tu gente en un salón solo para ustedes, entre faroles encendidos y la chimenea.',
+    montaje: 'Mesa privada',
+    espacio: 'Salón con chimenea',
+    principal: { nombre: 'evento-mesa-privada', alt: 'Mesa para diez personas junto a la chimenea, bajo faroles de vidrio' },
+    inserto: { nombre: 'evento-chimenea', alt: 'Salón con faroles encendidos y mesas en herradura decoradas con flores' },
+    mensaje: 'una comida privada',
+  },
+];
+
+const whatsappEventos = enlaceWhatsApp(contacto.whatsapp.mensajeEventos);
+/** Enlace con marcador: el script cambia __MSG__ por el mensaje armado. */
+const plantilla = enlaceWhatsApp('__MSG__');
+---
+
+<section
+  id="eventos"
+  data-eventos
+  data-plantilla={plantilla}
+  data-tono="salvia"
+  class="scroll-mt-20 py-24 md:py-36"
+  aria-labelledby="titulo-eventos"
+>
+  <div class="mx-auto grid max-w-[1440px] gap-14 px-5 md:px-6 lg:grid-cols-12 lg:gap-x-10 lg:gap-y-16 lg:px-10">
+    <!-- Presentación -->
+    <div class="lg:col-span-5 lg:row-start-1">
+      <h2 id="titulo-eventos" data-titular class="display-lg text-olivo">
+        <span class="mascara"><span data-linea>Tu evento,</span></span>
+        <span class="mascara"><span data-linea><em class="texto-oro pr-2 italic">en nuestra casa.</em></span></span>
+      </h2>
+      <p data-reveal class="mt-8 max-w-[42ch] text-[1.05rem] leading-relaxed text-olivo/80">
+        Salones, jardín y la cocina de la casa para tu reunión. Nosotros nos encargamos del montaje, el menú y la
+        atención de cada mesa; tú solo llegas con tus invitados.
+      </p>
+    </div>
+
+    <!-- Escena: una ocasión a la vez (con JS) -->
+    <div data-reveal class="eventos-escena lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
+      {
+        ocasiones.map((o, i) => (
+          <article
+            id={`evento-${o.id}`}
+            role="tabpanel"
+            aria-labelledby={`pestana-${o.id}`}
+            data-panel={o.id}
+            data-activo={i === 0 ? '' : undefined}
+            class="eventos-panel"
+          >
+            <h3 class="eventos-panel-titulo mb-6 font-display text-[clamp(2rem,4vw,2.8rem)] leading-none text-olivo">
+              <span class="mr-3 text-[0.6em] italic lining-nums text-oro-oscuro">0{i + 1}</span>
+              {o.nombre}
+            </h3>
+            <div class="relative">
+              <div class="eventos-foto aspect-[5/4] overflow-hidden rounded-sm bg-beige shadow-[0_40px_80px_-30px_rgba(66,80,31,0.4)]">
+                <Imagen
+                  nombre={o.principal.nombre}
+                  alt={o.principal.alt}
+                  class="h-full w-full object-cover"
+                  sizes="(min-width: 1024px) 54vw, 100vw"
+                />
+              </div>
+              <div class="eventos-inserto absolute -bottom-6 right-3 aspect-[4/5] w-[34%] overflow-hidden rounded-sm bg-beige ring-[5px] ring-marfil shadow-[0_24px_48px_-20px_rgba(38,46,18,0.5)] md:ring-[7px] lg:-bottom-12 lg:-left-10 lg:right-auto lg:w-[30%]">
+                <Imagen nombre={o.inserto.nombre} alt={o.inserto.alt} class="h-full w-full object-cover" sizes="(min-width: 1024px) 17vw, 34vw" />
+              </div>
+            </div>
+            <div class="eventos-pie mt-14 lg:ml-[31%] lg:mt-10">
+              <p class="max-w-[46ch] text-[1.02rem] leading-relaxed text-olivo/80">{o.texto}</p>
+              <dl class="mt-6 max-w-[46ch] space-y-2 text-[0.92rem]">
+                <div class="flex items-baseline">
+                  <dt class="text-olivo/60">Montaje</dt>
+                  <span class="leader text-olivo/60" aria-hidden="true"></span>
+                  <dd class="font-display text-lg italic text-olivo">{o.montaje}</dd>
+                </div>
+                <div class="flex items-baseline">
+                  <dt class="text-olivo/60">Espacio</dt>
+                  <span class="leader text-olivo/60" aria-hidden="true"></span>
+                  <dd class="font-display text-lg italic text-olivo">{o.espacio}</dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <!-- Programa: índice de ocasiones y cotización -->
+    <div data-reveal class="lg:col-span-5 lg:row-start-2 lg:self-end lg:pr-12">
+      <div role="tablist" aria-label="Tipo de evento" aria-orientation="vertical" class="eventos-programa border-t border-olivo/15">
+        {
+          ocasiones.map((o, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`pestana-${o.id}`}
+              aria-controls={`evento-${o.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              data-ocasion={o.id}
+              data-mensaje={o.mensaje}
+              class="eventos-pestana group"
+            >
+              <span class="w-8 shrink-0 font-display text-lg italic lining-nums text-oro-oscuro">0{i + 1}</span>
+              <span class="eventos-pestana-nombre">{o.nombre}</span>
+              <Icono nombre="flecha" class="eventos-pestana-flecha ml-auto h-5 w-5 text-oro-oscuro" />
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+        <a href={whatsappEventos} data-eventos-enlace target="_blank" rel="noopener noreferrer" class="accion accion-principal px-7">
+          <Icono nombre="whatsapp" class="h-[1.15rem] w-[1.15rem]" />
+          Cotizar evento
+        </a>
+        <p class="text-[0.9rem] text-olivo/65">
+          o llama al <a href={contacto.telefono.href} class="enlace font-semibold text-olivo">{contacto.telefono.visible}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  /**
+   * Pestañas del programa: clic o flechas del teclado. La ocasión activa
+   * cambia la foto y el mensaje de WhatsApp. En móvil, si la foto quedó
+   * arriba de la pantalla al tocar, se lleva de vuelta a la vista.
+   */
+  function iniciarEventos(): void {
+    const seccion = document.querySelector<HTMLElement>('[data-eventos]');
+    if (!seccion || seccion.dataset.modo) return;
+    seccion.dataset.modo = 'pestanas';
+
+    const pestanas = Array.from(seccion.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const paneles = Array.from(seccion.querySelectorAll<HTMLElement>('[data-panel]'));
+    const escena = seccion.querySelector<HTMLElement>('.eventos-escena');
+    const enlace = seccion.querySelector<HTMLAnchorElement>('[data-eventos-enlace]');
+    const plantilla = seccion.dataset.plantilla ?? '';
+    const reducir = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const activar = (indice: number, enfocar = false) => {
+      const elegida = pestanas[indice];
+      pestanas.forEach((p, i) => {
+        const activa = i === indice;
+        p.setAttribute('aria-selected', String(activa));
+        p.tabIndex = activa ? 0 : -1;
+      });
+      paneles.forEach((panel) => {
+        const activo = panel.dataset.panel === elegida.dataset.ocasion;
+        panel.toggleAttribute('data-activo', activo);
+        panel.inert = !activo;
+      });
+      if (enlace && plantilla) {
+        const mensaje = `Hola, me gustaría cotizar ${elegida.dataset.mensaje} en La Cañadita.`;
+        enlace.href = plantilla.replace('__MSG__', encodeURIComponent(mensaje));
+      }
+      if (enfocar) elegida.focus();
+    };
+
+    seccion.addEventListener('click', (evento) => {
+      const pestana = (evento.target as Element).closest<HTMLButtonElement>('[role="tab"]');
+      if (!pestana) return;
+      activar(pestanas.indexOf(pestana));
+      // Pantallas angostas: la escena va arriba del índice.
+      const caja = escena?.getBoundingClientRect();
+      if (caja && caja.top < 72 && window.innerWidth < 1024) {
+        escena!.scrollIntoView({ behavior: reducir.matches ? 'auto' : 'smooth', block: 'start' });
+      }
+    });
+
+    seccion.querySelector('[role="tablist"]')?.addEventListener('keydown', (evento) => {
+      const tecla = (evento as KeyboardEvent).key;
+      const actual = pestanas.findIndex((p) => p.getAttribute('aria-selected') === 'true');
+      const n = pestanas.length;
+      const destino =
+        tecla === 'ArrowDown' || tecla === 'ArrowRight' ? (actual + 1) % n
+        : tecla === 'ArrowUp' || tecla === 'ArrowLeft' ? (actual - 1 + n) % n
+        : tecla === 'Home' ? 0
+        : tecla === 'End' ? n - 1
+        : -1;
+      if (destino < 0) return;
+      evento.preventDefault();
+      activar(destino, true);
+    });
+
+    activar(0);
+  }
+  iniciarEventos();
+</script>

@@ -75,6 +75,20 @@ LIMPIAS = {
     "capirotada": ("postre2.jpg", 1600),
 }
 
+# Fotografías de eventos (recursos/eventos): salones, montajes y pérgola.
+EVENTOS = {
+    "evento-ceremonia": "eventos/1.jpeg",
+    "evento-chimenea": "eventos/2.jpeg",
+    "evento-pergola": "eventos/3.jpeg",
+    "evento-mesa-privada": "eventos/4.jpeg",
+    "evento-herradura": "eventos/5.jpeg",
+    "evento-corporativo": "eventos/6.jpeg",
+    "evento-celebracion": "eventos/7.jpeg",
+    "evento-salon-jardin": "eventos/8.jpeg",
+}
+LIMPIAS.update({nombre: (archivo, 1448) for nombre, archivo in EVENTOS.items()})
+CALIDADES_EVENTOS = 80
+
 ANCHOS_WEB = (768, 1280)  # anchos adicionales para srcset
 
 # Calidad por archivo para mantener el peso bajo sin perder calidad perceptible
@@ -84,6 +98,7 @@ CALIDADES = {
     "panaderia": 78,
     "exterior": 80,
 }
+CALIDADES.update({nombre: CALIDADES_EVENTOS for nombre in EVENTOS})
 
 # Calidad de las variantes pequeñas (768/1280) cuando la imagen es el LCP.
 # El hero se sirve en q44 como máximo para que móvil pinte antes; el velo
@@ -226,10 +241,27 @@ def capa_recorte_ornamento(original: Image.Image, alfa: Image.Image, ancho: int,
     return marca.crop(caja)
 
 
+def procesar_eventos() -> None:
+    """Solo las fotos de eventos (uso: python scripts/prepare-assets.py --eventos)."""
+    for nombre, archivo in EVENTOS.items():
+        ruta = RECursos / archivo
+        if not ruta.exists():
+            print(f"[warn] falta {archivo}, se omite {nombre}")
+            continue
+        imagen = ImageOps.exif_transpose(Image.open(ruta)).convert("RGB")
+        ancho, alto = imagen.size
+        if ancho > 1448:
+            imagen = imagen.resize((1448, round(alto * 1448 / ancho)), Image.LANCZOS)
+        guardar_webp(imagen, nombre, calidad=CALIDADES_EVENTOS)
+
+
 def main() -> None:
     if not RECursos.exists():
         sys.exit("No se encontró la carpeta 'recursos' junto al proyecto.")
     preparar_carpetas()
+    if "--eventos" in sys.argv:
+        procesar_eventos()
+        return
     procesar_fotos()
     variantes_logo()
     print("\nListo. Assets generados en /public")

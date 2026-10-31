@@ -1892,3 +1892,144 @@ html:not(.js) .hero-portal {
     min-height: 0;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Eventos: programa de ocasiones (ver Eventos.astro).                 */
+/* Sin JS: las ocasiones se apilan con su título y sin índice.         */
+/* Con JS (data-modo="pestanas"): una ocasión a la vez; la foto se     */
+/* abre desde su centro y la impresión se asienta en la esquina.       */
+/* ------------------------------------------------------------------ */
+.eventos-escena {
+  display: grid;
+  gap: 5rem;
+  scroll-margin-top: 1.5rem;
+}
+[data-eventos]:not([data-modo]) [role="tablist"] {
+  display: none;
+}
+[data-eventos][data-modo] .eventos-escena {
+  gap: 0;
+}
+[data-eventos][data-modo] .eventos-panel-titulo {
+  display: none;
+}
+[data-eventos][data-modo] .eventos-panel {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 350ms ease,
+    visibility 0s linear 350ms;
+}
+[data-eventos][data-modo] .eventos-panel[data-activo] {
+  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 500ms var(--ease-suave);
+}
+[data-eventos][data-modo] .eventos-foto {
+  clip-path: inset(6% 6% 6% 6% round 2px);
+  transition: clip-path 300ms ease;
+}
+[data-eventos][data-modo] .eventos-foto img {
+  scale: 1.12;
+  transition: scale 300ms ease;
+}
+[data-eventos][data-modo] .eventos-inserto,
+[data-eventos][data-modo] .eventos-pie {
+  opacity: 0;
+  translate: 0 1.5rem;
+  transition:
+    opacity 300ms ease,
+    translate 300ms ease;
+}
+[data-eventos][data-modo] [data-activo] .eventos-foto {
+  clip-path: inset(0 0 0 0 round 2px);
+  transition: clip-path 1100ms var(--ease-suave);
+}
+[data-eventos][data-modo] [data-activo] .eventos-foto img {
+  scale: 1;
+  transition: scale 1600ms var(--ease-suave);
+}
+[data-eventos][data-modo] [data-activo] .eventos-inserto,
+[data-eventos][data-modo] [data-activo] .eventos-pie {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 700ms var(--ease-suave) 250ms,
+    translate 900ms var(--ease-suave) 250ms;
+}
+[data-eventos][data-modo] [data-activo] .eventos-pie {
+  transition-delay: 380ms;
+}
+
+/* Índice del programa: numeral, ocasión y flecha; la línea dorada se
+   dibuja bajo la ocasión elegida. */
+.eventos-pestana {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 3.5rem;
+  align-items: baseline;
+  gap: 1rem;
+  padding-block: 1.05rem;
+  border-bottom: 1px solid rgb(66 80 31 / 0.15);
+  text-align: left;
+  color: rgb(66 80 31 / 0.5);
+  cursor: pointer;
+  transition: color 350ms ease;
+}
+.eventos-pestana::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--color-oro-oscuro);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--ease-suave);
+}
+.eventos-pestana:hover {
+  color: rgb(66 80 31 / 0.8);
+}
+.eventos-pestana[aria-selected="true"] {
+  color: var(--color-olivo);
+}
+.eventos-pestana[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+.eventos-pestana:focus-visible {
+  outline-offset: 3px;
+}
+.eventos-pestana-nombre {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.5vw, 2.3rem);
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+.eventos-pestana-flecha {
+  align-self: center;
+  opacity: 0;
+  translate: -0.5rem 0;
+  transition:
+    opacity 350ms ease,
+    translate 500ms var(--ease-suave);
+}
+.eventos-pestana[aria-selected="true"] .eventos-pestana-flecha {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-eventos][data-modo] .eventos-panel,
+  [data-eventos][data-modo] .eventos-foto,
+  [data-eventos][data-modo] .eventos-foto img,
+  [data-eventos][data-modo] .eventos-inserto,
+  [data-eventos][data-modo] .eventos-pie,
+  .eventos-pestana::after,
+  .eventos-pestana-flecha {
+    transition: none !important;
+  }
+}

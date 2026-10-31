@@ -42,6 +42,8 @@ export const contacto = {
       'Hola, me gustaría conocer la carta de desayunos de La Cañadita.',
     mensajeCarta:
       'Hola, me gustaría conocer la carta completa de La Cañadita.',
+    mensajeEventos:
+      'Hola, me gustaría cotizar un evento en La Cañadita.',
   },
   maps: {
     // Búsqueda oficial del restaurante en Google Maps
@@ -110,6 +112,7 @@ export const navegacion = [
   { href: '/menu/', etiqueta: 'Menú', esencial: true },
   { href: '#fines-de-semana', etiqueta: 'Buffet y brunch', esencial: true },
   { href: '#galeria', etiqueta: 'Galería', esencial: false },
+  { href: '#eventos', etiqueta: 'Eventos', esencial: false },
   { href: '#tiktok', etiqueta: 'TikTok', esencial: false },
   { href: '#ubicacion', etiqueta: 'Visítanos', esencial: true },
 ] as const;
@@ -151,6 +154,7 @@ export const accionesRapidas = [
   { id: 'menu', etiqueta: 'Ver menú', href: '/menu/', externo: false },
   { id: 'horarios', etiqueta: 'Horarios', href: '#horarios', externo: false },
   { id: 'buffet', etiqueta: 'Buffet y brunch', href: '#buffet', externo: false },
+  { id: 'eventos', etiqueta: 'Eventos', href: '#eventos', externo: false },
   { id: 'ubicacion', etiqueta: 'Ubicación', href: '#ubicacion', externo: false },
   {
     id: 'whatsapp',
