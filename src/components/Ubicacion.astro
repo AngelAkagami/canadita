@@ -48,7 +48,8 @@ const redesLista = [
     <div class="grid gap-14 md:grid-cols-12 md:gap-10">
       <!-- Columna de datos -->
       <div class="md:col-span-5">
-        <h2 id="titulo-ubicacion" data-titular class="display-xl text-olivo">
+        <!-- En md+ la columna es 5/12: el tamaño se acota para que "Visítanos." quepa entero. -->
+        <h2 id="titulo-ubicacion" data-titular class="display-xl text-olivo md:text-[min(9vw,9rem)]">
           <span class="mascara"><span data-linea>Visítanos.</span></span>
         </h2>
         <p data-visita-estado data-horarios={JSON.stringify(porDia)} class="mt-5 flex items-center gap-2.5 text-[0.95rem] font-semibold text-olivo">
@@ -70,8 +71,9 @@ const redesLista = [
 
       </div>
 
-      <!-- Mapa y acciones -->
-      <div class="md:col-span-7 md:col-start-6 md:row-span-2 md:row-start-1 md:pt-4">
+      <!-- Mapa y acciones. En md+ se queda fijo mientras se lee el horario,
+           así la columna derecha no deja un hueco bajo las redes. -->
+      <div class="md:sticky md:top-24 md:col-span-7 md:col-start-6 md:row-span-2 md:row-start-1 md:self-start md:pt-4">
         <figure data-reveal class="mapa">
           <figcaption class="mapa-barra">
             <span class="flex min-w-0 items-center gap-2.5">
@@ -104,7 +106,7 @@ const redesLista = [
             </noscript>
             <!-- En táctil: el mapa se activa con un toque y no atrapa el scroll. -->
             <button type="button" data-mapa-activar class="mapa-velo">
-              <span class="mapa-velo-aviso">Toca para mover el mapa</span>
+              <span class="mapa-velo-aviso">Toca para ver el mapa</span>
             </button>
           </div>
         </figure>
@@ -245,28 +247,36 @@ const redesLista = [
     });
   }
 
-  /** Mapa en táctil: un toque lo activa; al salir de la vista vuelve a bloquearse. */
+  /**
+   * Mapa. El iframe de Google pesa ~1 MB: en táctil (casi siempre celular
+   * con datos) se carga solo al tocar "Toca para ver el mapa"; con mouse se
+   * carga al estar en pantalla y detenerse el scroll 400 ms. En táctil, una
+   * vez cargado, el velo vuelve al salir de la vista para no atrapar el scroll.
+   */
   function iniciarMapa(): void {
     const velo = document.querySelector<HTMLButtonElement>('[data-mapa-activar]');
     const mapa = velo?.closest<HTMLElement>('.mapa');
     if (!velo || !mapa || mapa.dataset.listo) return;
     mapa.dataset.listo = 'true';
 
-    // Carga diferida del iframe: en pantalla + 400 ms sin scroll, o al tocar.
     const iframe = mapa.querySelector<HTMLIFrameElement>('iframe[data-src]');
+    const aviso = velo.querySelector<HTMLElement>('.mapa-velo-aviso');
+    const tactil = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     let enVista = false;
     let espera = 0;
     const cargar = (): void => {
       if (!iframe?.dataset.src) return;
       iframe.src = iframe.dataset.src;
       delete iframe.dataset.src;
+      mapa.setAttribute('data-cargado', '');
+      if (aviso) aviso.textContent = 'Toca para mover el mapa';
       window.removeEventListener('scroll', reprogramar);
     };
     const reprogramar = (): void => {
       clearTimeout(espera);
       if (enVista) espera = window.setTimeout(cargar, 400);
     };
-    window.addEventListener('scroll', reprogramar, { passive: true });
+    if (!tactil) window.addEventListener('scroll', reprogramar, { passive: true });
 
     velo.addEventListener('click', () => {
       cargar();
@@ -274,7 +284,7 @@ const redesLista = [
     });
     new IntersectionObserver(([e]) => {
       enVista = e.isIntersecting;
-      reprogramar();
+      if (!tactil) reprogramar();
       if (!e.isIntersecting) mapa.removeAttribute('data-activo');
     }).observe(mapa);
   }

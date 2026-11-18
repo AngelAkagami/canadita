@@ -3,14 +3,16 @@
  * visitas repetidas no vuelvan a pedir fotos, tipografías ni estilos.
  *
  * - /_astro/* y /fonts/*  → cache-first (archivos con hash o que no cambian).
- * - fotos, logos, svg     → stale-while-revalidate: se sirven al instante
- *                           desde caché y se actualizan en segundo plano.
+ * - fotos, logos, svg     → cache-first: una vez guardadas no se vuelven a
+ *                           pedir (ahorra datos móviles en cada visita).
+ *                           Si se reemplaza una foto con el mismo nombre,
+ *                           hay que subir VERSION para que se renueve.
  * - páginas (HTML)        → network-first: siempre la versión nueva; si no
  *                           hay red se muestra la última guardada.
  * Solo peticiones GET del mismo origen; Maps, TikTok y WhatsApp no se tocan.
- * Para invalidar todo, sube VERSION.
+ * Para invalidar todo (p. ej. tras cambiar fotos), sube VERSION.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const ESTATICOS = `canadita-estaticos-${VERSION}`;
 const MEDIOS = `canadita-medios-${VERSION}`;
 const PAGINAS = `canadita-paginas-${VERSION}`;
@@ -50,23 +52,15 @@ async function primeroCache(peticion) {
   return respuesta;
 }
 
-async function revalidar(peticion, evento) {
+async function medio(peticion, evento) {
   const cache = await caches.open(MEDIOS);
   const guardada = await cache.match(peticion);
-  const red = fetch(peticion)
-    .then(async (respuesta) => {
-      if (guardable(respuesta)) {
-        await cache.put(peticion, respuesta.clone());
-        await recortar(MEDIOS, MAX_MEDIOS);
-      }
-      return respuesta;
-    })
-    .catch(() => guardada);
-  if (guardada) {
-    evento.waitUntil(red);
-    return guardada;
+  if (guardada) return guardada;
+  const respuesta = await fetch(peticion);
+  if (guardable(respuesta)) {
+    evento.waitUntil(cache.put(peticion, respuesta.clone()).then(() => recortar(MEDIOS, MAX_MEDIOS)));
   }
-  return red;
+  return respuesta;
 }
 
 async function primeroRed(evento) {
@@ -98,6 +92,6 @@ self.addEventListener('fetch', (evento) => {
     return;
   }
   if (/\.(webp|avif|png|jpe?g|svg)$/.test(url.pathname)) {
-    evento.respondWith(revalidar(request, evento));
+    evento.respondWith(medio(request, evento));
   }
 });

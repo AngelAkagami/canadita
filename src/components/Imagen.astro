@@ -32,10 +32,13 @@ const DIMENSIONES: Record<string, [number, number]> = {
   peras: [972, 716],
   omelette: [950, 730],
   'buffet-copas': [1800, 1080],
-  'hero-patio': [1920, 1440],
+  'hero-patio': [1280, 960],
+  terraza: [1600, 1200],
   barra: [1448, 1086],
   'buffet-sopas': [1440, 1440],
   panaderia: [1800, 1200],
+  'buffet-fuentes': [1920, 1776],
+  'brunch-familia': [1920, 1152],
   capirotada: [1440, 1920],
   'evento-chimenea': [1448, 1086],
   'evento-pergola': [1448, 1086],
@@ -49,23 +52,31 @@ const DIMENSIONES: Record<string, [number, number]> = {
 
 const [ancho, alto] = DIMENSIONES[nombre] ?? [1600, 1200];
 
-const variantes = [`/img/${nombre}.webp ${ancho}w`];
-if (ancho > 768) variantes.unshift(`/img/${nombre}-768.webp 768w`);
-if (ancho > 1280) variantes.splice(1, 0, `/img/${nombre}-1280.webp 1280w`);
+const srcset = (ext: 'avif' | 'webp'): string => {
+  const variantes = [`/img/${nombre}.${ext} ${ancho}w`];
+  if (ancho > 768) variantes.unshift(`/img/${nombre}-768.${ext} 768w`);
+  if (ancho > 1280) variantes.splice(1, 0, `/img/${nombre}-1280.${ext} 1280w`);
+  return variantes.join(', ');
+};
 
 const posicion = objectPosition ? { 'object-position': objectPosition } : {};
 ---
 
-<img
-  src={`/img/${nombre}.webp`}
-  srcset={variantes.join(', ')}
-  sizes={sizes}
-  {alt}
-  width={ancho}
-  height={alto}
-  loading={prioritaria || inmediata ? 'eager' : 'lazy'}
-  decoding={prioritaria ? 'sync' : 'async'}
-  fetchpriority={prioritaria ? 'high' : 'auto'}
-  class={clase}
-  style={posicion}
-/>
+<!-- AVIF pesa ~35% menos; los navegadores sin soporte toman el WebP del <img>.
+     `contents` deja el <picture> fuera del layout: los estilos de `img` no cambian. -->
+<picture class="contents">
+  <source type="image/avif" srcset={srcset('avif')} sizes={sizes} />
+  <img
+    src={`/img/${nombre}.webp`}
+    srcset={srcset('webp')}
+    sizes={sizes}
+    {alt}
+    width={ancho}
+    height={alto}
+    loading={prioritaria || inmediata ? 'eager' : 'lazy'}
+    decoding={prioritaria ? 'sync' : 'async'}
+    fetchpriority={prioritaria ? 'high' : 'auto'}
+    class={clase}
+    style={posicion}
+  />
+</picture>

@@ -55,6 +55,10 @@ RECORTES = {
     "buffet-copas": ("brunch3.jpg", (0.0, 0.02, 1.0, 0.50)),
     # póster "Buffet sabatino" → fuente de buffet
     "buffet-plato": ("brunch2.jpg", (0.0, 0.0, 1.0, 0.60)),
+    # póster "Variedad para todos los gustos" → fuentes del buffet sabatino (sin texto)
+    "buffet-fuentes": ("buffet-fuentes-x4.jpg", (0.0, 0.0, 1.0, 0.74)),
+    # póster "Ven en familia" → mesa del brunch dominical (sin logo ni texto)
+    "brunch-familia": ("brunch-familia-x4.jpg", (0.0, 0.195, 1.0, 0.675)),
 }
 
 # Ancho máximo de salida por archivo (evita imágenes pesadas sin necesidad)
@@ -63,11 +67,16 @@ ANCHOS_MAX = {
     "exterior": 1600,
     "buffet-plato": 1440,
     "ceviche": 1080,
+    # Reescaladas x4 con Real-ESRGAN (realesrgan-x4plus) desde los .jpeg originales.
+    "buffet-fuentes": 1920,
+    "brunch-familia": 1920,
 }
 
 # Fotografías limpias (sin texto) que solo se reescalan
 LIMPIAS = {
-    "hero-patio": ("vista2.jpg", 1920),
+    "hero-patio": ("hero-jardin.jpeg", 1920),
+    # La foto anterior del hero (terraza con pérgola) pasa a la galería.
+    "terraza": ("vista2.jpg", 1600),
     "barra": ("bar.jpg", 1600),
     "buffet-sopas": ("brunch.jpg", 1600),
     "panaderia": ("buffet-pan2.jpg", 1800),
@@ -96,6 +105,8 @@ CALIDADES = {
     "hero-patio": 68,
     "buffet-copas": 78,
     "panaderia": 78,
+    "buffet-fuentes": 78,
+    "brunch-familia": 78,
     "exterior": 80,
 }
 CALIDADES.update({nombre: CALIDADES_EVENTOS for nombre in EVENTOS})
@@ -112,12 +123,22 @@ def preparar_carpetas() -> None:
     IMG.mkdir(parents=True, exist_ok=True)
 
 
+def calidad_avif(calidad_webp: int) -> int:
+    """Calidad AVIF equivalente: con ~0.62 de la nominal WebP se ve igual y pesa ~35% menos."""
+    return max(40, round(calidad_webp * 0.62))
+
+
 def guardar_webp(imagen: Image.Image, nombre: str, calidad: int = 82) -> None:
-    """Guarda la imagen principal y sus versiones para srcset."""
+    """Guarda la imagen principal y sus versiones para srcset, en WebP y AVIF.
+
+    AVIF pesa ~25-35% menos que WebP con la misma calidad visual; Imagen.astro
+    lo ofrece primero en un <picture> y WebP queda de respaldo.
+    """
     imagen = ImageOps.exif_transpose(imagen).convert("RGB")
     ancho, alto = imagen.size
     principal = IMG / f"{nombre}.webp"
     imagen.save(principal, "WEBP", quality=calidad, method=6)
+    imagen.save(IMG / f"{nombre}.avif", "AVIF", quality=calidad_avif(calidad), speed=4)
     srcset = []
     for ancho_web in ANCHOS_WEB:
         if ancho_web < ancho:
@@ -130,8 +151,10 @@ def guardar_webp(imagen: Image.Image, nombre: str, calidad: int = 82) -> None:
             if ancho_web == 768 and nombre in CALIDADES_VARIANTE:
                 calidad_variante = CALIDADES_VARIANTE[nombre]
             versión.save(IMG / f"{nombre}-{ancho_web}.webp", "WEBP", quality=calidad_variante, method=6)
+            versión.save(IMG / f"{nombre}-{ancho_web}.avif", "AVIF", quality=calidad_avif(calidad_variante), speed=4)
             srcset.append(ancho_web)
-    print(f"[ok] {nombre}.webp {ancho}x{alto} ({principal.stat().st_size // 1024} KB)")
+    avif = (IMG / f"{nombre}.avif").stat().st_size // 1024
+    print(f"[ok] {nombre}.webp {ancho}x{alto} ({principal.stat().st_size // 1024} KB, avif {avif} KB)")
 
 
 def procesar_fotos() -> None:

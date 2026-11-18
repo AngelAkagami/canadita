@@ -1,9 +1,8 @@
 ---
 /**
  * La Cañadita en TikTok: videos con el reproductor oficial
- * (tiktok.com/player/v1/{id}) en 9:16. Los iframes se insertan solo cuando la
- * tarjeta se acerca al viewport o al pulsar reproducir, así la página no
- * descarga embeds pesados al cargar. Columnas escalonadas en escritorio;
+ * (tiktok.com/player/v1/{id}) en 9:16. El iframe se inserta solo al pulsar reproducir, así la página no
+ * descarga embeds pesados (ni gasta datos) si nadie ve los videos. Columnas escalonadas en escritorio;
  * carrusel con scroll-snap en móvil. Si TikTok rechaza el reproductor
  * (pasa en escritorio: su API responde 403), las tarjetas cambian a un
  * enlace "Ver en TikTok" para que la sección nunca se vea rota.
@@ -22,10 +21,16 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
     <section id="tiktok" data-tono="jardin" class="scroll-mt-20 py-24 md:py-36" aria-labelledby="titulo-tiktok">
       <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
         <div class="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <h2 id="titulo-tiktok" data-titular class="display-lg text-olivo">
-            <span class="mascara"><span data-linea>Lo que pasa</span></span>
-            <span class="mascara"><span data-linea><em class="texto-oro pr-2 italic">en la casa.</em></span></span>
-          </h2>
+          <div>
+            <h2 id="titulo-tiktok" data-titular class="display-lg text-olivo">
+              <span class="mascara"><span data-linea>Lo que pasa</span></span>
+              <span class="mascara"><span data-linea><em class="texto-oro pr-2 italic">en la casa.</em></span></span>
+            </h2>
+            <p data-reveal class="mt-8 max-w-[42ch] text-[1.05rem] leading-relaxed text-olivo/80">
+              Platillos recién salidos de la cocina, mesas llenas y tardes en el jardín. Síguenos en TikTok y entérate
+              primero de lo nuevo antes de tu próxima visita.
+            </p>
+          </div>
           <a href={contacto.redes.tiktok} target="_blank" rel="noopener noreferrer" data-reveal class="boton group self-start bg-olivo text-marfil hover:bg-olivo-claro md:self-auto">
             @lacanadita.restaurante
             <span class="boton-icono bg-marfil/15">
@@ -78,11 +83,10 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
 
 <script>
   /**
-   * Los reproductores de TikTok traen su propio JS (SDK, React, métricas)
-   * que sigue corriendo mientras el iframe existe, aunque ya no se vea: en
-   * móvil eso le quitaba ~10 ms por frame al scroll del resto de la página.
-   * Por eso cada tarjeta monta su iframe al estar en pantalla y lo desmonta
-   * al alejarse, salvo que el usuario lo haya usado (se queda reproduciendo).
+   * Cada reproductor de TikTok descarga varios MB (SDK, React, métricas y el
+   * propio video). Para no gastar datos móviles de quien solo pasa por la
+   * sección, el iframe se monta únicamente al tocar "reproducir" y se quita
+   * cuando la tarjeta queda lejos de la pantalla (deja de bajar video).
    */
   // Si TikTok rechaza un reproductor, en este dispositivo rechazará todos:
   // a partir de ahí no se monta ninguno y todas las tarjetas pasan a enlace.
@@ -106,11 +110,11 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
     card.dataset.montado = 'true';
 
     const iframe = document.createElement('iframe');
+    // autoplay=1: la persona ya tocó reproducir, no se le pide un segundo toque.
     iframe.src =
       `https://www.tiktok.com/player/v1/${id}` +
-      '?autoplay=0&loop=1&controls=1&progress_bar=1&music_info=0&description=0&rel=0';
+      '?autoplay=1&loop=1&controls=1&progress_bar=1&music_info=0&description=0&rel=0';
     iframe.title = 'Video de La Cañadita en TikTok';
-    iframe.loading = 'lazy';
     iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
     iframe.setAttribute('allowfullscreen', '');
     iframe.className = 'absolute inset-0 h-full w-full border-0';
@@ -119,7 +123,7 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
   }
 
   function desmontarTikTok(card: HTMLElement): void {
-    if (card.dataset.montado !== 'true' || card.dataset.usado === 'true' || reproductorFalla) return;
+    if (card.dataset.montado !== 'true' || reproductorFalla) return;
     card.querySelector('iframe')?.remove();
     const boton = card.querySelector<HTMLButtonElement>('.tiktok-play');
     if (boton) boton.hidden = false;
@@ -129,19 +133,8 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
   function iniciarTikTok(): void {
     const cards = Array.from(document.querySelectorAll<HTMLElement>('.tiktok-card[data-tiktok-id]'));
     if (cards.length === 0) return;
-    cards.forEach((card) =>
-      card.querySelector('.tiktok-play')?.addEventListener('click', () => {
-        card.dataset.usado = 'true';
-        montarTikTok(card);
-      }),
-    );
-    // Tocar dentro de un iframe le quita el foco a la página: así se sabe
-    // qué video usó el usuario y ese no se desmonta.
-    window.addEventListener('blur', () => {
-      const activo = document.activeElement;
-      const card = activo instanceof HTMLIFrameElement ? activo.closest<HTMLElement>('.tiktok-card') : null;
-      if (card) card.dataset.usado = 'true';
-    });
+    cards.forEach((card) => card.querySelector('.tiktok-play')?.addEventListener('click', () => montarTikTok(card)));
+
     // El reproductor avisa sus errores por postMessage (onPlayerError, ver
     // developers.tiktok.com/doc/embed-player). Solo se aceptan mensajes de
     // tiktok.com que vengan de uno de estos iframes.
@@ -163,32 +156,15 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
       reproductorFalla = true;
       cards.forEach(mostrarEnlace);
     });
-    if (!('IntersectionObserver' in window)) return;
 
-    const libre = (fn: () => void) =>
-      'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 200);
-    // Montar: cuando la tarjeta se ve al menos un tercio.
-    const alVer = new IntersectionObserver(
-      (entradas) =>
-        entradas.forEach((e) => {
-          const card = e.target as HTMLElement;
-          card.dataset.enVista = String(e.isIntersecting);
-          if (e.isIntersecting) libre(() => card.dataset.enVista === 'true' && montarTikTok(card));
-        }),
-      { threshold: 0.35 },
-    );
-    // Desmontar: cuando ya quedó lejos de la pantalla.
+    if (!('IntersectionObserver' in window)) return;
+    // Al alejarse de la pantalla se quita el reproductor: deja de bajar video
+    // y de correr JS. Al volver se muestra otra vez el botón de reproducir.
     const alSalir = new IntersectionObserver(
-      (entradas) =>
-        entradas.forEach((e) => {
-          if (!e.isIntersecting) desmontarTikTok(e.target as HTMLElement);
-        }),
+      (entradas) => entradas.forEach((e) => !e.isIntersecting && desmontarTikTok(e.target as HTMLElement)),
       { rootMargin: '150px' },
     );
-    cards.forEach((card) => {
-      alVer.observe(card);
-      alSalir.observe(card);
-    });
+    cards.forEach((card) => alSalir.observe(card));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarTikTok, { once: true });

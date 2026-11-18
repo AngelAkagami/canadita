@@ -1668,6 +1668,15 @@ html:not(.js) .hero-portal {
 .mapa[data-activo] .mapa-velo {
   display: none;
 }
+/* Antes de cargar (táctil): el aviso va al centro del lienzo vacío. */
+.mapa:not([data-cargado]) .mapa-velo {
+  align-items: center;
+  padding-bottom: 0;
+}
+.mapa:not([data-cargado]) .mapa-velo-aviso {
+  padding: 0.7rem 1.2rem;
+  font-size: 0.9rem;
+}
 /* Con puntero fino el mapa se usa directo. */
 @media (hover: hover) and (pointer: fine) {
   .mapa-velo {
