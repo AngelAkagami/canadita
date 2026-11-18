@@ -29,18 +29,20 @@
 
   --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
 }
-/* Tonos del lienzo continuo (ver .lienzo). */
+/* Tonos del lienzo continuo (ver .lienzo). El atributo va en el propio
+   .lienzo y no en :root: cambiarlo en :root recalculaba los estilos de toda
+   la página (~1000 elementos, ~130 ms en un móvil lento) en cada sección. */
 :root {
   --tono-lienzo: oklch(95.6% 0.016 85); /* marfil */
 }
-:root[data-tono="salvia"] {
+.lienzo[data-tono="salvia"] {
   /* Salvia: el verde olivo del logotipo (#42501F, tono ~120) muy aclarado. */
   --tono-lienzo: oklch(94% 0.032 122);
 }
-:root[data-tono="oro"] {
+.lienzo[data-tono="oro"] {
   --tono-lienzo: oklch(94% 0.026 80); /* cantera */
 }
-:root[data-tono="jardin"] {
+.lienzo[data-tono="jardin"] {
   --tono-lienzo: oklch(95.5% 0.02 100); /* hoja seca: entre salvia y cantera */
 }
 

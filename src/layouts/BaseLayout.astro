@@ -127,14 +127,15 @@ const otraRuta = esInicio ? '/menu/' : '/';
 
       /** El lienzo toma el tono de la sección que cruza el centro de la pantalla. */
       function iniciarTonos(): void {
-        const secciones = document.querySelectorAll<HTMLElement>('[data-tono]');
-        if (secciones.length === 0) return;
-        const raiz = document.documentElement;
+        const secciones = document.querySelectorAll<HTMLElement>('section[data-tono]');
+        const lienzo = document.querySelector<HTMLElement>('.lienzo');
+        if (secciones.length === 0 || !lienzo) return;
         const observador = new IntersectionObserver(
           (entradas) => {
             entradas.forEach((e) => {
               const tono = (e.target as HTMLElement).dataset.tono;
-              if (e.isIntersecting && tono) raiz.dataset.tono = tono;
+              // Solo el lienzo usa el tono: cambiarlo en <html> recalculaba toda la página.
+              if (e.isIntersecting && tono && lienzo.dataset.tono !== tono) lienzo.dataset.tono = tono;
             });
           },
           { rootMargin: '-50% 0px -50% 0px' },
