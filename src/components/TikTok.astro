@@ -1,7 +1,7 @@
 ---
 /**
  * La Cañadita en TikTok: videos con el reproductor oficial
- * (tiktok.com/player/v1/{id}) en 9:16. Los iframes se insertan solo cuando la
+ * (tiktok.com/embed/v2/{id}) en 9:16. Los iframes se insertan solo cuando la
  * tarjeta se acerca al viewport o al pulsar reproducir, así la página no
  * descarga embeds pesados al cargar. Columnas escalonadas en escritorio;
  * carrusel con scroll-snap en móvil.
@@ -76,8 +76,7 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
 
     const iframe = document.createElement('iframe');
     iframe.src =
-      `https://www.tiktok.com/player/v1/${id}` +
-      '?autoplay=0&loop=1&controls=1&progress_bar=1&music_info=0&description=0&rel=0';
+      `https://www.tiktok.com/embed/v2/${id}`;
     iframe.title = 'Video de La Cañadita en TikTok';
     iframe.loading = 'lazy';
     iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
