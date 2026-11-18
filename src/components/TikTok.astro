@@ -8,10 +8,14 @@
  * enlace "Ver en TikTok" para que la sección nunca se vea rota.
  */
 import { tiktoks, idTikTok, contacto } from '../data/site';
+import { existsSync } from 'node:fs';
+import Imagen from './Imagen.astro';
 
 const videos = tiktoks
   .map((video) => ({ ...video, id: idTikTok(video.url) }))
-  .filter((video): video is { url: string; titulo: string; id: string } => video.id !== null);
+  .filter((video): video is { url: string; titulo: string; id: string } => video.id !== null)
+  // Portada generada por scripts/prepare-assets.py (recursos/tiktok/{id}.jpg).
+  .map((video) => ({ ...video, portada: existsSync(`public/img/tiktok-${video.id}.webp`) }));
 
 const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
 ---
@@ -44,6 +48,15 @@ const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
             <li data-reveal={String(i)} class:list={['w-[72%] shrink-0 snap-center sm:w-[46%] md:w-auto', desfase[i % 4]]}>
               <article class="tiktok-card relative overflow-hidden rounded-sm bg-olivo ring-1 ring-olivo/10" data-tiktok-id={video.id}>
                 <div class="relative aspect-[9/16] w-full">
+                  {video.portada && (
+                  <Imagen
+                    nombre={`tiktok-${video.id}`}
+                    alt=""
+                    class="absolute inset-0 h-full w-full object-cover"
+                    sizes="(min-width: 1024px) 22vw, (min-width: 768px) 45vw, 72vw"
+                  />
+                  )}
+                  <span class="pointer-events-none absolute inset-0 bg-gradient-to-t from-olivo-noche/70 via-olivo-noche/10 to-olivo-noche/30" aria-hidden="true"></span>
                   <button
                     type="button"
                     class="tiktok-play group absolute inset-0 flex h-full w-full flex-col justify-between p-5 text-left text-marfil"

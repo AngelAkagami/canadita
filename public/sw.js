@@ -12,7 +12,7 @@
  * Solo peticiones GET del mismo origen; Maps, TikTok y WhatsApp no se tocan.
  * Para invalidar todo (p. ej. tras cambiar fotos), sube VERSION.
  */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const ESTATICOS = `canadita-estaticos-${VERSION}`;
 const MEDIOS = `canadita-medios-${VERSION}`;
 const PAGINAS = `canadita-paginas-${VERSION}`;

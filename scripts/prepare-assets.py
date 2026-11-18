@@ -74,7 +74,8 @@ ANCHOS_MAX = {
 
 # Fotografías limpias (sin texto) que solo se reescalan
 LIMPIAS = {
-    "hero-patio": ("hero-jardin.jpeg", 1920),
+    # Reescalada x4 con Real-ESRGAN desde hero-jardin.jpeg (1280 px) y guardada a 2880 px.
+    "hero-jardin": ("hero-jardin-x4.jpg", 1920),
     # La foto anterior del hero (terraza con pérgola) pasa a la galería.
     "terraza": ("vista2.jpg", 1600),
     "barra": ("bar.jpg", 1600),
@@ -96,13 +97,18 @@ EVENTOS = {
     "evento-salon-jardin": "eventos/8.jpeg",
 }
 LIMPIAS.update({nombre: (archivo, 1448) for nombre, archivo in EVENTOS.items()})
+
+# Portadas de los videos de TikTok (recursos/tiktok/{id}.jpg), sacadas de
+# tiktok.com/embed/{id}. Se muestran en la tarjeta hasta que se toca reproducir.
+TIKTOK_PORTADAS = ('7646937477302717716', '7699315580049853716', '7646937652897385748', '7653625140671941909')
+LIMPIAS.update({f"tiktok-{id}": (f"tiktok/{id}.jpg", 720) for id in TIKTOK_PORTADAS})
 CALIDADES_EVENTOS = 80
 
 ANCHOS_WEB = (768, 1280)  # anchos adicionales para srcset
 
 # Calidad por archivo para mantener el peso bajo sin perder calidad perceptible
 CALIDADES = {
-    "hero-patio": 68,
+    "hero-jardin": 80,
     "buffet-copas": 78,
     "panaderia": 78,
     "buffet-fuentes": 78,
@@ -110,12 +116,13 @@ CALIDADES = {
     "exterior": 80,
 }
 CALIDADES.update({nombre: CALIDADES_EVENTOS for nombre in EVENTOS})
+CALIDADES.update({f"tiktok-{id}": 78 for id in TIKTOK_PORTADAS})
 
 # Calidad de las variantes pequeñas (768/1280) cuando la imagen es el LCP.
 # El hero se sirve en q44 como máximo para que móvil pinte antes; el velo
 # oscuro del hero oculta la pérdida percibida.
 CALIDADES_VARIANTE = {
-    "hero-patio": 38,
+    "hero-jardin": 58,
 }
 
 
@@ -148,7 +155,7 @@ def guardar_webp(imagen: Image.Image, nombre: str, calidad: int = 82) -> None:
             # El hero en 768 px (LCP en móvil) baja a q38: es lo que pinta el
             # primer golpe de vista y el velo oscuro oculta la pérdida.
             calidad_variante = max(44, calidad - 28)
-            if ancho_web == 768 and nombre in CALIDADES_VARIANTE:
+            if nombre in CALIDADES_VARIANTE:
                 calidad_variante = CALIDADES_VARIANTE[nombre]
             versión.save(IMG / f"{nombre}-{ancho_web}.webp", "WEBP", quality=calidad_variante, method=6)
             versión.save(IMG / f"{nombre}-{ancho_web}.avif", "AVIF", quality=calidad_avif(calidad_variante), speed=4)
