@@ -1,21 +1,49 @@
 @import "tailwindcss";
 @import "./fuentes.css";
+@import "@fontsource-variable/instrument-sans";
 
 /* ------------------------------------------------------------------ */
-/* Paleta oficial de La Cañadita                                       */
-/* El verde olivo fue tomado directamente del logotipo oficial:        */
-/* RGB (66, 80, 31) = #42501F                                         */
+/* Sistema visual "Jardín"                                             */
+/*                                                                     */
+/* Paleta del logotipo (elegida por el cliente):                       */
+/*   olivo #42501F (primario: botones, títulos, dock) · olivo noche    */
+/*   #262E12 (secciones oscuras) · olivo claro #5A6A2C (hover,         */
+/*   enlaces) · dorado #D7AC69 (acento) · marfil #F4EFE4 (fondo).      */
+/* Contraste: marfil sobre olivo 8.8:1; olivo sobre marfil 7.6:1;      */
+/* olivo claro sobre marfil 5.1:1 (AA en texto pequeño).               */
+/* Fondo marfil con tonos de sección que fluyen y el patrón de         */
+/* talavera dorado muy tenue.                                          */
 /* ------------------------------------------------------------------ */
 @theme {
-  --color-verde: #42501f;
-  --color-verde-oscuro: #333d18;
-  --color-verde-suave: #556031;
-  --color-marfil: #f7f4ea;
-  --color-beige: #e7dfc9;
-  --color-tinta: #2c3122;
+  --color-olivo: #42501f;
+  --color-olivo-noche: #262e12;
+  --color-olivo-claro: #5a6a2c;
+  --color-oro: #d7ac69;
+  --color-oro-oscuro: #8a6326;
+  --color-marfil: #f4efe4;
+  --color-beige: #e6dcc6;
+  --color-tinta: #1d2311;
 
-  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Cormorant Garamond", "Cormorant respaldo", Georgia, "Times New Roman", serif;
+  --font-sans: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Tonos del lienzo continuo (ver .lienzo). El atributo va en el propio
+   .lienzo y no en :root: cambiarlo en :root recalculaba los estilos de toda
+   la página (~1000 elementos, ~130 ms en un móvil lento) en cada sección. */
+:root {
+  --tono-lienzo: oklch(95.6% 0.016 85); /* marfil */
+}
+.lienzo[data-tono="salvia"] {
+  /* Salvia: el verde olivo del logotipo (#42501F, tono ~120) muy aclarado. */
+  --tono-lienzo: oklch(94% 0.032 122);
+}
+.lienzo[data-tono="oro"] {
+  --tono-lienzo: oklch(94% 0.026 80); /* cantera */
+}
+.lienzo[data-tono="jardin"] {
+  --tono-lienzo: oklch(95.5% 0.02 100); /* hoja seca: entre salvia y cantera */
 }
 
 @layer base {
@@ -29,8 +57,29 @@
     color: var(--color-tinta);
     font-family: var(--font-sans);
     font-size: 1rem;
-    line-height: 1.65;
+    line-height: 1.6;
     overflow-x: hidden;
+  }
+
+  /* Grano de papel: capa fija, sin eventos, encima de todo con opacidad
+     mínima. Fija = no repinta al hacer scroll. Sin mix-blend-mode: con 6 %
+     de opacidad se ve igual y evita mezclar toda la pantalla en cada frame. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    pointer-events: none;
+    opacity: 0.06;
+    background-image: url("/textura-grano.svg");
+    background-size: 180px 180px;
+  }
+  /* En móvil la textura casi no se percibe y es una capa de pantalla
+     completa más que componer en cada frame del scroll: se omite. */
+  @media (max-width: 767px) {
+    body::before {
+      content: none;
+    }
   }
 
   h1,
@@ -38,40 +87,183 @@
   h3 {
     font-family: var(--font-display);
     font-weight: 500;
-    line-height: 1.1;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
 
-  /* Foco visible consistente en toda la página */
+  p {
+    text-wrap: pretty;
+  }
+
   :focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid var(--color-oro);
     outline-offset: 3px;
   }
 
   ::selection {
-    background-color: var(--color-verde-suave);
+    background-color: var(--color-oro);
     color: var(--color-marfil);
   }
 }
 
 @layer components {
-  /* Antetítulo discreto usado en cada sección */
+  /* Índice de la portada de /menu: numeral, apartado, puntos y total. */
+  .carta-indice {
+    border-top: 1px solid rgb(66 80 31 / 0.15);
+  }
+  .carta-indice a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    padding-block: 1rem;
+    border-bottom: 1px solid rgb(66 80 31 / 0.15);
+    color: var(--color-olivo);
+    transition: color 200ms ease;
+  }
+  .carta-indice a:hover {
+    color: var(--color-olivo-claro);
+  }
+  .carta-indice-numeral {
+    width: 1.9rem;
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--color-oro-oscuro);
+  }
+  .carta-indice-nombre {
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 6vw, 2.1rem);
+    line-height: 1;
+  }
+  .carta-indice-total {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-variant-numeric: lining-nums tabular-nums;
+    color: rgb(29 35 17 / 0.6);
+  }
+  /* Quita la X nativa del campo de búsqueda; el filtro se limpia borrando. */
+  .buscador input::-webkit-search-cancel-button {
+    filter: grayscale(1) opacity(0.5);
+  }
+
+  /* Etiqueta pequeña: se usa como máximo en 1 de cada 3 secciones. */
   .antetitulo {
     font-family: var(--font-sans);
     font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
   }
 
-  /* Puntos conductores entre el nombre del platillo y su precio */
+  /* Display gigante con ancho fluido. */
+  .display-xl {
+    font-family: var(--font-display);
+    font-size: clamp(3.4rem, 10.5vw, 10.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+    font-weight: 500;
+  }
+  .display-lg {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 6.4vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-weight: 500;
+  }
+
+  /* Lienzo continuo (app shell): un solo fondo fijo para toda la página.
+     Las secciones son transparentes y declaran `data-tono`; el lienzo
+     cambia de tono plano con un fundido lento, así no hay cortes entre
+     secciones. Los cuatro tonos salen de la marca: el papel marfil, el
+     salvia del olivo, la cantera del dorado y la hoja seca del jardín.
+     El patrón de talavera va encima, fijo y muy tenue. */
+  .lienzo {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--tono-lienzo);
+    transition: background-color 1400ms var(--ease-suave);
+  }
+  .lienzo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.075;
+    background-image: url("/patron-talavera.svg");
+    background-size: 96px 96px;
+  }
+
+  /* Velo para texto sobre fotografía (de abajo hacia arriba). */
+  .velo {
+    background-image: linear-gradient(to top, rgb(38 46 18 / 0.92) 0%, rgb(38 46 18 / 0.45) 45%, rgb(38 46 18 / 0) 75%);
+  }
+
+  /* Texto que se ilumina palabra por palabra con el scroll. */
+  html.js .palabra {
+    opacity: 0.18;
+  }
+
+  /* Énfasis dorado de los titulares: tinta sólida, el contraste lo da la
+     cursiva y el color, no un degradado. */
+  .texto-oro {
+    color: var(--color-oro-oscuro);
+  }
+
+  /* Botón píldora con icono anidado. */
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    border-radius: 999px;
+    padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    transition:
+      background-color 400ms var(--ease-suave),
+      color 400ms var(--ease-suave),
+      transform 300ms var(--ease-suave);
+  }
+  .boton:active {
+    transform: scale(0.98);
+  }
+  .boton-icono {
+    display: flex;
+    height: 2.25rem;
+    width: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    transition: transform 400ms var(--ease-suave);
+  }
+  .boton:hover .boton-icono {
+    transform: translateX(3px) rotate(-45deg);
+  }
+
+  /* Subrayado que se dibuja en hover (enlaces de texto). */
+  .enlace {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 500ms var(--ease-suave);
+  }
+  .enlace:hover {
+    background-size: 100% 1px;
+  }
+
+  /* Puntos conductores entre platillo y precio (página /menu). */
   .leader {
     flex: 1 1 auto;
     margin: 0 0.6rem 0.28rem;
     border-bottom: 1px dotted color-mix(in srgb, currentColor 45%, transparent);
   }
 
-  /* Navegación horizontal de categorías del menú */
   .sin-barra {
     scrollbar-width: none;
   }
@@ -79,72 +271,108 @@
     display: none;
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Fusiones entre secciones                                            */
-  /* El degradado superior (120 px) funde el color de la sección         */
-  /* anterior con el propio: sin cortes duros entre bandas de color.     */
-  /* ------------------------------------------------------------------ */
-  .fusion-verde-marfil {
-    background-image: linear-gradient(to bottom, var(--color-verde) 0, var(--color-marfil) 120px);
+  /* Máscara de línea para titulares: el texto sube desde abajo. */
+  .mascara {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
   }
-  .fusion-marfil-verde {
-    background-image: linear-gradient(to bottom, var(--color-marfil) 0, var(--color-verde) 120px);
-  }
-  .fusion-verde-beige {
-    background-image: linear-gradient(to bottom, var(--color-verde) 0, var(--color-beige) 120px);
-  }
-  .fusion-beige-verde {
-    background-image: linear-gradient(to bottom, var(--color-beige) 0, var(--color-verde) 120px);
-  }
-  .fusion-marfil-beige {
-    background-image: linear-gradient(to bottom, var(--color-marfil) 0, var(--color-beige) 120px);
-  }
-  .fusion-beige-marfil {
-    background-image: linear-gradient(to bottom, var(--color-beige) 0, var(--color-marfil) 120px);
-  }
-  .fusion-verde-oscuro {
-    background-image: linear-gradient(to bottom, var(--color-verde) 0, var(--color-verde-oscuro) 120px);
+  .mascara > span {
+    display: block;
   }
 
-  /* Bloqueo del scroll del body mientras el overlay está abierto */
+  /* Cinta de servicios (única cinta en movimiento del sitio). */
+  .cinta {
+    display: flex;
+    width: max-content;
+    animation: cinta 38s linear infinite;
+  }
+  .cinta:hover {
+    animation-play-state: paused;
+  }
+  @keyframes cinta {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Reveal de entrada: GSAP lo anima; sin JS queda visible. */
+  html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  html.js .mascara > [data-linea] {
+    transform: translateY(105%);
+  }
+
+  /* Imagen flotante del índice del menú (solo puntero fino). */
+  .menu-flotante {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    width: 18rem;
+    aspect-ratio: 4 / 5;
+    pointer-events: none;
+    opacity: 0;
+    scale: 0.88;
+    transform: translate(-50%, -50%);
+    transition:
+      opacity 350ms var(--ease-suave),
+      scale 500ms var(--ease-suave);
+  }
+  .menu-flotante[data-visible="true"] {
+    opacity: 1;
+    scale: 1;
+  }
+
   body.sin-scroll {
     overflow: hidden;
   }
 
-  /* Morph de hamburguesa a X (barra de navegación móvil) */
-  .linea-morph {
-    transform-box: fill-box;
-    transform-origin: center;
-    transition: transform 250ms ease, opacity 200ms ease;
-  }
-  #boton-mas[data-abierto='true'] .linea-morph-1 {
-    transform: translateY(5px) rotate(45deg);
-  }
-  #boton-mas[data-abierto='true'] .linea-morph-2 {
-    opacity: 0;
-  }
-  #boton-mas[data-abierto='true'] .linea-morph-3 {
-    transform: translateY(-5px) rotate(-45deg);
+  /* Secciones finales (después de la última escena fijada): el navegador no
+     calcula su estilo ni layout hasta que se acercan. No hay ScrollTriggers
+     en ellas (sus entradas usan IntersectionObserver), así que no altera
+     ninguna medida de los pins. */
+  #tiktok,
+  #ubicacion,
+  section[aria-labelledby='titulo-cta'],
+  body > footer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
   }
 
-  /* Overlay de acciones rápidas: entrada y salida (200–280 ms) */
   #menu-rapido[data-estado='abierto'] {
-    animation: overlay-entra 250ms ease-out both;
+    animation: overlay-entra 320ms ease-out both;
+  }
+  #menu-rapido[data-estado='abierto'] .menu-rapido-marca {
+    animation: accion-entra 420ms var(--ease-suave) both;
   }
   #menu-rapido[data-estado='abierto'] li {
-    animation: accion-entra 280ms ease-out both;
+    animation: accion-entra 420ms var(--ease-suave) 60ms both;
   }
-  #menu-rapido[data-estado='abierto'] li:nth-child(2) { animation-delay: 40ms; }
-  #menu-rapido[data-estado='abierto'] li:nth-child(3) { animation-delay: 80ms; }
-  #menu-rapido[data-estado='abierto'] li:nth-child(4) { animation-delay: 120ms; }
-  #menu-rapido[data-estado='abierto'] li:nth-child(5) { animation-delay: 160ms; }
-  #menu-rapido[data-estado='abierto'] li:nth-child(6) { animation-delay: 200ms; }
+  #menu-rapido[data-estado='abierto'] li:nth-child(2) { animation-delay: 100ms; }
+  #menu-rapido[data-estado='abierto'] li:nth-child(3) { animation-delay: 140ms; }
+  #menu-rapido[data-estado='abierto'] li:nth-child(4) { animation-delay: 180ms; }
+  #menu-rapido[data-estado='abierto'] li:nth-child(5) { animation-delay: 220ms; }
+  #menu-rapido[data-estado='abierto'] li:nth-child(6) { animation-delay: 260ms; }
   #menu-rapido[data-estado='cerrando'] {
-    animation: overlay-sale 200ms ease-in both;
+    animation: overlay-sale 220ms ease-in both;
+  }
+
+  /* Velo translúcido: la página se adivina detrás, desenfocada. */
+  .menu-rapido {
+    background: rgb(38 46 18 / 0.86);
+    -webkit-backdrop-filter: blur(22px) saturate(1.3);
+    backdrop-filter: blur(22px) saturate(1.3);
   }
 
   @keyframes overlay-entra {
-    from { opacity: 0; }
+    from {
+      opacity: 0;
+      -webkit-backdrop-filter: blur(0) saturate(1);
+      backdrop-filter: blur(0) saturate(1);
+    }
     to { opacity: 1; }
   }
   @keyframes overlay-sale {
@@ -152,47 +380,32 @@
     to { opacity: 0; }
   }
   @keyframes accion-entra {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* View Transitions entre páginas (Fase 5)                            */
-/* Opt-in cross-document: al navegar entre / y /menu/ el navegador    */
-/* funde las páginas (200 ms al salir, 350 ms al entrar). Es CSS      */
-/* puro, sin JavaScript: en navegadores sin soporte (Safari, Firefox) */
-/* la navegación sigue siendo la normal.                              */
-/* ------------------------------------------------------------------ */
-@view-transition {
-  navigation: auto;
-}
+/* Cambio de página entre / y /menu/: sin View Transition entre documentos.
+   Cada navegación es una carga completa de la página nueva, así que nada
+   puede animarse "a través" de ella sin trabarse. La píldora del dock se
+   desliza ANTES de navegar (NavInferior.astro) y la página nueva ya nace con
+   la píldora en su sitio. Sin view-transition-name en los docks: el
+   contenedor se volvería "backdrop root" y el vidrio dejaría de desenfocar. */
 
-::view-transition-old(root) {
-  animation-duration: 200ms;
-}
-
-::view-transition-new(root) {
-  animation-duration: 350ms;
-}
-
-/* Chrome persistente: la barra superior (tablet/escritorio) y la barra
-   inferior (móvil) conservan su posición mientras cambia el contenido.
-   Se nombran por clase porque /menu/ incluye además un <header> de
-   contenido que debe cruzarse con el fondo normal. */
-.chrome-cabecera {
-  view-transition-name: cabecera;
-}
-.chrome-barra {
-  view-transition-name: barra-movil;
-}
-
-/* Respeta la preferencia del usuario de reducir movimiento */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-
+  html.js [data-reveal],
+  html.js .palabra,
+  html.js .mascara > [data-linea],
+  html.js [data-pieza] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .cinta {
+    animation: none;
+  }
   *,
   *::before,
   *::after {
@@ -200,8 +413,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  /* View Transitions sin animación (navegación directa) */
   ::view-transition-old(root),
   ::view-transition-new(root),
   ::view-transition-old(cabecera),
@@ -209,5 +420,1627 @@
   ::view-transition-old(barra-movil),
   ::view-transition-new(barra-movil) {
     animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Dock de navegación (Header.astro arriba, NavInferior.astro abajo).  */
+/* ------------------------------------------------------------------ */
+.dock {
+  background: rgb(244 239 228 / 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid rgb(66 80 31 / 0.1);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.65),
+    0 18px 40px -24px rgb(66 80 31 / 0.45);
+  transition:
+    background-color 500ms var(--ease-suave),
+    box-shadow 500ms var(--ease-suave),
+    translate 600ms var(--ease-suave),
+    opacity 400ms var(--ease-suave);
+}
+.dock[data-desplazado] {
+  background: rgb(244 239 228 / 0.9);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    0 24px 50px -22px rgb(66 80 31 / 0.5);
+}
+.dock[data-oculto] {
+  translate: 0 calc(-100% - 1.5rem);
+  opacity: 0;
+}
+
+/* Píldora que sigue al puntero / foco y descansa en el enlace activo. */
+.dock-indicador {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--w, 0px);
+  translate: var(--x, 0px) 0;
+  border-radius: 999px;
+  background: rgb(66 80 31 / 0.07);
+  box-shadow: inset 0 0 0 1px rgb(66 80 31 / 0.06);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    translate 450ms var(--ease-suave),
+    width 450ms var(--ease-suave),
+    opacity 250ms ease;
+}
+.dock-indicador[data-visible] {
+  opacity: 1;
+}
+
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  height: 2.75rem;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 1rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: rgb(66 80 31 / 0.68);
+  transition:
+    color 300ms ease,
+    scale 300ms var(--ease-suave);
+}
+.dock-item:hover,
+.dock-item:focus-visible {
+  color: var(--color-olivo);
+}
+.dock-item:focus-visible {
+  outline-offset: -2px;
+}
+.dock-item:active {
+  scale: 0.95;
+}
+.dock-item[aria-current],
+.dock-item[data-activo] {
+  color: var(--color-olivo-claro);
+}
+/* Punto dorado del enlace activo. */
+.dock-item::after {
+  content: "";
+  position: absolute;
+  bottom: 0.3rem;
+  left: 50%;
+  height: 4px;
+  width: 4px;
+  border-radius: 999px;
+  background: #b98a45;
+  translate: -50% 0;
+  scale: 0;
+  transition: scale 400ms var(--ease-suave);
+}
+.dock-item[aria-current]::after,
+.dock-item[data-activo]::after {
+  scale: 1;
+}
+
+/* Dock móvil: vidrio marcado. Brillo arriba, tinte blanco suficiente para
+   que el texto olivo se lea también sobre fotos oscuras. */
+.dock-vidrio {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.66), rgb(255 255 255 / 0.44));
+  /* 12 px (antes 22): el costo del desenfoque crece con el radio y se paga
+     en cada frame del scroll; con algo más de tinte se ve igual de vidrio. */
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
+  backdrop-filter: blur(12px) saturate(1.6);
+  border: 1px solid rgb(255 255 255 / 0.65);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(66 80 31 / 0.06),
+    0 20px 40px -18px rgb(66 80 31 / 0.5);
+}
+/* Activo en el dock móvil: una cápsula que abraza icono + etiqueta,
+   concéntrica con el dock. Su posición sale del índice del botón activo
+   (--i, puesto desde el servidor), no de medir con JS: así la página nueva
+   ya nace con la píldora en su lugar y la transición la puede deslizar.
+   Rejilla: 3 columnas con gap-1 (0.25rem); se centra en la columna --i. */
+.dock-vidrio .dock-indicador {
+  --col: calc((100% - 0.5rem) / 3);
+  top: 0;
+  left: calc(var(--i, 1) * (var(--col) + 0.25rem) + var(--col) / 2 - 2.75rem);
+  height: 100%;
+  width: 5.5rem;
+  translate: none;
+  background: linear-gradient(180deg, rgb(90 106 44 / 0.16), rgb(90 106 44 / 0.1));
+  box-shadow:
+    inset 0 0 0 1px rgb(90 106 44 / 0.14),
+    inset 0 1px 0 rgb(255 255 255 / 0.55);
+  transition:
+    left 450ms var(--ease-suave),
+    opacity 250ms ease;
+}
+.dock-vidrio .dock-item {
+  color: rgb(66 80 31 / 0.62);
+}
+.dock-vidrio .dock-item::after {
+  content: none;
+}
+.dock-vidrio .dock-item[aria-current],
+.dock-vidrio .dock-item[data-activo] {
+  color: var(--color-olivo);
+}
+.dock-vidrio .dock-item[aria-current] .icono,
+.dock-vidrio .dock-item[data-activo] .icono {
+  color: var(--color-olivo-claro);
+}
+.icono-activo {
+  display: none !important;
+}
+.dock-item[aria-current] .icono-activo,
+.dock-item[data-activo] .icono-activo {
+  display: inline-block !important;
+}
+.dock-item[aria-current] .icono-normal,
+.dock-item[data-activo] .icono-normal {
+  display: none !important;
+}
+/* Botón flotante de reserva: agenda + etiqueta con frases que se relevan. */
+.fab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition:
+    opacity 400ms var(--ease-suave),
+    scale 500ms var(--ease-suave),
+    translate 500ms var(--ease-suave);
+}
+html.js .fab:not([data-visible]) {
+  opacity: 0;
+  scale: 0.6;
+  translate: 0 1rem;
+  pointer-events: none;
+}
+.fab-boton {
+  display: grid;
+  height: 3.5rem;
+  width: 3.5rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-olivo);
+  color: var(--color-marfil);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 14px 30px -12px rgb(66 80 31 / 0.75);
+  transition:
+    scale 300ms var(--ease-suave),
+    background-color 300ms ease;
+}
+.fab:active .fab-boton {
+  scale: 0.92;
+}
+.fab:hover .fab-boton,
+.fab:focus-visible .fab-boton {
+  background: var(--color-olivo-claro);
+}
+.fab-etiqueta {
+  height: 2.75rem;
+  overflow: hidden;
+  border-radius: 999px;
+  opacity: 0;
+  /* Cerrada: recortada hacia la derecha (junto al botón). clip-path solo
+     repinta; antes se animaba max-width y forzaba layout en cada frame. El
+     recorte también corta los toques, así no estorba cerrada. */
+  clip-path: inset(0 0 0 100% round 999px);
+  color: var(--color-olivo);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.76), rgb(255 255 255 / 0.55));
+  -webkit-backdrop-filter: blur(10px) saturate(1.5);
+  backdrop-filter: blur(10px) saturate(1.5);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow: 0 12px 26px -16px rgb(66 80 31 / 0.5);
+}
+.fab-frases {
+  display: flex;
+  flex-direction: column;
+}
+/* Solo se anima mientras el botón está a la vista. */
+.fab[data-visible] .fab-etiqueta {
+  animation: fab-abre 12s var(--ease-suave) 1.5s infinite;
+}
+.fab[data-visible] .fab-frases {
+  animation: fab-frases 12s var(--ease-suave) 1.5s infinite;
+}
+.fab-frase {
+  height: 2.75rem;
+  padding: 0 1.1rem;
+  line-height: 2.75rem;
+  white-space: nowrap;
+  text-align: right;
+}
+.fab:focus-visible .fab-etiqueta {
+  animation: none;
+  clip-path: inset(0 0 0 0 round 999px);
+  opacity: 1;
+}
+@keyframes fab-abre {
+  0% { clip-path: inset(0 0 0 100% round 999px); opacity: 0; }
+  5%, 48% { clip-path: inset(0 0 0 0 round 999px); opacity: 1; }
+  54%, 100% { clip-path: inset(0 0 0 100% round 999px); opacity: 0; }
+}
+@keyframes fab-frases {
+  0%, 18% { translate: 0 0; }
+  21%, 34% { translate: 0 -2.75rem; }
+  37%, 100% { translate: 0 -5.5rem; }
+}
+/* Variante móvil: icono + etiqueta apilados. */
+.dock-item-movil {
+  width: 100%;
+  height: 3.5rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+.dock-item-movil::after {
+  bottom: 0.2rem;
+}
+.dock-item-movil svg {
+  transition: translate 400ms var(--ease-suave);
+}
+.dock-item-movil:active svg {
+  translate: 0 -2px;
+}
+
+.dock-logo-marco {
+  display: grid;
+  height: 2.75rem;
+  width: 2.75rem;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.55);
+  box-shadow: inset 0 0 0 1px rgb(66 80 31 / 0.08);
+  transition:
+    rotate 600ms var(--ease-suave),
+    scale 400ms var(--ease-suave),
+    background-color 300ms ease;
+}
+.dock-logo:hover .dock-logo-marco,
+.dock-logo:focus-visible .dock-logo-marco {
+  rotate: -8deg;
+  scale: 1.06;
+  background: #fff;
+}
+
+.dock-separador {
+  height: 1.5rem;
+  width: 1px;
+  margin: 0 0.25rem;
+  background: rgb(66 80 31 / 0.12);
+}
+
+/* Acción principal: el icono se abre al pasar el puntero. */
+.dock-reservar {
+  display: inline-flex;
+  height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-olivo);
+  padding: 0 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-marfil);
+  box-shadow: 0 10px 24px -14px rgb(66 80 31 / 0.8);
+  transition:
+    background-color 400ms var(--ease-suave),
+    padding 450ms var(--ease-suave),
+    scale 300ms var(--ease-suave);
+}
+.dock-reservar:hover,
+.dock-reservar:focus-visible {
+  background: var(--color-olivo-claro);
+  padding-right: 0.5rem;
+}
+.dock-reservar:active {
+  scale: 0.96;
+}
+.dock-reservar-icono {
+  display: grid;
+  height: 1.9rem;
+  width: 0;
+  margin-left: -0.5rem;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(244 239 228 / 0.16);
+  opacity: 0;
+  transition:
+    width 450ms var(--ease-suave),
+    margin 450ms var(--ease-suave),
+    opacity 300ms ease;
+}
+.dock-reservar:hover .dock-reservar-icono,
+.dock-reservar:focus-visible .dock-reservar-icono {
+  width: 1.9rem;
+  margin-left: 0;
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero: la frase con ventanas (ver Hero.astro).                       */
+/* ------------------------------------------------------------------ */
+.hero-frase {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-wrap: wrap;
+}
+/* Cada palabra o ventana sube desde su propia máscara. */
+.pieza {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+  vertical-align: top;
+}
+.pieza > [data-pieza] {
+  display: inline-block;
+}
+/* Entrada del hero en CSS (no espera a GSAP). Las palabras de la frase se
+   pintan ya en su lugar desde el primer frame (es el LCP: así no espera a
+   ninguna animación); solo las dos postales suben desde su máscara. */
+html.js .pieza-postal > [data-pieza] {
+  transform: translateY(105%);
+}
+@keyframes pieza-sube {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+@keyframes bloque-entra {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: none; }
+}
+html.js:not(.sin-entrada) #inicio .pieza-postal > [data-pieza] {
+  animation: pieza-sube 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+html.js:not(.sin-entrada) #inicio .pieza-postal[data-hero-ventana] > [data-pieza] {
+  animation-delay: 0.3s;
+}
+html.js:not(.sin-entrada) #inicio [data-reveal] {
+  animation: bloque-entra 1s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+html.js:not(.sin-entrada) #inicio [data-reveal='2'] { animation-delay: 0.55s; }
+/* Sin entrada (se llegó desde otra página del sitio): el hero ya armado. */
+html.sin-entrada #inicio [data-pieza],
+html.sin-entrada #inicio .mascara > [data-linea],
+html.sin-entrada #inicio [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+/* Ventana: postal con foto metida en la frase. Marco de papel, esquinas
+   apenas suavizadas y sombra con caída; la primera va ladeada como una
+   foto apoyada en la mesa. */
+.pieza-postal {
+  padding: 0.14em 0.12em 0.2em;
+  margin: -0.14em -0.12em -0.2em;
+}
+.ventana-marco {
+  position: relative;
+  height: 0.82em;
+  width: 1.95em;
+  overflow: hidden;
+  border: 0.05em solid #fbf8f1;
+  border-radius: 0.12em;
+  background: var(--color-beige);
+  vertical-align: -0.04em;
+  box-shadow: 0 0.1em 0.22em -0.08em rgb(66 80 31 / 0.45);
+  transition: rotate 700ms var(--ease-suave);
+}
+.ventana-girada {
+  rotate: -4deg;
+}
+.ventana-marco img {
+  display: block;
+  transition: scale 900ms var(--ease-suave);
+}
+@media (hover: hover) {
+  .ventana-marco:hover {
+    rotate: 0deg;
+  }
+  .ventana-marco:hover img {
+    scale: 1.1;
+  }
+}
+/* Marca del hero: olivo sobre el lienzo, marfil sobre el patio (GSAP). */
+.hero-marca {
+  color: var(--color-olivo);
+}
+.hero-portal-velo {
+  background-image:
+    linear-gradient(to bottom, rgb(38 46 18 / 0.55) 0%, rgb(38 46 18 / 0) 28%),
+    linear-gradient(to top, rgb(38 46 18 / 0.9) 0%, rgb(38 46 18 / 0.55) 38%, rgb(38 46 18 / 0) 70%);
+}/* La capa del patio solo existe con JS (GSAP la recorta y la abre). */
+.hero-portal {
+  visibility: hidden;
+  /* Crece con transform desde la ventana (animaciones.ts): el origen es la
+     esquina para que las cuentas de escala/traslado sean directas. */
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.hero-portal > [data-hero-portal-foto],
+.hero-portal > .hero-portal-velo,
+.hero-portal > [data-hero-portal-info] {
+  transform-origin: 0 0;
+  will-change: transform;
+}
+html:not(.js) .hero-portal {
+  display: none;
+}
+
+/* Estado del día: el punto toma el color del estado. */
+.estado-punto {
+  height: 0.55rem;
+  width: 0.55rem;
+  border-radius: 999px;
+  background: rgb(66 80 31 / 0.3);
+}
+[data-estado="abierto"] .estado-punto {
+  background: var(--color-olivo-claro);
+  box-shadow: 0 0 0 4px rgb(90 106 44 / 0.16);
+}
+[data-estado="especial"] .estado-punto {
+  background: #b98a45;
+  box-shadow: 0 0 0 4px rgb(215 172 105 / 0.28);
+}
+
+/* ------------------------------------------------------------------ */
+/* Fines de semana: la semana como ruta (ver Buffet.astro).            */
+/* ------------------------------------------------------------------ */
+
+/* Línea que une los días: guía punteada + relleno dorado (GSAP lo dibuja). */
+.semana-guia,
+.semana-relleno {
+  position: absolute;
+  left: calc(100% / 14);
+  right: calc(100% / 14);
+  bottom: 0.5rem;
+  translate: 0 50%;
+  pointer-events: none;
+}
+.semana-guia {
+  border-top: 1.5px dashed rgb(66 80 31 / 0.2);
+}
+.semana-relleno {
+  height: 2.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #d7ac69, #b98a45);
+  transform-origin: left center;
+}
+
+/* Paradas: puntos chicos entre semana, anillos dorados el fin de semana. */
+.semana-punto {
+  position: relative;
+  display: grid;
+  height: 1rem;
+  width: 1rem;
+  place-items: center;
+}
+.semana-punto::after {
+  content: "";
+  height: 0.55rem;
+  width: 0.55rem;
+  border-radius: 999px;
+  background: var(--color-olivo-claro);
+  transition:
+    scale 500ms var(--ease-suave),
+    background-color 400ms var(--ease-suave);
+}
+.semana-punto-fin::after {
+  height: 1rem;
+  width: 1rem;
+  border: 2px solid #b98a45;
+  background: radial-gradient(circle, var(--color-olivo-claro) 0 32%, var(--color-marfil) 36%);
+  box-shadow: 0 0 0 6px rgb(215 172 105 / 0.25);
+}
+[data-modo="escenario"] [data-ruta-dia]:not([data-alcanzado])::after {
+  scale: 0.55;
+  background: rgb(66 80 31 / 0.25);
+  box-shadow: none;
+  border-color: transparent;
+}
+.semana-celda {
+  transition: opacity 500ms var(--ease-suave);
+}
+[data-modo="escenario"] [data-dia-celda]:not([data-alcanzado]) {
+  opacity: 0.4;
+}
+
+/* Marca del día actual (la pone el script del componente). */
+.semana-hoy {
+  display: none;
+  margin-top: 0.4rem;
+  border-radius: 999px;
+  background: var(--color-olivo);
+  padding: 0.05rem 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-marfil);
+}
+[data-hoy] .semana-hoy {
+  display: inline-block;
+}
+
+/* Ruta dentro del día (sábado → domingo), sobre la foto. */
+.dia-guia,
+.dia-relleno {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  pointer-events: none;
+}
+.dia-guia {
+  border-top: 1.5px dashed rgb(244 239 228 / 0.35);
+}
+.dia-relleno {
+  height: 2px;
+  translate: 0 -25%;
+  background: #d7ac69;
+  transform-origin: left center;
+  transform: scaleX(var(--fin, 0));
+}
+.dia-punto {
+  height: 0.85rem;
+  width: 0.85rem;
+  border-radius: 999px;
+  border: 2px solid rgb(244 239 228 / 0.55);
+  background: var(--color-olivo-noche);
+}
+.dia-punto-activo {
+  border-color: #d7ac69;
+  background: radial-gradient(circle, #d7ac69 0 38%, var(--color-olivo-noche) 42%);
+  box-shadow: 0 0 0 5px rgb(215 172 105 / 0.25);
+}
+
+/* Modo pestañas: un día a la vez (móvil, tablet, movimiento reducido). */
+[data-modo="pestanas"] [data-paneles] {
+  grid-template-columns: 1fr;
+}
+[data-modo="pestanas"] [data-panel] {
+  grid-area: 1 / 1;
+}
+[data-modo="pestanas"] [data-panel]:not([data-activo]) {
+  visibility: hidden;
+}
+
+/* Entrar a otro día: View Transition que se abre en círculo desde el día tocado. */
+.dia-en-transicion {
+  view-transition-name: dia;
+}
+::view-transition-old(dia),
+::view-transition-new(dia) {
+  mix-blend-mode: normal;
+  height: 100%;
+}
+::view-transition-old(dia) {
+  animation: dia-sale 900ms var(--ease-suave) both;
+}
+::view-transition-new(dia) {
+  animation: dia-entra 900ms var(--ease-suave) both;
+}
+@keyframes dia-entra {
+  from {
+    clip-path: circle(0 at var(--dia-x, 50%) var(--dia-y, 0%));
+  }
+  to {
+    clip-path: circle(250vmax at var(--dia-x, 50%) var(--dia-y, 0%));
+  }
+}
+@keyframes dia-sale {
+  to {
+    filter: brightness(0.45);
+    scale: 0.96;
+  }
+}
+
+/* Modo escenario: sección fijada a pantalla completa (escritorio + GSAP). */
+/* lvh: alto con la barra de URL oculta. Al bajar, el navegador esconde la
+   barra y la pantalla crece; con svh/dvh la escena fija quedaba corta y se
+   veía una franja abajo. */
+[data-modo="escenario"] [data-escenario] {
+  height: 100lvh;
+  overflow: hidden;
+}
+[data-modo="escenario"] [data-calendario] {
+  height: 100%;
+  padding-top: 5.5rem;
+  padding-bottom: 2rem;
+}
+[data-modo="escenario"] [data-paneles] {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: block;
+}
+[data-modo="escenario"] [data-panel] {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  /* Crece desde la ventana del calendario con transform (animaciones.ts). */
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* Fuera del escenario el interior no existe para el layout. */
+.panel-interior {
+  display: contents;
+}
+[data-modo="escenario"] .panel-interior {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* Móvil: el calendario y el texto de cada día libran el dock inferior. */
+@media (max-width: 767px) {
+  [data-modo="escenario"] [data-calendario] {
+    padding-top: calc(2rem + env(safe-area-inset-top));
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  }
+  [data-modo="escenario"] [data-panel-texto] {
+    padding-bottom: calc(6.75rem + env(safe-area-inset-bottom));
+  }
+  [data-modo="escenario"] [data-panel-nav] {
+    top: calc(1.75rem + env(safe-area-inset-top));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(dia),
+  ::view-transition-new(dia) {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Carrusel vertical de platillos (móvil, MenuCarta.astro).            */
+/* Base (sin JS / movimiento reducido): lista de postales. Con GSAP    */
+/* (data-modo="carrusel") la lista se fija y cada tarjeta se coloca    */
+/* según su distancia al centro (animaciones.ts). Por frame solo cambian  */
+/* transform y opacity —nada de sombras ni variables heredadas— para que */
+/* lo resuelva el compositor sin repintar.                               */
+/* ------------------------------------------------------------------ */
+.carrusel {
+  display: grid;
+  gap: 1.75rem;
+  justify-items: center;
+}
+.carrusel-item {
+  position: relative;
+  width: min(20rem, 100%);
+}
+.carrusel-tarjeta {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0.5rem 0;
+  border-radius: 0.35rem;
+  background: #fbf8f1;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 4px 14px -10px rgb(66 80 31 / 0.22);
+}
+/* Sombra del platillo al centro: capa fija que solo cambia de opacidad. */
+.carrusel-sombra {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.35rem;
+  box-shadow: 0 26px 50px -18px rgb(66 80 31 / 0.42);
+  pointer-events: none;
+}
+.carrusel-tarjeta:focus-visible {
+  outline: 2px solid var(--color-olivo-claro);
+  outline-offset: 3px;
+}
+.carrusel-foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 0.2rem;
+  background: var(--color-beige);
+}
+.carrusel-foto img {
+  display: block;
+}
+/* Velo de papel: las tarjetas que esperan se ven apagadas. */
+.carrusel-velo {
+  position: absolute;
+  inset: 0;
+  background: #f4efe4;
+  opacity: 0;
+}
+.carrusel-pie {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0.35rem 1rem;
+}
+.carrusel-numero {
+  display: none;
+}
+
+.carrusel[data-modo="carrusel"] {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-height: 0;
+  margin: 1.25rem -1.25rem 0;
+  /* Las tarjetas salen del papel y vuelven a él en los bordes. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+}
+/* Escena fijada: título arriba, carrusel en el resto, libre del dock. */
+.carrusel-escena[data-modo="carrusel"] {
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  padding-top: calc(1.75rem + env(safe-area-inset-top));
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+.carrusel[data-modo="carrusel"] .carrusel-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(18rem, 76vw);
+  /* Posición, escala y opacidad las escribe animaciones.ts. */
+  translate: -50% -50%;
+  will-change: transform, opacity;
+}
+.carrusel[data-modo="carrusel"] .carrusel-numero {
+  display: block;
+  position: absolute;
+  top: -2rem;
+  right: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--color-oro-oscuro);
+}
+
+/* ------------------------------------------------------------------ */
+/* Carrusel "gelatina" (móvil con animaciones ligadas al scroll).       */
+/* La pista alta da el recorrido; la escena se queda fija (sticky) y    */
+/* cada tarjeta se anima con la línea de tiempo de la pista. Lo mueve   */
+/* el compositor del navegador, pegado al dedo y sin JS por frame. Al   */
+/* llegar al centro la tarjeta se pasa un poco y regresa (rebote), y el */
+/* scroll se asienta solo en cada platillo (scroll-snap).               */
+/* Fuera de este bloque: GSAP (animaciones.ts) o la lista simple.       */
+/* ------------------------------------------------------------------ */
+.carrusel-parada {
+  display: none;
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    html {
+      scroll-snap-type: y proximity;
+    }
+    .carrusel-pista {
+      position: relative;
+      /* 100svh de escena + medio alto de pantalla por cada platillo. */
+      height: calc(100svh + (var(--n) - 1) * 50svh);
+      view-timeline: --carta block;
+    }
+    .carrusel-parada {
+      display: block;
+      position: absolute;
+      top: calc(var(--k) * 50svh);
+      left: 0;
+      width: 1px;
+      height: 1px;
+      scroll-snap-align: start;
+      scroll-snap-stop: normal;
+    }
+    .carrusel-pista > .carrusel-escena {
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100svh;
+      padding-top: calc(1.75rem + env(safe-area-inset-top));
+      padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    }
+    .carrusel-pista .carrusel {
+      /* Separación centro → vecina: 74 % del alto de la tarjeta, sin pasar
+         del 40 % del alto disponible (mismo cálculo que hacía GSAP). */
+      --paso: min(
+        calc((0.5rem + (min(18rem, 76vw) - 1rem) * 0.75 + 5.2rem) * 0.74),
+        calc((100svh - 15rem) * 0.4)
+      );
+      position: relative;
+      display: block;
+      flex: 1;
+      min-height: 0;
+      margin: 1.25rem -1.25rem 0;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+    }
+    .carrusel-pista .carrusel-item {
+      /* Tramo de la línea de tiempo de esta tarjeta: de 2.5 platillos antes
+         a 2.5 después de estar al centro (al 50 % está centrada). */
+      --rango: contain calc((var(--i) - 2.5) / (var(--n) - 1) * 100%)
+        contain calc((var(--i) + 2.5) / (var(--n) - 1) * 100%);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(18rem, 76vw);
+      translate: -50% -50%;
+      animation:
+        carta-pasa linear both,
+        carta-capa linear both;
+      animation-timeline: --carta, --carta;
+      animation-range: var(--rango), var(--rango);
+    }
+    .carrusel-pista .carrusel-sombra,
+    .carrusel-pista .carrusel-velo,
+    .carrusel-pista .carrusel-foto img,
+    .carrusel-pista .carrusel-numero {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --carta;
+      animation-range: var(--rango);
+    }
+    .carrusel-pista .carrusel-sombra { animation-name: carta-sombra; }
+    .carrusel-pista .carrusel-velo { animation-name: carta-velo; }
+    .carrusel-pista .carrusel-foto img { animation-name: carta-foto; }
+    .carrusel-pista .carrusel-numero {
+      display: block;
+      position: absolute;
+      top: -2rem;
+      right: 0.25rem;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-variant-numeric: lining-nums tabular-nums;
+      color: var(--color-oro-oscuro);
+      animation-name: carta-numero;
+    }
+
+    /* Posición/escala/opacidad (mismos valores que antes) con rebote en la
+       llegada y la salida del centro: se pasa un poco y regresa. */
+    @keyframes carta-pasa {
+      0% { transform: translateY(calc(var(--paso) * 1.45)) scale(0.53); opacity: 0; }
+      10% { transform: translateY(calc(var(--paso) * 1.3)) scale(0.58); opacity: 0.09; }
+      30% {
+        transform: translateY(var(--paso)) scale(0.68);
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.3, 1.45, 0.55, 1);
+      }
+      50% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.45, 0, 0.7, -0.45);
+      }
+      70% { transform: translateY(calc(var(--paso) * -1)) scale(0.68); opacity: 1; }
+      90% { transform: translateY(calc(var(--paso) * -1.3)) scale(0.58); opacity: 0.09; }
+      100% { transform: translateY(calc(var(--paso) * -1.45)) scale(0.53); opacity: 0; }
+    }
+    /* La del centro siempre queda encima de sus vecinas. */
+    @keyframes carta-capa {
+      0%, 100% { z-index: 75; }
+      30%, 70% { z-index: 90; }
+      50% { z-index: 100; }
+    }
+    @keyframes carta-sombra {
+      0%, 30%, 70%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+    @keyframes carta-velo {
+      0%, 30%, 70%, 100% { opacity: 0.5; }
+      50% { opacity: 0; }
+    }
+    @keyframes carta-foto {
+      0%, 30%, 70%, 100% { transform: scale(1.14); }
+      50% { transform: scale(1); }
+    }
+    @keyframes carta-numero {
+      0%, 30%, 70%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+  }
+}
+
+/* Horario de "Nuestra casa": letrero de puerta (día · puntos · hora). */
+.horario {
+  border-top: 1px solid rgb(66 80 31 / 0.16);
+  border-bottom: 1px solid rgb(66 80 31 / 0.16);
+  padding: 0.5rem 0;
+}
+.horario-fila {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.9rem 0;
+}
+.horario-dia {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-olivo);
+}
+.horario-puntos {
+  flex: 1;
+  min-width: 1.5rem;
+  height: 0.2em;
+  background-image: radial-gradient(circle, rgb(66 80 31 / 0.32) 1.1px, transparent 1.4px);
+  background-size: 7px 100%;
+  background-repeat: repeat-x;
+}
+.horario-valor {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 7vw, 2.75rem);
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--color-olivo);
+}
+
+/* Reseñas como notas pegadas (Resenas.astro). La central encima; las otras
+   dos asoman por sus esquinas, giradas. Cada nota deja libre la parte que
+   tapa la central, así ningún texto queda cubierto. */
+.notas {
+  display: flex;
+  flex-direction: column;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+.nota {
+  position: relative;
+  padding: 2.1rem 1.4rem 1.4rem;
+  border-radius: 0.15rem 0.15rem 0.35rem 0.15rem;
+  color: var(--color-olivo);
+  box-shadow:
+    0 1px 1px rgb(66 80 31 / 0.08),
+    0 16px 22px -14px rgb(66 80 31 / 0.38);
+  transition: rotate 600ms var(--ease-suave), translate 600ms var(--ease-suave);
+}
+/* Franja adhesiva: un poco más oscura arriba, como la tira de pegamento. */
+.nota::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1.35rem;
+  border-radius: inherit;
+  background: rgb(66 80 31 / 0.045);
+  pointer-events: none;
+}
+.nota-papel {
+  background: #fbf3df;
+}
+.nota-salvia {
+  background: oklch(92.5% 0.045 122);
+}
+.nota-cantera {
+  background: oklch(92% 0.04 78);
+}
+.nota-centro {
+  z-index: 2;
+  width: 90%;
+  align-self: center;
+  margin-top: -1.75rem;
+  margin-bottom: -1.75rem;
+  padding: 2.4rem 1.6rem 1.8rem;
+  rotate: -1.2deg;
+}
+.nota-arriba,
+.nota-abajo {
+  z-index: 1;
+  width: 72%;
+}
+.nota-arriba {
+  align-self: flex-end;
+  rotate: 4deg;
+  padding-bottom: 2.9rem;
+}
+.nota-abajo {
+  align-self: flex-start;
+  rotate: -3.5deg;
+  padding-top: 3.4rem;
+}
+.nota-texto {
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  line-height: 1.22;
+}
+.nota-autor {
+  margin-top: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-olivo);
+}
+.nota-autor::after {
+  content: " · Comensal";
+  font-weight: 400;
+  color: rgb(66 80 31 / 0.55);
+}
+@media (min-width: 768px) {
+  .nota-arriba,
+  .nota-abajo {
+    width: 46%;
+  }
+  .nota-centro {
+    width: 74%;
+    margin-top: -3.5rem;
+    margin-bottom: -3.5rem;
+    padding: 3rem 2.6rem 2.4rem;
+  }
+  .nota-arriba {
+    margin-right: 2%;
+    padding-bottom: 4.5rem;
+  }
+  .nota-abajo {
+    margin-left: 2%;
+    padding-top: 5rem;
+  }
+  .nota-texto {
+    font-size: 1.45rem;
+  }
+}
+@media (hover: hover) {
+  .nota-arriba:hover,
+  .nota-abajo:hover {
+    z-index: 3;
+    rotate: 0deg;
+    translate: 0 -4px;
+  }
+}
+
+/* Galería con GSAP (todas las pantallas): sección fijada a pantalla
+   completa y la pista se mueve de lado con el scroll vertical. */
+[data-paneo][data-modo="paneo"] {
+  display: flex;
+  height: 100svh;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+[data-paneo][data-modo="paneo"] [data-pista] {
+  overflow: visible;
+  scroll-snap-type: none;
+}
+@media (max-width: 767px) {
+  /* Centro óptico por encima del dock inferior. */
+  [data-paneo][data-modo="paneo"] {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Visítanos (Ubicacion.astro).                                        */
+/* ------------------------------------------------------------------ */
+
+/* Copiar dirección: píldora discreta; al copiar, el icono pasa a palomita. */
+.copiar {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgb(66 80 31 / 0.2);
+  padding: 0 1.1rem 0 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-olivo);
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease,
+    scale 200ms var(--ease-suave);
+}
+.copiar:hover {
+  border-color: rgb(66 80 31 / 0.45);
+}
+.copiar:active {
+  scale: 0.97;
+}
+.copiar:focus-visible {
+  outline: 2px solid var(--color-olivo-claro);
+  outline-offset: 2px;
+}
+.copiar-listo,
+.copiar[data-copiado] .copiar-icono {
+  display: none;
+}
+.copiar[data-copiado] .copiar-listo {
+  display: inline-block;
+}
+.copiar[data-copiado] {
+  border-color: rgb(90 106 44 / 0.35);
+  background: rgb(90 106 44 / 0.1);
+  color: var(--color-olivo-claro);
+}
+
+/* Horario de la semana con hoy marcado. */
+.semana-visita {
+  border-top: 1px solid rgb(66 80 31 / 0.14);
+}
+.semana-visita-fila {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 -0.75rem;
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid rgb(66 80 31 / 0.1);
+  color: var(--color-olivo);
+  font-size: 0.95rem;
+}
+.semana-visita-hoy {
+  display: none;
+  margin-left: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-olivo-claro);
+  padding: 0.1rem 0.5rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fbf8f1;
+  vertical-align: 0.12em;
+}
+.semana-visita-fila[data-hoy] {
+  border-radius: 0.35rem;
+  border-bottom-color: transparent;
+  background: rgb(90 106 44 / 0.1);
+}
+.semana-visita-fila[data-hoy] .semana-visita-hoy {
+  display: inline-block;
+}
+
+/* Mapa: marco de papel con barra de título, como una ficha de lugar. */
+.mapa {
+  overflow: hidden;
+  border-radius: 0.6rem;
+  border: 1px solid rgb(66 80 31 / 0.12);
+  background: #fbf8f1;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 24px 44px -28px rgb(66 80 31 / 0.45);
+}
+.mapa-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.85rem 0.75rem 0.75rem;
+  border-bottom: 1px solid rgb(66 80 31 / 0.1);
+}
+.mapa-pin {
+  display: grid;
+  height: 2rem;
+  width: 2rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-olivo);
+  color: #fbf8f1;
+}
+.mapa-lienzo {
+  position: relative;
+  aspect-ratio: 4 / 3.4;
+  background: var(--color-beige);
+}
+@media (min-width: 768px) {
+  .mapa-lienzo {
+    aspect-ratio: 16 / 11;
+  }
+}
+.mapa-iframe {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border: 0;
+  /* Afinado al lienzo cálido sin perder la lectura de calles. */
+  filter: grayscale(0.35) sepia(0.12) contrast(1.04);
+}
+.mapa-velo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.9rem;
+  cursor: pointer;
+}
+.mapa-velo-aviso {
+  border-radius: 999px;
+  background: rgb(38 46 18 / 0.86);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fbf8f1;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.mapa[data-activo] .mapa-velo {
+  display: none;
+}
+/* Antes de cargar (táctil): el aviso va al centro del lienzo vacío. */
+.mapa:not([data-cargado]) .mapa-velo {
+  align-items: center;
+  padding-bottom: 0;
+}
+.mapa:not([data-cargado]) .mapa-velo-aviso {
+  padding: 0.7rem 1.2rem;
+  font-size: 0.9rem;
+}
+/* Con puntero fino el mapa se usa directo. */
+@media (hover: hover) and (pointer: fine) {
+  .mapa-velo {
+    display: none;
+  }
+}
+
+/* Acciones bajo el mapa. */
+.accion {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease,
+    scale 200ms var(--ease-suave);
+}
+.accion:active {
+  scale: 0.97;
+}
+.accion:focus-visible {
+  outline: 2px solid var(--color-olivo-claro);
+  outline-offset: 2px;
+}
+.accion-principal {
+  background: var(--color-olivo);
+  color: #fbf8f1;
+  box-shadow: 0 12px 24px -14px rgb(66 80 31 / 0.7);
+}
+.accion-principal:hover {
+  background: var(--color-olivo-claro);
+}
+.accion-secundaria {
+  border: 1px solid rgb(66 80 31 / 0.22);
+  background: rgb(255 255 255 / 0.4);
+  color: var(--color-olivo);
+}
+.accion-secundaria:hover {
+  border-color: var(--color-olivo);
+}
+
+.red {
+  display: grid;
+  height: 2.75rem;
+  width: 2.75rem;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgb(66 80 31 / 0.16);
+  color: var(--color-olivo);
+  transition:
+    background-color 300ms ease,
+    color 300ms ease;
+}
+.red:hover {
+  background: var(--color-olivo);
+  color: #fbf8f1;
+}
+
+/* Preguntas frecuentes: una abierta a la vez (name="faq"). */
+.faq {
+  border-top: 1px solid rgb(66 80 31 / 0.16);
+}
+.faq-item {
+  border-bottom: 1px solid rgb(66 80 31 / 0.12);
+}
+.faq-pregunta {
+  display: flex;
+  min-height: 3.5rem;
+  cursor: pointer;
+  list-style: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  font-weight: 600;
+  color: var(--color-olivo);
+}
+.faq-pregunta::-webkit-details-marker {
+  display: none;
+}
+.faq-pregunta:focus-visible {
+  outline: 2px solid var(--color-olivo-claro);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+.faq-signo {
+  display: grid;
+  height: 2rem;
+  width: 2rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgb(66 80 31 / 0.18);
+  transition:
+    rotate 400ms var(--ease-suave),
+    background-color 300ms ease,
+    color 300ms ease;
+}
+.faq-item[open] .faq-signo {
+  rotate: 45deg;
+  background: var(--color-olivo);
+  color: #fbf8f1;
+}
+.faq-respuesta {
+  max-width: 60ch;
+  padding: 0 3rem 1.25rem 0;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: rgb(66 80 31 / 0.72);
+}
+@supports (interpolate-size: allow-keywords) {
+  .faq {
+    interpolate-size: allow-keywords;
+  }
+  .faq-item::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height 450ms var(--ease-suave),
+      content-visibility 450ms allow-discrete;
+  }
+  .faq-item[open]::details-content {
+    height: auto;
+  }
+}
+
+/* Tarjeta "Reservado" del cierre (CtaFinal.astro). */
+.reservado {
+  position: relative;
+  border-radius: 0.6rem;
+  border: 1px solid rgb(66 80 31 / 0.1);
+  background: #fbf8f1;
+  padding: 1.75rem 1.25rem 1.5rem;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 28px 50px -30px rgb(66 80 31 / 0.5);
+}
+/* Doble filete interior, como el marco del logotipo. */
+.reservado::before {
+  content: "";
+  position: absolute;
+  inset: 0.45rem;
+  border: 1px solid rgb(138 99 38 / 0.28);
+  border-radius: 0.35rem;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .reservado {
+    padding: 2.25rem 2rem 2rem;
+  }
+}
+.reservado-cabeza {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px dashed rgb(66 80 31 / 0.2);
+  text-align: center;
+}
+.reservado-grupo {
+  margin-top: 1.4rem;
+}
+.reservado-leyenda {
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-olivo);
+}
+.ficha {
+  position: relative;
+  display: grid;
+  min-height: 2.75rem;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgb(66 80 31 / 0.18);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-olivo);
+  cursor: pointer;
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease,
+    color 250ms ease,
+    scale 200ms var(--ease-suave);
+}
+.ficha:hover {
+  border-color: rgb(66 80 31 / 0.45);
+}
+.ficha:active {
+  scale: 0.96;
+}
+.ficha:has(:checked) {
+  border-color: var(--color-olivo);
+  background: var(--color-olivo);
+  color: #fbf8f1;
+}
+.ficha:has(:focus-visible) {
+  outline: 2px solid var(--color-olivo-claro);
+  outline-offset: 2px;
+}
+
+/* Enlaces del pie: área táctil de 2.5rem en móvil sin agrandar el texto. */
+.pie-enlace {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  color: rgb(66 80 31 / 0.68);
+  transition: color 250ms ease;
+}
+.pie-enlace:hover {
+  color: var(--color-olivo-claro);
+}
+@media (min-width: 768px) {
+  .pie-enlace {
+    min-height: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Eventos: programa de ocasiones (ver Eventos.astro).                 */
+/* Sin JS: las ocasiones se apilan con su título y sin índice.         */
+/* Con JS (data-modo="pestanas"): una ocasión a la vez; la foto se     */
+/* abre desde su centro y la impresión se asienta en la esquina.       */
+/* ------------------------------------------------------------------ */
+.eventos-escena {
+  display: grid;
+  gap: 5rem;
+  scroll-margin-top: 1.5rem;
+}
+[data-eventos]:not([data-modo]) [role="tablist"] {
+  display: none;
+}
+[data-eventos][data-modo] .eventos-escena {
+  gap: 0;
+}
+[data-eventos][data-modo] .eventos-panel-titulo {
+  display: none;
+}
+[data-eventos][data-modo] .eventos-panel {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 350ms ease,
+    visibility 0s linear 350ms;
+}
+[data-eventos][data-modo] .eventos-panel[data-activo] {
+  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 500ms var(--ease-suave);
+}
+[data-eventos][data-modo] .eventos-foto {
+  clip-path: inset(6% 6% 6% 6% round 2px);
+  transition: clip-path 300ms ease;
+}
+[data-eventos][data-modo] .eventos-foto img {
+  scale: 1.12;
+  transition: scale 300ms ease;
+}
+[data-eventos][data-modo] .eventos-inserto,
+[data-eventos][data-modo] .eventos-pie {
+  opacity: 0;
+  translate: 0 1.5rem;
+  transition:
+    opacity 300ms ease,
+    translate 300ms ease;
+}
+[data-eventos][data-modo] [data-activo] .eventos-foto {
+  clip-path: inset(0 0 0 0 round 2px);
+  transition: clip-path 1100ms var(--ease-suave);
+}
+[data-eventos][data-modo] [data-activo] .eventos-foto img {
+  scale: 1;
+  transition: scale 1600ms var(--ease-suave);
+}
+[data-eventos][data-modo] [data-activo] .eventos-inserto,
+[data-eventos][data-modo] [data-activo] .eventos-pie {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 700ms var(--ease-suave) 250ms,
+    translate 900ms var(--ease-suave) 250ms;
+}
+[data-eventos][data-modo] [data-activo] .eventos-pie {
+  transition-delay: 380ms;
+}
+
+/* Índice del programa: numeral, ocasión y flecha; la línea dorada se
+   dibuja bajo la ocasión elegida. */
+.eventos-pestana {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 3.5rem;
+  align-items: baseline;
+  gap: 1rem;
+  padding-block: 1.05rem;
+  border-bottom: 1px solid rgb(66 80 31 / 0.15);
+  text-align: left;
+  color: rgb(66 80 31 / 0.5);
+  cursor: pointer;
+  transition: color 350ms ease;
+}
+.eventos-pestana::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--color-oro-oscuro);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--ease-suave);
+}
+.eventos-pestana:hover {
+  color: rgb(66 80 31 / 0.8);
+}
+.eventos-pestana[aria-selected="true"] {
+  color: var(--color-olivo);
+}
+.eventos-pestana[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+.eventos-pestana:focus-visible {
+  outline-offset: 3px;
+}
+.eventos-pestana-nombre {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.5vw, 2.3rem);
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+.eventos-pestana-flecha {
+  align-self: center;
+  opacity: 0;
+  translate: -0.5rem 0;
+  transition:
+    opacity 350ms ease,
+    translate 500ms var(--ease-suave);
+}
+.eventos-pestana[aria-selected="true"] .eventos-pestana-flecha {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-eventos][data-modo] .eventos-panel,
+  [data-eventos][data-modo] .eventos-foto,
+  [data-eventos][data-modo] .eventos-foto img,
+  [data-eventos][data-modo] .eventos-inserto,
+  [data-eventos][data-modo] .eventos-pie,
+  .eventos-pestana::after,
+  .eventos-pestana-flecha {
+    transition: none !important;
   }
 }

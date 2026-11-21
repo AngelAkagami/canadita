@@ -291,3 +291,98 @@ export const menuSugerencias: Categoria[] = [
     ],
   },
 ];
+
+/**
+ * Carta de la barra: coctelería y mocktelería de autor.
+ *
+ * FUENTE: transcripción de recursos/MENU MIXOLOGIA.pdf y
+ * recursos/MENU MOCKTAILS.pdf (1 página cada uno, escaneados como imagen;
+ * originales intactos, no se publican). Los PDF están en mayúsculas; aquí se
+ * pasan a mayúsculas y minúsculas sin cambiar el texto. "Ambar" se deja sin
+ * acento como en la carta.
+ */
+export const menuBarra: Categoria[] = [
+  {
+    id: 'cocteleria-de-autor',
+    nombre: 'Coctelería de autor',
+    platillos: [
+      {
+        nombre: 'Jacobina',
+        descripcion:
+          'Gin Diega Rosa combinado con St-Germain, blueberry y manzanilla, balanceado con limón y miel de agave, terminado con burbuja aromática de fresa y frambuesa. Elegante y cautivador.',
+        precio: '$250',
+      },
+      {
+        nombre: 'Casa Blanca',
+        descripcion:
+          'Gin Diega Amarilla con St-Germain, lichi y limón fresco, suavizado con dulzor natural y emulsionado con aquafaba. Floral, delicado y refrescante.',
+        precio: '$250',
+      },
+      {
+        nombre: 'Obsidiana',
+        descripcion:
+          'Tequila y licor de chile verde, con notas de albahaca y cilantro, toque de piña, limón y carbón activado de coco, terminado con espuma de aquafaba.',
+        precio: '$250',
+      },
+      {
+        nombre: 'Flor de monte',
+        descripcion:
+          'Mezcal espadín combinado con licor de chile verde, notas florales de jamaica y romero, equilibrado con limón y miel de agave.',
+        precio: '$250',
+      },
+      {
+        nombre: 'Ambar',
+        descripcion: 'Mezcal con amaretto, melocotón suave y notas cítricas de limón. Dulce y envolvente.',
+        precio: '$250',
+      },
+      {
+        nombre: 'Lluvia de oro',
+        descripcion:
+          'Mezcal espadín combinado con Midori, maracuyá, naranja y limón, terminado con agua mineral. Tropical, cítrico y burbujeante.',
+        precio: '$250',
+      },
+      {
+        nombre: 'Jade',
+        descripcion:
+          'Tequila combinado con licor de chile verde, notas verdes de albahaca y cilantro, piña jugosa y limón, balanceado con miel de agave y terminado con agua mineral.',
+        precio: '$250',
+      },
+    ],
+  },
+  {
+    id: 'mockteleria-de-autor',
+    nombre: 'Mocktelería de autor',
+    platillos: [
+      {
+        nombre: 'Rayito de sol',
+        descripcion:
+          'Jugo de piña, naranja y limón, con un toque de agave y notas suaves de vainilla. Un trago dulce y deliciosamente alegre.',
+        precio: '$150',
+      },
+      {
+        nombre: 'Hibiscus',
+        descripcion:
+          'Syrup de jamaica infusionado con canela y clavo, combinado con jugo de piña y limón fresco, con un delicado dulzor natural.',
+        precio: '$150',
+      },
+      {
+        nombre: 'Cañadita',
+        descripcion:
+          'Cerveza de jengibre con jugo de piña y limón fresco, suavizada con syrup de coco. Vibrante y espumosa.',
+        precio: '$150',
+      },
+      {
+        nombre: 'Primavera',
+        descripcion:
+          'Pepino fresco y manzana verde con jarabe de coco y jugo de limón. Ligero, botánico y refrescante.',
+        precio: '$150',
+      },
+      {
+        nombre: 'Violeta',
+        descripcion:
+          'Blueberry con notas tropicales de piña, acidez brillante de limón y un sutil dulzor, coronado con una efervescencia ligera.',
+        precio: '$150',
+      },
+    ],
+  },
+];

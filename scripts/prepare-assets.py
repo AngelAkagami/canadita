@@ -55,6 +55,10 @@ RECORTES = {
     "buffet-copas": ("brunch3.jpg", (0.0, 0.02, 1.0, 0.50)),
     # póster "Buffet sabatino" → fuente de buffet
     "buffet-plato": ("brunch2.jpg", (0.0, 0.0, 1.0, 0.60)),
+    # póster "Variedad para todos los gustos" → fuentes del buffet sabatino (sin texto)
+    "buffet-fuentes": ("buffet-fuentes-x4.jpg", (0.0, 0.0, 1.0, 0.74)),
+    # póster "Ven en familia" → mesa del brunch dominical (sin logo ni texto)
+    "brunch-familia": ("brunch-familia-x4.jpg", (0.0, 0.195, 1.0, 0.675)),
 }
 
 # Ancho máximo de salida por archivo (evita imágenes pesadas sin necesidad)
@@ -63,11 +67,17 @@ ANCHOS_MAX = {
     "exterior": 1600,
     "buffet-plato": 1440,
     "ceviche": 1080,
+    # Reescaladas x4 con Real-ESRGAN (realesrgan-x4plus) desde los .jpeg originales.
+    "buffet-fuentes": 1920,
+    "brunch-familia": 1920,
 }
 
 # Fotografías limpias (sin texto) que solo se reescalan
 LIMPIAS = {
-    "hero-patio": ("vista2.jpg", 1920),
+    # Reescalada x4 con Real-ESRGAN desde hero-jardin.jpeg (1280 px) y guardada a 2880 px.
+    "hero-jardin": ("hero-jardin-x4.jpg", 1920),
+    # La foto anterior del hero (terraza con pérgola) pasa a la galería.
+    "terraza": ("vista2.jpg", 1600),
     "barra": ("bar.jpg", 1600),
     "buffet-sopas": ("brunch.jpg", 1600),
     "panaderia": ("buffet-pan2.jpg", 1800),
@@ -75,21 +85,44 @@ LIMPIAS = {
     "capirotada": ("postre2.jpg", 1600),
 }
 
+# Fotografías de eventos (recursos/eventos): salones, montajes y pérgola.
+EVENTOS = {
+    "evento-ceremonia": "eventos/1.jpeg",
+    "evento-chimenea": "eventos/2.jpeg",
+    "evento-pergola": "eventos/3.jpeg",
+    "evento-mesa-privada": "eventos/4.jpeg",
+    "evento-herradura": "eventos/5.jpeg",
+    "evento-corporativo": "eventos/6.jpeg",
+    "evento-celebracion": "eventos/7.jpeg",
+    "evento-salon-jardin": "eventos/8.jpeg",
+}
+LIMPIAS.update({nombre: (archivo, 1448) for nombre, archivo in EVENTOS.items()})
+
+# Portadas de los videos de TikTok (recursos/tiktok/{id}.jpg), sacadas de
+# tiktok.com/embed/{id}. Se muestran en la tarjeta hasta que se toca reproducir.
+TIKTOK_PORTADAS = ('7646937477302717716', '7699315580049853716', '7646937652897385748', '7653625140671941909')
+LIMPIAS.update({f"tiktok-{id}": (f"tiktok/{id}.jpg", 720) for id in TIKTOK_PORTADAS})
+CALIDADES_EVENTOS = 80
+
 ANCHOS_WEB = (768, 1280)  # anchos adicionales para srcset
 
 # Calidad por archivo para mantener el peso bajo sin perder calidad perceptible
 CALIDADES = {
-    "hero-patio": 68,
+    "hero-jardin": 80,
     "buffet-copas": 78,
     "panaderia": 78,
+    "buffet-fuentes": 78,
+    "brunch-familia": 78,
     "exterior": 80,
 }
+CALIDADES.update({nombre: CALIDADES_EVENTOS for nombre in EVENTOS})
+CALIDADES.update({f"tiktok-{id}": 78 for id in TIKTOK_PORTADAS})
 
 # Calidad de las variantes pequeñas (768/1280) cuando la imagen es el LCP.
 # El hero se sirve en q44 como máximo para que móvil pinte antes; el velo
 # oscuro del hero oculta la pérdida percibida.
 CALIDADES_VARIANTE = {
-    "hero-patio": 38,
+    "hero-jardin": 58,
 }
 
 
@@ -97,12 +130,22 @@ def preparar_carpetas() -> None:
     IMG.mkdir(parents=True, exist_ok=True)
 
 
+def calidad_avif(calidad_webp: int) -> int:
+    """Calidad AVIF equivalente: con ~0.62 de la nominal WebP se ve igual y pesa ~35% menos."""
+    return max(40, round(calidad_webp * 0.62))
+
+
 def guardar_webp(imagen: Image.Image, nombre: str, calidad: int = 82) -> None:
-    """Guarda la imagen principal y sus versiones para srcset."""
+    """Guarda la imagen principal y sus versiones para srcset, en WebP y AVIF.
+
+    AVIF pesa ~25-35% menos que WebP con la misma calidad visual; Imagen.astro
+    lo ofrece primero en un <picture> y WebP queda de respaldo.
+    """
     imagen = ImageOps.exif_transpose(imagen).convert("RGB")
     ancho, alto = imagen.size
     principal = IMG / f"{nombre}.webp"
     imagen.save(principal, "WEBP", quality=calidad, method=6)
+    imagen.save(IMG / f"{nombre}.avif", "AVIF", quality=calidad_avif(calidad), speed=4)
     srcset = []
     for ancho_web in ANCHOS_WEB:
         if ancho_web < ancho:
@@ -112,11 +155,13 @@ def guardar_webp(imagen: Image.Image, nombre: str, calidad: int = 82) -> None:
             # El hero en 768 px (LCP en móvil) baja a q38: es lo que pinta el
             # primer golpe de vista y el velo oscuro oculta la pérdida.
             calidad_variante = max(44, calidad - 28)
-            if ancho_web == 768 and nombre in CALIDADES_VARIANTE:
+            if nombre in CALIDADES_VARIANTE:
                 calidad_variante = CALIDADES_VARIANTE[nombre]
             versión.save(IMG / f"{nombre}-{ancho_web}.webp", "WEBP", quality=calidad_variante, method=6)
+            versión.save(IMG / f"{nombre}-{ancho_web}.avif", "AVIF", quality=calidad_avif(calidad_variante), speed=4)
             srcset.append(ancho_web)
-    print(f"[ok] {nombre}.webp {ancho}x{alto} ({principal.stat().st_size // 1024} KB)")
+    avif = (IMG / f"{nombre}.avif").stat().st_size // 1024
+    print(f"[ok] {nombre}.webp {ancho}x{alto} ({principal.stat().st_size // 1024} KB, avif {avif} KB)")
 
 
 def procesar_fotos() -> None:
@@ -226,10 +271,27 @@ def capa_recorte_ornamento(original: Image.Image, alfa: Image.Image, ancho: int,
     return marca.crop(caja)
 
 
+def procesar_eventos() -> None:
+    """Solo las fotos de eventos (uso: python scripts/prepare-assets.py --eventos)."""
+    for nombre, archivo in EVENTOS.items():
+        ruta = RECursos / archivo
+        if not ruta.exists():
+            print(f"[warn] falta {archivo}, se omite {nombre}")
+            continue
+        imagen = ImageOps.exif_transpose(Image.open(ruta)).convert("RGB")
+        ancho, alto = imagen.size
+        if ancho > 1448:
+            imagen = imagen.resize((1448, round(alto * 1448 / ancho)), Image.LANCZOS)
+        guardar_webp(imagen, nombre, calidad=CALIDADES_EVENTOS)
+
+
 def main() -> None:
     if not RECursos.exists():
         sys.exit("No se encontró la carpeta 'recursos' junto al proyecto.")
     preparar_carpetas()
+    if "--eventos" in sys.argv:
+        procesar_eventos()
+        return
     procesar_fotos()
     variantes_logo()
     print("\nListo. Assets generados en /public")

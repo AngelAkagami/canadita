@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none" stroke="#d7ac69" stroke-width="1">
+  <!-- Azulejo inspirado en la talavera: flor central de cuatro pétalos y cuartos de flor en las esquinas, que al repetirse forman la retícula. -->
+  <circle cx="48" cy="48" r="5"/>
+  <path d="M48 43c-6-10-6-20 0-27 6 7 6 17 0 27zM48 53c6 10 6 20 0 27-6-7-6-17 0-27zM43 48c-10 6-20 6-27 0 7-6 17-6 27 0zM53 48c10-6 20-6 27 0-7 6-17 6-27 0z"/>
+  <path d="M48 30l3 6-3 3-3-3zM48 66l3-6-3-3-3 3zM30 48l6-3 3 3-3 3zM66 48l-6-3-3 3 3 3z"/>
+  <path d="M0 14A14 14 0 0 0 14 0M82 0a14 14 0 0 0 14 14M96 82a14 14 0 0 0-14 14M14 96A14 14 0 0 0 0 82"/>
+  <path d="M0 24A24 24 0 0 0 24 0M72 0a24 24 0 0 0 24 24M96 72a24 24 0 0 0-24 24M24 96A24 24 0 0 0 0 72" stroke-dasharray="2 4"/>
+</svg>

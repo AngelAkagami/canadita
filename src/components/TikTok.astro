@@ -1,0 +1,185 @@
+---
+/**
+ * La Cañadita en TikTok: videos con el reproductor oficial
+ * (tiktok.com/player/v1/{id}) en 9:16. El iframe se inserta solo al pulsar reproducir, así la página no
+ * descarga embeds pesados (ni gasta datos) si nadie ve los videos. Columnas escalonadas en escritorio;
+ * carrusel con scroll-snap en móvil. Si TikTok rechaza el reproductor
+ * (pasa en escritorio: su API responde 403), las tarjetas cambian a un
+ * enlace "Ver en TikTok" para que la sección nunca se vea rota.
+ */
+import { tiktoks, idTikTok, contacto } from '../data/site';
+import { existsSync } from 'node:fs';
+import Imagen from './Imagen.astro';
+
+const videos = tiktoks
+  .map((video) => ({ ...video, id: idTikTok(video.url) }))
+  .filter((video): video is { url: string; titulo: string; id: string } => video.id !== null)
+  // Portada generada por scripts/prepare-assets.py (recursos/tiktok/{id}.jpg).
+  .map((video) => ({ ...video, portada: existsSync(`public/img/tiktok-${video.id}.webp`) }));
+
+const desfase = ['', 'lg:mt-24', 'lg:mt-8', 'lg:mt-32'];
+---
+
+{
+  videos.length > 0 && (
+    <section id="tiktok" data-tono="jardin" class="scroll-mt-20 py-24 md:py-36" aria-labelledby="titulo-tiktok">
+      <div class="mx-auto max-w-[1440px] px-5 md:px-6 lg:px-10">
+        <div class="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 id="titulo-tiktok" data-titular class="display-lg text-olivo">
+              <span class="mascara"><span data-linea>Lo que pasa</span></span>
+              <span class="mascara"><span data-linea><em class="texto-oro pr-2 italic">en la casa.</em></span></span>
+            </h2>
+            <p data-reveal class="mt-8 max-w-[42ch] text-[1.05rem] leading-relaxed text-olivo/80">
+              Platillos recién salidos de la cocina, mesas llenas y tardes en el jardín. Síguenos en TikTok y entérate
+              primero de lo nuevo antes de tu próxima visita.
+            </p>
+          </div>
+          <a href={contacto.redes.tiktok} target="_blank" rel="noopener noreferrer" data-reveal class="boton group self-start bg-olivo text-marfil hover:bg-olivo-claro md:self-auto">
+            @lacanadita.restaurante
+            <span class="boton-icono bg-marfil/15">
+              <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 5.5a4.9 4.9 0 0 1-3.3-1.3v8.2a4.6 4.6 0 1 1-4.6-4.6c.24 0 .47.02.7.06v2.5a2.1 2.1 0 1 0 1.5 2V2h2.4a4.9 4.9 0 0 0 3.3 3z" /></svg>
+            </span>
+          </a>
+        </div>
+
+        <ul class="sin-barra -mx-5 mt-16 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 md:mx-0 md:mt-20 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 lg:grid-cols-4">
+          {videos.map((video, i) => (
+            <li data-reveal={String(i)} class:list={['w-[72%] shrink-0 snap-center sm:w-[46%] md:w-auto', desfase[i % 4]]}>
+              <article class="tiktok-card relative overflow-hidden rounded-sm bg-olivo ring-1 ring-olivo/10" data-tiktok-id={video.id}>
+                <div class="relative aspect-[9/16] w-full">
+                  {video.portada && (
+                  <Imagen
+                    nombre={`tiktok-${video.id}`}
+                    alt=""
+                    class="absolute inset-0 h-full w-full object-cover"
+                    sizes="(min-width: 1024px) 22vw, (min-width: 768px) 45vw, 72vw"
+                  />
+                  )}
+                  <span class="pointer-events-none absolute inset-0 bg-gradient-to-t from-olivo-noche/70 via-olivo-noche/10 to-olivo-noche/30" aria-hidden="true"></span>
+                  <button
+                    type="button"
+                    class="tiktok-play group absolute inset-0 flex h-full w-full flex-col justify-between p-5 text-left text-marfil"
+                    aria-label={`Reproducir video: ${video.titulo}`}
+                  >
+                    <span class="font-display text-sm italic text-marfil/60">0{i + 1}</span>
+                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-oro text-olivo-noche transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110">
+                      <svg aria-hidden="true" class="ml-1 h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                    </span>
+                  </button>
+                  <a
+                    href={video.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    hidden
+                    class="tiktok-enlace group absolute inset-0 flex h-full w-full flex-col justify-between p-5 text-left text-marfil"
+                    aria-label={`Ver en TikTok: ${video.titulo}`}
+                  >
+                    <span class="font-display text-sm italic text-marfil/60">0{i + 1}</span>
+                    <span class="flex items-center gap-3">
+                      <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-oro text-olivo-noche transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110">
+                        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 5.5a4.9 4.9 0 0 1-3.3-1.3v8.2a4.6 4.6 0 1 1-4.6-4.6c.24 0 .47.02.7.06v2.5a2.1 2.1 0 1 0 1.5 2V2h2.4a4.9 4.9 0 0 0 3.3 3z" /></svg>
+                      </span>
+                      <span class="text-sm font-semibold">Ver en TikTok</span>
+                    </span>
+                  </a>
+                </div>
+              </article>
+              <p class="mt-3 text-sm text-olivo/60">{video.titulo}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<script>
+  /**
+   * Cada reproductor de TikTok descarga varios MB (SDK, React, métricas y el
+   * propio video). Para no gastar datos móviles de quien solo pasa por la
+   * sección, el iframe se monta únicamente al tocar "reproducir" y se quita
+   * cuando la tarjeta queda lejos de la pantalla (deja de bajar video).
+   */
+  // Si TikTok rechaza un reproductor, en este dispositivo rechazará todos:
+  // a partir de ahí no se monta ninguno y todas las tarjetas pasan a enlace.
+  let reproductorFalla = false;
+
+  function mostrarEnlace(card: HTMLElement): void {
+    card.querySelector('iframe')?.remove();
+    card.dataset.montado = 'false';
+    const boton = card.querySelector<HTMLButtonElement>('.tiktok-play');
+    const enlace = card.querySelector<HTMLAnchorElement>('.tiktok-enlace');
+    if (boton) boton.hidden = true;
+    if (enlace) enlace.hidden = false;
+  }
+
+  function montarTikTok(card: HTMLElement): void {
+    if (card.dataset.montado === 'true' || reproductorFalla) return;
+    const id = card.dataset.tiktokId;
+    const boton = card.querySelector<HTMLButtonElement>('.tiktok-play');
+    const contenedor = boton?.parentElement;
+    if (!id || !boton || !contenedor) return;
+    card.dataset.montado = 'true';
+
+    const iframe = document.createElement('iframe');
+    // autoplay=1: la persona ya tocó reproducir, no se le pide un segundo toque.
+    iframe.src =
+      `https://www.tiktok.com/player/v1/${id}` +
+      '?autoplay=1&loop=1&controls=1&progress_bar=1&music_info=0&description=0&rel=0';
+    iframe.title = 'Video de La Cañadita en TikTok';
+    iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.className = 'absolute inset-0 h-full w-full border-0';
+    contenedor.appendChild(iframe);
+    boton.hidden = true;
+  }
+
+  function desmontarTikTok(card: HTMLElement): void {
+    if (card.dataset.montado !== 'true' || reproductorFalla) return;
+    card.querySelector('iframe')?.remove();
+    const boton = card.querySelector<HTMLButtonElement>('.tiktok-play');
+    if (boton) boton.hidden = false;
+    card.dataset.montado = 'false';
+  }
+
+  function iniciarTikTok(): void {
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('.tiktok-card[data-tiktok-id]'));
+    if (cards.length === 0) return;
+    cards.forEach((card) => card.querySelector('.tiktok-play')?.addEventListener('click', () => montarTikTok(card)));
+
+    // El reproductor avisa sus errores por postMessage (onPlayerError, ver
+    // developers.tiktok.com/doc/embed-player). Solo se aceptan mensajes de
+    // tiktok.com que vengan de uno de estos iframes.
+    window.addEventListener('message', (e) => {
+      if (e.origin !== 'https://www.tiktok.com' || reproductorFalla) return;
+      let datos: unknown = e.data;
+      if (typeof datos === 'string') {
+        try {
+          datos = JSON.parse(datos);
+        } catch {
+          return;
+        }
+      }
+      const msg = datos as { 'x-tiktok-player'?: boolean; type?: string } | null;
+      if (!msg || typeof msg !== 'object' || !msg['x-tiktok-player']) return;
+      if (msg.type !== 'onPlayerError' && msg.type !== 'onError') return;
+      const deNuestros = cards.some((card) => card.querySelector('iframe')?.contentWindow === e.source);
+      if (!deNuestros) return;
+      reproductorFalla = true;
+      cards.forEach(mostrarEnlace);
+    });
+
+    if (!('IntersectionObserver' in window)) return;
+    // Al alejarse de la pantalla se quita el reproductor: deja de bajar video
+    // y de correr JS. Al volver se muestra otra vez el botón de reproducir.
+    const alSalir = new IntersectionObserver(
+      (entradas) => entradas.forEach((e) => !e.isIntersecting && desmontarTikTok(e.target as HTMLElement)),
+      { rootMargin: '150px' },
+    );
+    cards.forEach((card) => alSalir.observe(card));
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarTikTok, { once: true });
+  else iniciarTikTok();
+</script>

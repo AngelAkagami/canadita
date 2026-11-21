@@ -12,9 +12,6 @@ import datos from './horarios.json';
 
 export const horarios = datos;
 
-/** Resumen completo: "Lunes a viernes de 08:00 a 18:00 h · Sábado y domingo de 09:00 a 18:00 h". */
-export const resumenHorarios = `${datos.entreSemana.etiqueta} de ${datos.entreSemana.apertura} a ${datos.entreSemana.cierre} h · ${datos.finDeSemana.etiqueta} de ${datos.finDeSemana.apertura} a ${datos.finDeSemana.cierre} h`;
-
 /** Resumen compacto para el pie de página. */
 export const resumenHorariosCorto = `Lun–Vie ${datos.entreSemana.apertura}–${datos.entreSemana.cierre} h · Sáb–Dom ${datos.finDeSemana.apertura}–${datos.finDeSemana.cierre} h`;
 

@@ -15,6 +15,7 @@ const MIME = {
   '.css': 'text/css',
   '.js': 'text/javascript',
   '.webp': 'image/webp',
+  '.avif': 'image/avif',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.pdf': 'application/pdf',
